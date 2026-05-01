@@ -149,6 +149,24 @@
         const qqqmAmountDisp = document.getElementById('qqqm-amount');
         const gldmAmountDisp = document.getElementById('gldm-amount');
 
+        // LocalStorage에 설정 저장
+        function saveSettings() {
+            localStorage.setItem('totalAssets', totalInput.value);
+            localStorage.setItem('qqqmRatio', qqqmRatio.value);
+            localStorage.setItem('gldmRatio', gldmRatio.value);
+        }
+
+        // LocalStorage에서 설정 불러오기
+        function loadSettings() {
+            const savedTotal = localStorage.getItem('totalAssets');
+            const savedQQQM = localStorage.getItem('qqqmRatio');
+            const savedGLDM = localStorage.getItem('gldmRatio');
+
+            if (savedTotal !== null) totalInput.value = savedTotal;
+            if (savedQQQM !== null) qqqmRatio.value = savedQQQM;
+            if (savedGLDM !== null) gldmRatio.value = savedGLDM;
+        }
+
         function updateCalculations(source) {
             let total = parseFloat(totalInput.value) || 0;
             let qRatio = parseFloat(qqqmRatio.value);
@@ -159,7 +177,7 @@
                 if (isNaN(qRatio)) qRatio = 0;
                 if (qRatio > 100) qRatio = 100;
                 if (qRatio < 0) qRatio = 0;
-                qqqmRatio.value = qRatio; // UI에 보정된 값 반영
+                qqqmRatio.value = qRatio;
                 
                 gRatio = 100 - qRatio;
                 gldmRatio.value = gRatio.toFixed(0);
@@ -167,14 +185,10 @@
                 if (isNaN(gRatio)) gRatio = 0;
                 if (gRatio > 100) gRatio = 100;
                 if (gRatio < 0) gRatio = 0;
-                gldmRatio.value = gRatio; // UI에 보정된 값 반영
+                gldmRatio.value = gRatio;
                 
                 qRatio = 100 - gRatio;
                 qqqmRatio.value = qRatio.toFixed(0);
-            } else if (source === 'total') {
-                // Total 자산 변경 시 현재 설정된 비율 유지하며 금액만 재계산
-                qRatio = parseFloat(qqqmRatio.value) || 0;
-                gRatio = parseFloat(gldmRatio.value) || 0;
             }
 
             const qAmount = Math.round(total * (qRatio / 100)).toLocaleString();
@@ -182,13 +196,17 @@
 
             qqqmAmountDisp.textContent = `${qAmount} 원`;
             gldmAmountDisp.textContent = `${gAmount} 원`;
+
+            // 설정 저장
+            saveSettings();
         }
 
         totalInput.addEventListener('input', () => updateCalculations('total'));
         qqqmRatio.addEventListener('input', () => updateCalculations('qqqm'));
         gldmRatio.addEventListener('input', () => updateCalculations('gldm'));
 
-        // Initial calculation
+        // 초기 실행: 불러오기 후 계산
+        loadSettings();
         updateCalculations('total');
     </script>
 
