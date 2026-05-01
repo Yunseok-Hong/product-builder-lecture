@@ -16,6 +16,26 @@
     </header>
 
     <main class="dashboard">
+        <!-- Real-time Alert Monitor -->
+        <section class="alert-monitor" id="monitor-section">
+            <div class="monitor-header">
+                <div class="calc-title" style="margin:0"><span>🔔</span> QQQM 실시간 감시 시스템</div>
+                <div id="status-badge" class="status-badge loading">연결 중...</div>
+            </div>
+            <div class="monitor-grid">
+                <div class="monitor-item">
+                    <span class="monitor-label">QQQM 현재가</span>
+                    <span class="monitor-value" id="current-price">--</span>
+                </div>
+                <div class="monitor-item">
+                    <span class="monitor-label">BB %b 수치</span>
+                    <span class="monitor-value" id="current-b-percent">--</span>
+                </div>
+                <div class="monitor-item" style="justify-content: flex-end; align-items: flex-end;">
+                    <button class="alert-btn" onclick="requestNotificationPermission()">알림 권한 허용</button>
+                </div>
+            </div>
+        </section>
         <!-- QQQM Card -->
         <section class="card" id="qqqm-card">
             <div class="card-header">
@@ -208,6 +228,94 @@
         // 초기 실행: 불러오기 후 계산
         loadSettings();
         updateCalculations('total');
+
+        // --- Finnhub Monitoring Logic ---
+        const FINNHUB_KEY = 'd7qd8qpr01qi8jan0oegd7qd8qpr01qi8jan0of0';
+        const SYMBOL = 'QQQM';
+        
+        let lastAlertTime = 0;
+
+        function requestNotificationPermission() {
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    alert("알림 권한이 허용되었습니다!");
+                    new Notification("알림 시스템 시작", { body: "QQQM 감시가 시작되었습니다." });
+                }
+            });
+        }
+
+        async function fetchMarketData() {
+            try {
+                // 1. Finnhub으로 현재가 가져오기 (quote는 무료로 가능)
+                const quoteUrl = `https://finnhub.io/api/v1/quote?symbol=${SYMBOL}&token=${FINNHUB_KEY}`;
+                const quoteRes = await fetch(quoteUrl);
+
+                if (!quoteRes.ok) throw new Error(`Finnhub 오류: ${quoteRes.status}`);
+                const quoteData = await quoteRes.json();
+                const currentPrice = quoteData.c;
+
+                // 2. 로컬 프록시를 통해 Yahoo Finance 과거 데이터 가져오기 (CORS 우회)
+                const period2 = Math.floor(Date.now() / 1000);
+                const period1 = period2 - (35 * 24 * 60 * 60);
+                const yahooUrl = `/api/history?symbol=${SYMBOL}&period1=${period1}&period2=${period2}`;
+
+                const yahooRes = await fetch(yahooUrl);
+                if (!yahooRes.ok) throw new Error(`Yahoo 오류: ${yahooRes.status}`);
+
+                const yahooData = await yahooRes.json();
+                const closes = yahooData.chart.result[0].indicators.quote[0].close;
+
+                if (closes && closes.length >= 20) {
+                    calculateAndDisplay(currentPrice, closes);
+                    document.getElementById('status-badge').className = 'status-badge';
+                    document.getElementById('status-badge').textContent = '정상 작동 중';
+                } else {
+                    throw new Error("과거 데이터 부족");
+                }
+            } catch (error) {
+                console.error("Monitor Error:", error);
+                document.getElementById('status-badge').className = 'status-badge loading';
+                document.getElementById('status-badge').textContent = '데이터 오류: ' + error.message;
+            }
+        }
+
+        function calculateAndDisplay(currentPrice, closes) {
+            const period = 20;
+            const recentCloses = closes.slice(-period);
+            const sma = recentCloses.reduce((a, b) => a + b) / period;
+            const squareDiffs = recentCloses.map(value => Math.pow(value - sma, 2));
+            const avgSquareDiff = squareDiffs.reduce((a, b) => a + b) / period;
+            const stdDev = Math.sqrt(avgSquareDiff);
+
+            const upperBand = sma + (stdDev * 2);
+            const lowerBand = sma - (stdDev * 2);
+            const bPercent = (currentPrice - lowerBand) / (upperBand - lowerBand);
+
+            document.getElementById('current-price').textContent = `$${currentPrice.toFixed(2)}`;
+            document.getElementById('current-b-percent').textContent = bPercent.toFixed(4);
+
+            if (bPercent >= 1 || bPercent <= 0) {
+                triggerAlert(currentPrice, bPercent);
+            }
+        }
+
+        function triggerAlert(price, bPercent) {
+            const now = Date.now();
+            if (now - lastAlertTime > 300000) {
+                const title = bPercent >= 1 ? "QQQM 상단 밴드 돌파!" : "QQQM 하단 밴드 터치!";
+                const body = `현재가: $${price} (%b: ${bPercent.toFixed(2)})`;
+                
+                if (Notification.permission === "granted") {
+                    new Notification(title, { body });
+                } else {
+                    console.log(`[ALERT] ${title} : ${body}`);
+                }
+                lastAlertTime = now;
+            }
+        }
+
+        setInterval(fetchMarketData, 30000);
+        fetchMarketData();
     </script>
 
     <footer>

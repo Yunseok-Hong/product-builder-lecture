@@ -218,6 +218,81 @@ h1 {
     color: #f59e0b;
 }
 
+.alert-monitor {
+    grid-column: 1 / -1;
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 2rem;
+    backdrop-filter: blur(12px);
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.monitor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    padding: 0.5rem 1rem;
+    border-radius: 99px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.status-badge.loading {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+}
+
+.monitor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+.monitor-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.monitor-label {
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.monitor-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    font-family: 'Monaco', monospace;
+}
+
+.alert-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.alert-btn:hover {
+    background: #2563eb;
+    transform: scale(1.05);
+}
+
 footer {
     margin-top: auto;
     padding: 2rem;
