@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Dashboard | QQQM & GLDM</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Market Pulse</h1>
+        <p class="subtitle">실시간 미국 시장 및 원자재 현황</p>
+    </header>
+
+    <main class="dashboard">
+        <!-- QQQM Card -->
+        <section class="card" id="qqqm-card">
+            <div class="card-header">
+                <div class="symbol-info">
+                    <div class="symbol-icon">Q</div>
+                    <div class="symbol-name">
+                        <span class="ticker">QQQM</span>
+                        <span class="full-name">Nasdaq 100 Index ETF</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <!-- TradingView Widget BEGIN -->
+                <div class="tradingview-widget-container" style="height:100%;width:100%">
+                    <div id="tradingview_qqqm" style="height:100%;width:100%"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                    <script type="text/javascript">
+                    new TradingView.widget(
+                    {
+                        "autosize": true,
+                        "symbol": "NASDAQ:QQQM",
+                        "interval": "D",
+                        "timezone": "Etc/UTC",
+                        "theme": "dark",
+                        "style": "1",
+                        "locale": "kr",
+                        "toolbar_bg": "#f1f3f6",
+                        "enable_publishing": false,
+                        "allow_symbol_change": true,
+                        "container_id": "tradingview_qqqm",
+                        "studies": [
+                            "BB@tv-basicstudies",
+                            "BollingerBandsR@tv-basicstudies"
+                        ]
+                    }
+                    );
+                    </script>
+                </div>
+                <!-- TradingView Widget END -->
+            </div>
+        </section>
+
+        <!-- GLDM Card -->
+        <section class="card" id="gldm-card">
+            <div class="card-header">
+                <div class="symbol-info">
+                    <div class="symbol-icon gold">G</div>
+                    <div class="symbol-name">
+                        <span class="ticker">GLDM</span>
+                        <span class="full-name">SPDR Gold MiniShares Trust</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <!-- TradingView Widget BEGIN -->
+                <div class="tradingview-widget-container" style="height:100%;width:100%">
+                    <div id="tradingview_gldm" style="height:100%;width:100%"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                    <script type="text/javascript">
+                    new TradingView.widget(
+                    {
+                        "autosize": true,
+                        "symbol": "AMEX:GLDM",
+                        "interval": "D",
+                        "timezone": "Etc/UTC",
+                        "theme": "dark",
+                        "style": "1",
+                        "locale": "kr",
+                        "toolbar_bg": "#f1f3f6",
+                        "enable_publishing": false,
+                        "allow_symbol_change": true,
+                        "container_id": "tradingview_gldm",
+                        "studies": [
+                            "BB@tv-basicstudies",
+                            "BollingerBandsR@tv-basicstudies"
+                        ]
+                    }
+                    );
+                    </script>
+                </div>
+                <!-- TradingView Widget END -->
+            </div>
+        </section>
+        <!-- Portfolio Calculator Section -->
+        <section class="calculator">
+            <div class="calc-title">
+                <span>📊</span> 포트폴리오 자산 배분 계산기
+            </div>
+            <div class="calc-grid">
+                <div class="input-group">
+                    <label>총 투자 자산</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="total-assets" value="1000000" step="10000">
+                        <span class="unit">원</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>QQQM 비중 (%)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="qqqm-ratio" value="50" min="0" max="100">
+                        <span class="unit">%</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>GLDM 비중 (%)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="gldm-ratio" value="50" min="0" max="100">
+                        <span class="unit">%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results">
+                <div class="result-item">
+                    <span class="result-label">QQQM 투자 금액</span>
+                    <span class="result-value" id="qqqm-amount">500,000 원</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">GLDM 투자 금액</span>
+                    <span class="result-value gold" id="gldm-amount">500,000 원</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const totalInput = document.getElementById('total-assets');
+        const qqqmRatio = document.getElementById('qqqm-ratio');
+        const gldmRatio = document.getElementById('gldm-ratio');
+        
+        const qqqmAmountDisp = document.getElementById('qqqm-amount');
+        const gldmAmountDisp = document.getElementById('gldm-amount');
+
+        function updateCalculations(source) {
+            let total = parseFloat(totalInput.value) || 0;
+            let qRatio = parseFloat(qqqmRatio.value);
+            let gRatio = parseFloat(gldmRatio.value);
+
+            // Bounds checking and auto-adjustment
+            if (source === 'qqqm') {
+                if (isNaN(qRatio)) qRatio = 0;
+                if (qRatio > 100) qRatio = 100;
+                if (qRatio < 0) qRatio = 0;
+                qqqmRatio.value = qRatio; // UI에 보정된 값 반영
+                
+                gRatio = 100 - qRatio;
+                gldmRatio.value = gRatio.toFixed(0);
+            } else if (source === 'gldm') {
+                if (isNaN(gRatio)) gRatio = 0;
+                if (gRatio > 100) gRatio = 100;
+                if (gRatio < 0) gRatio = 0;
+                gldmRatio.value = gRatio; // UI에 보정된 값 반영
+                
+                qRatio = 100 - gRatio;
+                qqqmRatio.value = qRatio.toFixed(0);
+            } else if (source === 'total') {
+                // Total 자산 변경 시 현재 설정된 비율 유지하며 금액만 재계산
+                qRatio = parseFloat(qqqmRatio.value) || 0;
+                gRatio = parseFloat(gldmRatio.value) || 0;
+            }
+
+            const qAmount = Math.round(total * (qRatio / 100)).toLocaleString();
+            const gAmount = Math.round(total * (gRatio / 100)).toLocaleString();
+
+            qqqmAmountDisp.textContent = `${qAmount} 원`;
+            gldmAmountDisp.textContent = `${gAmount} 원`;
+        }
+
+        totalInput.addEventListener('input', () => updateCalculations('total'));
+        qqqmRatio.addEventListener('input', () => updateCalculations('qqqm'));
+        gldmRatio.addEventListener('input', () => updateCalculations('gldm'));
+
+        // Initial calculation
+        updateCalculations('total');
+    </script>
+
+    <footer>
+        <p>&copy; 2026 Market Pulse Dashboard. Real-time data provided by TradingView.</p>
+    </footer>
+</body>
+</html>
