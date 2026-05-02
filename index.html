@@ -178,14 +178,14 @@
                 <div class="input-group">
                     <label>QQQM 비중 (%)</label>
                     <div class="input-wrapper">
-                        <input type="number" id="qqqm-ratio" value="50" min="0" max="100">
+                        <input type="number" id="qqqm-ratio" value="50" min="0" max="100" step="0.1">
                         <span class="unit">%</span>
                     </div>
                 </div>
                 <div class="input-group">
                     <label>GLDM 비중 (%)</label>
                     <div class="input-wrapper">
-                        <input type="number" id="gldm-ratio" value="50" min="0" max="100">
+                        <input type="number" id="gldm-ratio" value="50" min="0" max="100" step="0.1">
                         <span class="unit">%</span>
                     </div>
                 </div>
@@ -264,20 +264,18 @@
             // Bounds checking and auto-adjustment
             if (source === 'qqqm') {
                 if (isNaN(qRatio)) qRatio = 0;
-                if (qRatio > 100) qRatio = 100;
-                if (qRatio < 0) qRatio = 0;
-                qqqmRatio.value = qRatio;
+                if (qRatio > 100) { qRatio = 100; qqqmRatio.value = 100; }
+                if (qRatio < 0) { qRatio = 0; qqqmRatio.value = 0; }
                 
                 gRatio = 100 - qRatio;
-                gldmRatio.value = gRatio.toFixed(0);
+                gldmRatio.value = parseFloat(gRatio.toFixed(1));
             } else if (source === 'gldm') {
                 if (isNaN(gRatio)) gRatio = 0;
-                if (gRatio > 100) gRatio = 100;
-                if (gRatio < 0) gRatio = 0;
-                gldmRatio.value = gRatio;
+                if (gRatio > 100) { gRatio = 100; gldmRatio.value = 100; }
+                if (gRatio < 0) { gRatio = 0; gldmRatio.value = 0; }
                 
                 qRatio = 100 - gRatio;
-                qqqmRatio.value = qRatio.toFixed(0);
+                qqqmRatio.value = parseFloat(qRatio.toFixed(1));
             }
 
             const qAmount = Math.round(total * (qRatio / 100)).toLocaleString();
@@ -293,6 +291,10 @@
         totalInput.addEventListener('input', () => updateCalculations('total'));
         qqqmRatio.addEventListener('input', () => updateCalculations('qqqm'));
         gldmRatio.addEventListener('input', () => updateCalculations('gldm'));
+
+        // 클릭 시 전체 선택
+        qqqmRatio.addEventListener('click', function() { this.select(); });
+        gldmRatio.addEventListener('click', function() { this.select(); });
 
         // 초기 실행: 불러오기 후 계산 (비동기 처리)
         async function init() {
