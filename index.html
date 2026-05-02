@@ -119,6 +119,49 @@
                 <!-- TradingView Widget END -->
             </div>
         </section>
+
+        <!-- TQQQ Card -->
+        <section class="card" id="tqqq-card">
+            <div class="card-header">
+                <div class="symbol-info">
+                    <div class="symbol-icon" style="background: linear-gradient(135deg, #FF4B2B 0%, #FF416C 100%); box-shadow: 0 4px 15px rgba(255, 65, 108, 0.3);">T</div>
+                    <div class="symbol-name">
+                        <span class="ticker">TQQQ</span>
+                        <span class="full-name">ProShares UltraPro QQQ</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <!-- TradingView Widget BEGIN -->
+                <div class="tradingview-widget-container" style="height:100%;width:100%">
+                    <div id="tradingview_tqqq" style="height:100%;width:100%"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                    <script type="text/javascript">
+                    new TradingView.widget(
+                    {
+                        "autosize": true,
+                        "symbol": "NASDAQ:TQQQ",
+                        "interval": "D",
+                        "timezone": "Etc/UTC",
+                        "theme": "dark",
+                        "style": "1",
+                        "locale": "kr",
+                        "toolbar_bg": "#f1f3f6",
+                        "enable_publishing": false,
+                        "allow_symbol_change": true,
+                        "container_id": "tradingview_tqqq",
+                        "studies": [
+                            "BB@tv-basicstudies",
+                            "BollingerBandsR@tv-basicstudies"
+                        ]
+                    }
+                    );
+                    </script>
+                </div>
+                <!-- TradingView Widget END -->
+            </div>
+        </section>
+
         <!-- Portfolio Calculator Section -->
         <section class="calculator">
             <div class="calc-title">
