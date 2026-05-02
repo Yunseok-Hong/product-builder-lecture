@@ -128,7 +128,7 @@
                 <div class="input-group">
                     <label>총 투자 자산</label>
                     <div class="input-wrapper">
-                        <input type="number" id="total-assets" value="1000000" step="10000">
+                        <input type="text" id="total-assets" value="1,000,000">
                         <span class="unit">원</span>
                     </div>
                 </div>
@@ -202,7 +202,19 @@
         }
 
         function updateCalculations(source) {
-            let total = parseFloat(totalInput.value) || 0;
+            if (source === 'total') {
+                // 숫자만 추출
+                let val = totalInput.value.replace(/[^0-9]/g, '');
+                if (val !== '') {
+                    // 세 자리마다 콤마 추가
+                    totalInput.value = parseInt(val, 10).toLocaleString('ko-KR');
+                } else {
+                    totalInput.value = '0';
+                }
+            }
+
+            // 계산을 위해 콤마 제거 후 숫자로 변환
+            let total = parseFloat(totalInput.value.replace(/,/g, '')) || 0;
             let qRatio = parseFloat(qqqmRatio.value);
             let gRatio = parseFloat(gldmRatio.value);
 
