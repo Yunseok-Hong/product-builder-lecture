@@ -169,22 +169,36 @@
         const qqqmAmountDisp = document.getElementById('qqqm-amount');
         const gldmAmountDisp = document.getElementById('gldm-amount');
 
-        // LocalStorage에 설정 저장
-        function saveSettings() {
-            localStorage.setItem('totalAssets', totalInput.value);
-            localStorage.setItem('qqqmRatio', qqqmRatio.value);
-            localStorage.setItem('gldmRatio', gldmRatio.value);
+        // Cloudflare KV에 설정 저장
+        async function saveSettings() {
+            const settings = {
+                totalAssets: totalInput.value,
+                qqqmRatio: qqqmRatio.value,
+                gldmRatio: gldmRatio.value
+            };
+            try {
+                await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+            } catch (error) {
+                console.error("설정 저장 실패:", error);
+            }
         }
 
-        // LocalStorage에서 설정 불러오기
-        function loadSettings() {
-            const savedTotal = localStorage.getItem('totalAssets');
-            const savedQQQM = localStorage.getItem('qqqmRatio');
-            const savedGLDM = localStorage.getItem('gldmRatio');
+        // Cloudflare KV에서 설정 불러오기
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/settings');
+                const settings = await response.json();
 
-            if (savedTotal !== null) totalInput.value = savedTotal;
-            if (savedQQQM !== null) qqqmRatio.value = savedQQQM;
-            if (savedGLDM !== null) gldmRatio.value = savedGLDM;
+                if (settings.totalAssets) totalInput.value = settings.totalAssets;
+                if (settings.qqqmRatio) qqqmRatio.value = settings.qqqmRatio;
+                if (settings.gldmRatio) gldmRatio.value = settings.gldmRatio;
+            } catch (error) {
+                console.error("설정 불러오기 실패:", error);
+            }
         }
 
         function updateCalculations(source) {
@@ -225,9 +239,12 @@
         qqqmRatio.addEventListener('input', () => updateCalculations('qqqm'));
         gldmRatio.addEventListener('input', () => updateCalculations('gldm'));
 
-        // 초기 실행: 불러오기 후 계산
-        loadSettings();
-        updateCalculations('total');
+        // 초기 실행: 불러오기 후 계산 (비동기 처리)
+        async function init() {
+            await loadSettings();
+            updateCalculations('total');
+        }
+        init();
 
         // --- Finnhub Monitoring Logic ---
         const FINNHUB_KEY = 'd7qd8qpr01qi8jan0oegd7qd8qpr01qi8jan0of0';
