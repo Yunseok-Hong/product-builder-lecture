@@ -306,8 +306,6 @@
         // --- Finnhub Monitoring Logic ---
         const FINNHUB_KEY = 'd7qd8qpr01qi8jan0oegd7qd8qpr01qi8jan0of0';
         const SYMBOL = 'QQQM';
-        
-        let lastAlertTime = 0;
 
         function requestNotificationPermission() {
             Notification.requestPermission().then(permission => {
@@ -368,23 +366,65 @@
             document.getElementById('current-price').textContent = `$${currentPrice.toFixed(2)}`;
             document.getElementById('current-b-percent').textContent = bPercent.toFixed(4);
 
+            // 실시간 변동에 따라 알림 조건 달성 여부 기록 및 시간 체크
+            checkAlertCondition(currentPrice, bPercent);
+        }
+
+        let dailyAlertFlag = null;
+        let lastCheckedDate = new Date(new Date().toLocaleString("en-US", {timeZone: "America/New_York"})).getDate();
+        let alertAcknowledged = false;
+        let lastSnoozedTime = 0;
+
+        function checkAlertCondition(currentPrice, bPercent) {
+            // 뉴욕 시간 기준 현재 시간
+            const nyTime = new Date(new Date().toLocaleString("en-US", {timeZone: "America/New_York"}));
+            
+            // 날짜가 바뀌었으면 초기화
+            if (nyTime.getDate() !== lastCheckedDate) {
+                dailyAlertFlag = null;
+                alertAcknowledged = false;
+                lastSnoozedTime = 0;
+                lastCheckedDate = nyTime.getDate();
+            }
+
+            // 장중에 한 번이라도 조건이 달성되면 덮어쓰기로 기록
             if (bPercent >= 1 || bPercent <= 0) {
-                triggerAlert(currentPrice, bPercent);
+                dailyAlertFlag = {
+                    type: bPercent >= 1 ? "상단 밴드 돌파" : "하단 밴드 터치",
+                    price: currentPrice,
+                    bPercent: bPercent
+                };
+            }
+
+            // 미국장 마감 30분 전 (뉴욕 시간 오후 3시 30분) 이후인지 확인
+            const isAfterAlertTime = nyTime.getHours() > 15 || (nyTime.getHours() === 15 && nyTime.getMinutes() >= 30);
+            
+            if (isAfterAlertTime && dailyAlertFlag && !alertAcknowledged) {
+                const nowMs = Date.now();
+                // 첫 알림이거나, 마지막 알림 발송 후 5분(300,000ms)이 지났다면
+                if (nowMs - lastSnoozedTime >= 300000) {
+                    triggerFinalAlert();
+                    lastSnoozedTime = nowMs;
+                }
             }
         }
 
-        function triggerAlert(price, bPercent) {
-            const now = Date.now();
-            if (now - lastAlertTime > 300000) {
-                const title = bPercent >= 1 ? "QQQM 상단 밴드 돌파!" : "QQQM 하단 밴드 터치!";
-                const body = `현재가: $${price} (%b: ${bPercent.toFixed(2)})`;
-                
-                if (Notification.permission === "granted") {
-                    new Notification(title, { body });
-                } else {
-                    console.log(`[ALERT] ${title} : ${body}`);
-                }
-                lastAlertTime = now;
+        function triggerFinalAlert() {
+            const title = `장 마감 전: QQQM ${dailyAlertFlag.type}! (클릭하여 확인)`;
+            const body = `기록된 도달가: $${dailyAlertFlag.price} (%b: ${dailyAlertFlag.bPercent.toFixed(2)})\n알림 창을 클릭해야 반복 알림이 종료됩니다.`;
+            
+            if (Notification.permission === "granted") {
+                const noti = new Notification(title, { body, requireInteraction: true });
+                noti.onclick = function() {
+                    alertAcknowledged = true;
+                    window.focus(); // 브라우저 창으로 화면 전환
+                    this.close();
+                    alert("알림을 확인하셨습니다. 내일 장이 열리기 전까지 더 이상 반복 알림이 울리지 않습니다.");
+                };
+            } else {
+                console.log(`[ALERT] ${title} : ${body}`);
+                // 권한이 없어 화면에 알림이 뜨지 않는 경우 무한 반복 방지
+                alertAcknowledged = true;
             }
         }
 
