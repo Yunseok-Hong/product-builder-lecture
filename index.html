@@ -183,10 +183,22 @@
                     </div>
                 </div>
                 <div class="input-group">
+                    <label>TQQQ 비중 (%)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="tqqq-ratio" value="0" min="0" max="100" step="0.1">
+                        <span class="unit">%</span>
+                    </div>
+                </div>
+                <div class="input-group">
                     <label>GLDM 비중 (%)</label>
                     <div class="input-wrapper">
                         <input type="number" id="gldm-ratio" value="50" min="0" max="100" step="0.1">
                         <span class="unit">%</span>
+                    </div>
+                </div>
+                <div class="input-group" style="grid-column: 1 / -1;">
+                    <div class="nasdaq-ratio-display" style="padding: 15px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; text-align: center; color: #94a3b8; font-weight: 600;">
+                        나스닥 비중 (QQQM + TQQQ): <span id="nasdaq-ratio-val" style="color: #3b82f6; font-weight: 800; font-size: 1.2em; margin-left: 10px;">50.0%</span>
                     </div>
                 </div>
             </div>
@@ -197,8 +209,66 @@
                     <span class="result-value" id="qqqm-amount">500,000 원</span>
                 </div>
                 <div class="result-item">
+                    <span class="result-label">TQQQ 투자 금액</span>
+                    <span class="result-value" id="tqqq-amount" style="color: #FF416C;">0 원</span>
+                </div>
+                <div class="result-item">
                     <span class="result-label">GLDM 투자 금액</span>
                     <span class="result-value gold" id="gldm-amount">500,000 원</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Amount to Ratio Calculator Section -->
+        <section class="calculator">
+            <div class="calc-title">
+                <span>💰</span> 종목별 금액 입력 (비중 자동 계산)
+            </div>
+            <div class="calc-grid">
+                <div class="input-group">
+                    <label>QQQM 투자 금액</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="qqqm-input-amount" value="0">
+                        <span class="unit">원</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>TQQQ 투자 금액</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="tqqq-input-amount" value="0">
+                        <span class="unit">원</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>GLDM 투자 금액</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="gldm-input-amount" value="0">
+                        <span class="unit">원</span>
+                    </div>
+                </div>
+                <div class="input-group" style="grid-column: 1 / -1;">
+                    <div class="nasdaq-ratio-display" style="padding: 15px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; text-align: center; color: #94a3b8; font-weight: 600;">
+                        총 투자 자산: <span id="total-auto-amount" style="color: #10b981; font-weight: 800; font-size: 1.2em; margin-left: 10px;">0 원</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results">
+                <div class="result-item">
+                    <span class="result-label">QQQM 비중</span>
+                    <span class="result-value" id="qqqm-auto-ratio">0.0%</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">TQQQ 비중</span>
+                    <span class="result-value" id="tqqq-auto-ratio" style="color: #FF416C;">0.0%</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">GLDM 비중</span>
+                    <span class="result-value gold" id="gldm-auto-ratio">0.0%</span>
+                </div>
+                <div class="result-item" style="grid-column: 1 / -1; background: rgba(59, 130, 246, 0.1);">
+                    <span class="result-label" style="text-align: center;">나스닥 총 비중 (QQQM + TQQQ)</span>
+                    <span class="result-value" id="nasdaq-auto-ratio" style="color: #3b82f6; text-align: center;">0.0%</span>
                 </div>
             </div>
         </section>
@@ -207,9 +277,12 @@
     <script>
         const totalInput = document.getElementById('total-assets');
         const qqqmRatio = document.getElementById('qqqm-ratio');
+        const tqqqRatio = document.getElementById('tqqq-ratio');
         const gldmRatio = document.getElementById('gldm-ratio');
+        const nasdaqRatioVal = document.getElementById('nasdaq-ratio-val');
         
         const qqqmAmountDisp = document.getElementById('qqqm-amount');
+        const tqqqAmountDisp = document.getElementById('tqqq-amount');
         const gldmAmountDisp = document.getElementById('gldm-amount');
 
         // Cloudflare KV에 설정 저장
@@ -217,6 +290,7 @@
             const settings = {
                 totalAssets: totalInput.value,
                 qqqmRatio: qqqmRatio.value,
+                tqqqRatio: tqqqRatio.value,
                 gldmRatio: gldmRatio.value
             };
             try {
@@ -238,6 +312,7 @@
 
                 if (settings.totalAssets) totalInput.value = settings.totalAssets;
                 if (settings.qqqmRatio) qqqmRatio.value = settings.qqqmRatio;
+                if (settings.tqqqRatio) tqqqRatio.value = settings.tqqqRatio;
                 if (settings.gldmRatio) gldmRatio.value = settings.gldmRatio;
             } catch (error) {
                 console.error("설정 불러오기 실패:", error);
@@ -259,29 +334,57 @@
             // 계산을 위해 콤마 제거 후 숫자로 변환
             let total = parseFloat(totalInput.value.replace(/,/g, '')) || 0;
             let qRatio = parseFloat(qqqmRatio.value);
+            let tRatio = parseFloat(tqqqRatio.value);
             let gRatio = parseFloat(gldmRatio.value);
 
-            // Bounds checking and auto-adjustment
+            if (isNaN(qRatio)) qRatio = 0;
+            if (isNaN(tRatio)) tRatio = 0;
+            if (isNaN(gRatio)) gRatio = 0;
+
             if (source === 'qqqm') {
-                if (isNaN(qRatio)) qRatio = 0;
-                if (qRatio > 100) { qRatio = 100; qqqmRatio.value = 100; }
-                if (qRatio < 0) { qRatio = 0; qqqmRatio.value = 0; }
+                let maxNasq = 100 - gRatio;
+                if (qRatio < 0) qRatio = 0;
+                if (qRatio > maxNasq) qRatio = maxNasq;
                 
-                gRatio = 100 - qRatio;
-                gldmRatio.value = parseFloat(gRatio.toFixed(1));
-            } else if (source === 'gldm') {
-                if (isNaN(gRatio)) gRatio = 0;
-                if (gRatio > 100) { gRatio = 100; gldmRatio.value = 100; }
-                if (gRatio < 0) { gRatio = 0; gldmRatio.value = 0; }
+                tRatio = maxNasq - qRatio;
                 
-                qRatio = 100 - gRatio;
                 qqqmRatio.value = parseFloat(qRatio.toFixed(1));
+                tqqqRatio.value = parseFloat(tRatio.toFixed(1));
+            } else if (source === 'tqqq') {
+                let maxNasq = 100 - gRatio;
+                if (tRatio < 0) tRatio = 0;
+                if (tRatio > maxNasq) tRatio = maxNasq;
+                
+                qRatio = maxNasq - tRatio;
+                
+                qqqmRatio.value = parseFloat(qRatio.toFixed(1));
+                tqqqRatio.value = parseFloat(tRatio.toFixed(1));
+            } else if (source === 'gldm') {
+                if (gRatio < 0) gRatio = 0;
+                if (gRatio > 100) gRatio = 100;
+                
+                let remaining = 100 - gRatio;
+                
+                if (tRatio > remaining) {
+                    tRatio = remaining;
+                    qRatio = 0;
+                } else {
+                    qRatio = remaining - tRatio;
+                }
+                
+                qqqmRatio.value = parseFloat(qRatio.toFixed(1));
+                tqqqRatio.value = parseFloat(tRatio.toFixed(1));
+                gldmRatio.value = parseFloat(gRatio.toFixed(1));
             }
 
+            nasdaqRatioVal.textContent = `${(qRatio + tRatio).toFixed(1)}%`;
+
             const qAmount = Math.round(total * (qRatio / 100)).toLocaleString();
+            const tAmount = Math.round(total * (tRatio / 100)).toLocaleString();
             const gAmount = Math.round(total * (gRatio / 100)).toLocaleString();
 
             qqqmAmountDisp.textContent = `${qAmount} 원`;
+            tqqqAmountDisp.textContent = `${tAmount} 원`;
             gldmAmountDisp.textContent = `${gAmount} 원`;
 
             // 설정 저장
@@ -290,18 +393,71 @@
 
         totalInput.addEventListener('input', () => updateCalculations('total'));
         qqqmRatio.addEventListener('input', () => updateCalculations('qqqm'));
+        tqqqRatio.addEventListener('input', () => updateCalculations('tqqq'));
         gldmRatio.addEventListener('input', () => updateCalculations('gldm'));
 
         // 클릭 시 전체 선택
         qqqmRatio.addEventListener('click', function() { this.select(); });
+        tqqqRatio.addEventListener('click', function() { this.select(); });
         gldmRatio.addEventListener('click', function() { this.select(); });
 
         // 초기 실행: 불러오기 후 계산 (비동기 처리)
         async function init() {
             await loadSettings();
             updateCalculations('total');
+            updateAutoCalculations();
         }
         init();
+
+        // --- Amount to Ratio Calculator Logic ---
+        const qInputAmount = document.getElementById('qqqm-input-amount');
+        const tInputAmount = document.getElementById('tqqq-input-amount');
+        const gInputAmount = document.getElementById('gldm-input-amount');
+        const totalAutoAmount = document.getElementById('total-auto-amount');
+        
+        const qAutoRatio = document.getElementById('qqqm-auto-ratio');
+        const tAutoRatio = document.getElementById('tqqq-auto-ratio');
+        const gAutoRatio = document.getElementById('gldm-auto-ratio');
+        const nasdaqAutoRatio = document.getElementById('nasdaq-auto-ratio');
+
+        function updateAutoCalculations() {
+            // Format inputs with commas
+            [qInputAmount, tInputAmount, gInputAmount].forEach(input => {
+                let val = input.value.replace(/[^0-9]/g, '');
+                input.value = val !== '' ? parseInt(val, 10).toLocaleString('ko-KR') : '0';
+            });
+
+            let qAmt = parseFloat(qInputAmount.value.replace(/,/g, '')) || 0;
+            let tAmt = parseFloat(tInputAmount.value.replace(/,/g, '')) || 0;
+            let gAmt = parseFloat(gInputAmount.value.replace(/,/g, '')) || 0;
+
+            let totalAmt = qAmt + tAmt + gAmt;
+            totalAutoAmount.textContent = totalAmt.toLocaleString('ko-KR') + ' 원';
+
+            if (totalAmt > 0) {
+                let qPct = (qAmt / totalAmt) * 100;
+                let tPct = (tAmt / totalAmt) * 100;
+                let gPct = (gAmt / totalAmt) * 100;
+
+                qAutoRatio.textContent = qPct.toFixed(1) + '%';
+                tAutoRatio.textContent = tPct.toFixed(1) + '%';
+                gAutoRatio.textContent = gPct.toFixed(1) + '%';
+                nasdaqAutoRatio.textContent = (qPct + tPct).toFixed(1) + '%';
+            } else {
+                qAutoRatio.textContent = '0.0%';
+                tAutoRatio.textContent = '0.0%';
+                gAutoRatio.textContent = '0.0%';
+                nasdaqAutoRatio.textContent = '0.0%';
+            }
+        }
+
+        qInputAmount.addEventListener('input', updateAutoCalculations);
+        tInputAmount.addEventListener('input', updateAutoCalculations);
+        gInputAmount.addEventListener('input', updateAutoCalculations);
+
+        qInputAmount.addEventListener('click', function() { this.select(); });
+        tInputAmount.addEventListener('click', function() { this.select(); });
+        gInputAmount.addEventListener('click', function() { this.select(); });
 
         // --- Finnhub Monitoring Logic ---
         const FINNHUB_KEY = 'd7qd8qpr01qi8jan0oegd7qd8qpr01qi8jan0of0';
