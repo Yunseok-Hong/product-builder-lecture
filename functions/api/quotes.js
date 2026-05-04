@@ -29,14 +29,31 @@ export async function onRequestGet({ request, env }) {
         }
 
         async function fetchUsdKrwRate() {
-            const forexSymbols = ['OANDA:USD_KRW', 'FOREXCOM:USDKRW'];
+            const forexSymbols = ['USDKRW=X', 'KRW=X'];
             let lastError;
 
             for (const symbol of forexSymbols) {
                 try {
+                    const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
+                    const response = await fetch(yahooUrl, {
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        }
+                    });
+                    if (!response.ok) throw new Error(`Yahoo ${symbol} responded with ${response.status}`);
+
+                    const data = await response.json();
+                    const result = data.chart?.result?.[0];
+                    const price = Number(
+                        result?.meta?.regularMarketPrice ||
+                        result?.meta?.previousClose ||
+                        result?.indicators?.quote?.[0]?.close?.filter(Boolean).at(-1)
+                    );
+                    if (!price) throw new Error(`${symbol} exchange rate is missing.`);
+
                     return {
                         symbol,
-                        rate: await fetchQuotePrice(symbol)
+                        rate: price
                     };
                 } catch (error) {
                     lastError = error;
