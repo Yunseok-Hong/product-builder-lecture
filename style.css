@@ -1,3 +1,12 @@
+:root {
+    --bottom-tabs-height: 76px;
+}
+
+html {
+    min-height: 100%;
+    background-color: #0a0e17;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -6,8 +15,10 @@ body {
     color: #ffffff;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+    min-height: 100svh;
+    overflow-x: hidden;
+    padding-bottom: calc(var(--bottom-tabs-height) + env(safe-area-inset-bottom));
+    -webkit-overflow-scrolling: touch;
 }
 
 header {
@@ -67,14 +78,19 @@ h1 {
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 50;
+    z-index: 999;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 0.35rem;
+    min-height: var(--bottom-tabs-height);
     padding: 0.55rem 0.75rem calc(0.55rem + env(safe-area-inset-bottom));
     background: rgba(10, 14, 23, 0.94);
     border-top: 1px solid rgba(148, 163, 184, 0.18);
     backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-sizing: border-box;
+    transform: translateZ(0);
+    will-change: transform;
 }
 
 .tab-button {
@@ -131,7 +147,7 @@ h1 {
     }
 
     .dashboard {
-        padding: 1rem;
+        padding: 1rem 1rem calc(1rem + var(--bottom-tabs-height));
     }
 
     .charts-grid {
