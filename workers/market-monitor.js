@@ -262,10 +262,15 @@ async function notifySubscriptions(env, payload) {
 }
 
 function buildPushBody(state) {
+    const direction = state.bPercent >= 1
+        ? 'Action: review profitable TQQQ lots, then consider moving proceeds into QQQM/GLDM.'
+        : 'Action: consider moving part of GLDM into TQQQ.';
+
     return [
         `QQQM ${state.type}`,
         `Price: $${state.price.toFixed(2)}`,
         `BB %b: ${state.bPercent.toFixed(4)}`,
+        direction,
         'Open Market Pulse to review rebalance orders.'
     ].join('\n');
 }
@@ -328,9 +333,10 @@ async function runMonitor(env) {
 
 async function runTestPush(env) {
     const pushResult = await notifySubscriptions(env, {
-        title: 'Market Pulse Cron Worker Test',
+        title: '[TEST] Market Pulse Cron Worker',
         body: [
-            'This test push was sent by the market monitor Worker.',
+            'This is a test notification.',
+            'No real rebalance action is required.',
             'If this notification arrived, Cron Worker push delivery is configured correctly.'
         ].join('\n'),
         url: '/',
