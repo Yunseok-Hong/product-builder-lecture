@@ -867,14 +867,14 @@
 
         async function updateNotificationState() {
             if (!('Notification' in window)) {
-                notificationState.textContent = '?? ??: ? ?????? ?? ? ?';
+                notificationState.textContent = '\uc54c\ub9bc \uc0c1\ud0dc: \uc774 \ube0c\ub77c\uc6b0\uc800\uc5d0\uc11c \uc9c0\uc6d0 \uc548 \ub428';
                 return;
             }
 
             const labelMap = {
-                granted: '???',
-                denied: '???',
-                default: '?? ?'
+                granted: '\ud5c8\uc6a9\ub428',
+                denied: '\ucc28\ub2e8\ub428',
+                default: '\uc694\uccad \uc804'
             };
             let suffix = '';
 
@@ -882,13 +882,13 @@
                 try {
                     const registration = await navigator.serviceWorker.ready;
                     const subscription = await registration.pushManager.getSubscription();
-                    suffix = subscription ? ' / ?? ?? ???' : ' / ?? ?? ???';
+                    suffix = subscription ? ' / \uc11c\ubc84 \ud478\uc2dc \uad6c\ub3c5\ub428' : ' / \uc11c\ubc84 \ud478\uc2dc \ubbf8\uad6c\ub3c5';
                 } catch (error) {
-                    suffix = ' / ?? ?? ?? ??';
+                    suffix = ' / \uc11c\ubc84 \ud478\uc2dc \ud655\uc778 \uc2e4\ud328';
                 }
             }
 
-            notificationState.textContent = `?? ??: ${labelMap[Notification.permission] || Notification.permission}${suffix}`;
+            notificationState.textContent = `\uc54c\ub9bc \uc0c1\ud0dc: ${labelMap[Notification.permission] || Notification.permission}${suffix}`;
         }
 
         function buildRecommendationNotificationText() {
@@ -914,7 +914,7 @@
 
         async function ensureServerPushSubscription() {
             if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-                alert('? ????? ?? ?? ??? ???? ????. iPhone ? ?? PWA?? ?? ??? ???.');
+                alert('\uc774 \ud658\uacbd\uc5d0\uc11c\ub294 \uc11c\ubc84 \ud478\uc2dc \uad6c\ub3c5\uc744 \uc9c0\uc6d0\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. iPhone \ud648 \ud654\uba74 PWA\uc5d0\uc11c \ub2e4\uc2dc \uc2dc\ub3c4\ud574 \uc8fc\uc138\uc694.');
                 return null;
             }
 
@@ -935,7 +935,7 @@
         async function requestNotificationPermission() {
             if (!('Notification' in window)) {
                 await updateNotificationState();
-                alert('? ??????? ??? ???? ????.');
+                alert('\uc774 \ube0c\ub77c\uc6b0\uc800\uc5d0\uc11c\ub294 \uc54c\ub9bc\uc744 \uc9c0\uc6d0\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.');
                 return;
             }
 
@@ -943,13 +943,13 @@
             if (permission === 'granted') {
                 try {
                     await ensureServerPushSubscription();
-                    alert('?? ??? ???? ?? ?? ??? ???????.');
-                    new Notification('?? ??? ??', { body: 'QQQM ??? ???????.' });
+                    alert('\uc54c\ub9bc \uad8c\ud55c\uc774 \ud5c8\uc6a9\ub418\uace0 \uc11c\ubc84 \ud478\uc2dc \uad6c\ub3c5\uc774 \uc800\uc7a5\ub418\uc5c8\uc2b5\ub2c8\ub2e4.');
+                    new Notification('\uc54c\ub9bc \uc2dc\uc2a4\ud15c \uc2dc\uc791', { body: 'QQQM \uac10\uc2dc\uac00 \uc2dc\uc791\ub418\uc5c8\uc2b5\ub2c8\ub2e4.' });
                 } catch (error) {
-                    alert(`?? ??? ????? ?? ?? ?? ??? ??????: ${error.message}`);
+                    alert(`\uc54c\ub9bc \uad8c\ud55c\uc740 \ud5c8\uc6a9\ub410\uc9c0\ub9cc \uc11c\ubc84 \ud478\uc2dc \uad6c\ub3c5 \uc800\uc7a5\uc5d0 \uc2e4\ud328\ud588\uc2b5\ub2c8\ub2e4: ${error.message}`);
                 }
             } else if (permission === 'denied') {
-                alert('??? ???? ????. iPhone ???? Market Pulse ??? ??? ???.');
+                alert('\uc54c\ub9bc\uc774 \ucc28\ub2e8\ub418\uc5b4 \uc788\uc2b5\ub2c8\ub2e4. iPhone \uc124\uc815\uc5d0\uc11c Market Pulse \uc54c\ub9bc\uc744 \ud5c8\uc6a9\ud574 \uc8fc\uc138\uc694.');
             }
             await updateNotificationState();
         }
@@ -957,7 +957,7 @@
         async function ensureNotificationPermission() {
             if (!('Notification' in window)) {
                 await updateNotificationState();
-                alert('? ??????? ??? ???? ????.');
+                alert('\uc774 \ube0c\ub77c\uc6b0\uc800\uc5d0\uc11c\ub294 \uc54c\ub9bc\uc744 \uc9c0\uc6d0\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.');
                 return false;
             }
 
@@ -968,7 +968,7 @@
 
             if (Notification.permission === 'denied') {
                 await updateNotificationState();
-                alert('??? ???? ????. iPhone ???? Market Pulse ??? ??? ???.');
+                alert('\uc54c\ub9bc\uc774 \ucc28\ub2e8\ub418\uc5b4 \uc788\uc2b5\ub2c8\ub2e4. iPhone \uc124\uc815\uc5d0\uc11c Market Pulse \uc54c\ub9bc\uc744 \ud5c8\uc6a9\ud574 \uc8fc\uc138\uc694.');
                 return false;
             }
 
@@ -987,15 +987,15 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        title: 'Market Pulse ?? ?? ???',
+                        title: 'Market Pulse \uc11c\ubc84 \ud478\uc2dc \ud14c\uc2a4\ud2b8',
                         body: buildRecommendationNotificationText()
                     })
                 });
                 const result = await response.json().catch(() => ({}));
-                if (!response.ok) throw new Error(result.error || `?? ?? ??: ${response.status}`);
-                alert(`?? ?? ?? ??: ?? ${result.success}, ?? ${result.failed}`);
+                if (!response.ok) throw new Error(result.error || `\uc11c\ubc84 \ud478\uc2dc \uc2e4\ud328: ${response.status}`);
+                alert(`\uc11c\ubc84 \ud478\uc2dc \uc694\uccad \uc644\ub8cc: \uc131\uacf5 ${result.success}, \uc2e4\ud328 ${result.failed}`);
             } catch (error) {
-                alert(`?? ?? ??? ??: ${error.message}`);
+                alert(`\uc11c\ubc84 \ud478\uc2dc \ud14c\uc2a4\ud2b8 \uc2e4\ud328: ${error.message}`);
             }
         }
 
