@@ -87,7 +87,8 @@
                             <div class="input-group" style="grid-column: 1 / -1;">
                                 <div class="nasdaq-ratio-display" style="padding: 15px; background: rgba(199, 177, 153, 0.26); border: 1px solid rgba(108, 93, 83, 0.18); border-radius: 12px; text-align: center; color: #786854; font-weight: 600;">
                                     총 평가금액: <span id="total-auto-amount" style="color: #6c5d53; font-weight: 800; font-size: 1.2em; margin-left: 10px;">$0.00</span>
-                                    <span id="quote-updated-at" style="display:block; margin-top: 6px; font-size: 0.82em; color: #786854;">현재가 불러오는 중...</span>
+                                    <span id="total-krw-amount" style="display:block; margin-top: 6px; color: #6c5d53; font-weight: 800; font-size: 1.05em;">₩0</span>
+                                    <span id="quote-updated-at" style="display:block; margin-top: 6px; font-size: 0.82em; color: #786854;">현재가/환율 불러오는 중...</span>
                                 </div>
                             </div>
                         </div>
@@ -105,64 +106,9 @@
                             </div>
                         </div>
             
-                        <div class="rebalance-panel">
-                            <div class="rebalance-header">
-                                <div>
-                                    <span class="result-label">BB %b 리밸런싱 상태</span>
-                                    <div class="rebalance-status wait" id="rebalance-status">대기</div>
-                                </div>
-                                <div class="rebalance-bpercent" id="rebalance-bpercent">BB %b --</div>
-                            </div>
-                            <div class="rebalance-summary" id="rebalance-summary">현재가와 BB %b 데이터를 기다리는 중입니다.</div>
-                            <div class="order-grid">
-                                <div class="order-card">
-                                    <span class="order-label">QQQM</span>
-                                    <strong id="qqqm-order">대기</strong>
-                                </div>
-                                <div class="order-card">
-                                    <span class="order-label">TQQQ</span>
-                                    <strong id="tqqq-order">대기</strong>
-                                </div>
-                                <div class="order-card">
-                                    <span class="order-label">GLDM</span>
-                                    <strong id="gldm-order">대기</strong>
-                                </div>
-                            </div>
-                            <div class="rebalance-projection" id="rebalance-projection">예상 조정 후 비중: --</div>
-                        </div>
-            
-                        <div class="lot-panel">
-                            <div class="lot-header">
-                                <div>
-                                    <span class="result-label">TQQQ lot 기록</span>
-                                    <div class="lot-help">실제 주문 후 매수가와 수량을 입력하세요.</div>
-                                </div>
-                                <button class="secondary-btn" id="apply-profitable-lots-btn" onclick="applyProfitableLotSale()" disabled>추천 매도 반영</button>
-                            </div>
-                            <div class="lot-input-grid">
-                                <div class="input-group">
-                                    <label>TQQQ 매수가</label>
-                                    <div class="input-wrapper">
-                                        <input type="text" id="tqqq-lot-price" value="" inputmode="decimal" placeholder="예: 50">
-                                        <span class="unit">$</span>
-                                    </div>
-                                </div>
-                                <div class="input-group">
-                                    <label>TQQQ 수량</label>
-                                    <div class="input-wrapper">
-                                        <input type="text" id="tqqq-lot-qty" value="" inputmode="numeric" placeholder="예: 10">
-                                        <span class="unit">주</span>
-                                    </div>
-                                </div>
-                                <button class="secondary-btn add-lot-btn" onclick="addTqqqLot()">lot 추가</button>
-                            </div>
-                            <div class="lot-list" id="tqqq-lot-list">
-                                <div class="empty-lot">저장된 TQQQ lot이 없습니다.</div>
-                            </div>
-                        </div>
                         <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 16px;">
                             <span id="amount-save-msg" style="color: #6c5d53; font-weight: 600; font-size: 0.9em; opacity: 0; transition: opacity 0.3s;">✓ 저장됨!</span>
-                            <button id="amount-save-btn" onclick="saveAmountSettings()" style="padding: 10px 28px; background: linear-gradient(135deg, #9f8473, #6c5d53); color: #fff; border: none; border-radius: 10px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 15px rgba(108,93,83,0.18);">💾 저장</button>
+                            <button id="amount-save-btn" onclick="saveAmountSettings()" style="padding: 10px 28px; background: linear-gradient(135deg, #9f8473, #6c5d53); color: #fff; border: none; border-radius: 10px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 15px rgba(108,93,83,0.18);">저장</button>
                         </div>
                     </section>
         </section>
@@ -210,6 +156,61 @@
                             </div>
                             <div class="server-calendar-warning" id="server-calendar-warning"></div>
                             <div class="data-error-panel server-error" id="server-data-error" hidden></div>
+                        </div>
+                        <div class="rebalance-panel">
+                            <div class="rebalance-header">
+                                <div>
+                                    <span class="result-label">BB %b 리밸런싱 상태</span>
+                                    <div class="rebalance-status wait" id="rebalance-status">대기</div>
+                                </div>
+                                <div class="rebalance-bpercent" id="rebalance-bpercent">BB %b --</div>
+                            </div>
+                            <div class="rebalance-summary" id="rebalance-summary">현재가와 BB %b 데이터를 기다리는 중입니다.</div>
+                            <div class="order-grid">
+                                <div class="order-card">
+                                    <span class="order-label">QQQM</span>
+                                    <strong id="qqqm-order">대기</strong>
+                                </div>
+                                <div class="order-card">
+                                    <span class="order-label">TQQQ</span>
+                                    <strong id="tqqq-order">대기</strong>
+                                </div>
+                                <div class="order-card">
+                                    <span class="order-label">GLDM</span>
+                                    <strong id="gldm-order">대기</strong>
+                                </div>
+                            </div>
+                            <div class="rebalance-projection" id="rebalance-projection">예상 조정 후 비중: --</div>
+                        </div>
+
+                        <div class="lot-panel">
+                            <div class="lot-header">
+                                <div>
+                                    <span class="result-label">TQQQ lot 기록</span>
+                                    <div class="lot-help">실제 주문 후 매수가와 수량을 입력하세요.</div>
+                                </div>
+                                <button class="secondary-btn" id="apply-profitable-lots-btn" onclick="applyProfitableLotSale()" disabled>추천 매도 반영</button>
+                            </div>
+                            <div class="lot-input-grid">
+                                <div class="input-group">
+                                    <label>TQQQ 매수가</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="tqqq-lot-price" value="" inputmode="decimal" placeholder="예: 50">
+                                        <span class="unit">$</span>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <label>TQQQ 수량</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="tqqq-lot-qty" value="" inputmode="numeric" placeholder="예: 10">
+                                        <span class="unit">주</span>
+                                    </div>
+                                </div>
+                                <button class="secondary-btn add-lot-btn" onclick="addTqqqLot()">lot 추가</button>
+                            </div>
+                            <div class="lot-list" id="tqqq-lot-list">
+                                <div class="empty-lot">저장된 TQQQ lot이 없습니다.</div>
+                            </div>
                         </div>
                     </section>
         </section>
@@ -272,7 +273,7 @@
                         </div>
                         <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 16px;">
                             <span id="calc-save-msg" style="color: #6c5d53; font-weight: 600; font-size: 0.9em; opacity: 0; transition: opacity 0.3s;">✓ 저장됨!</span>
-                            <button id="calc-save-btn" onclick="saveCalcSettings()" style="padding: 10px 28px; background: linear-gradient(135deg, #9f8473, #6c5d53); color: #fff; border: none; border-radius: 10px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 15px rgba(108,93,83,0.18);">💾 저장</button>
+                            <button id="calc-save-btn" onclick="saveCalcSettings()" style="padding: 10px 28px; background: linear-gradient(135deg, #9f8473, #6c5d53); color: #fff; border: none; border-radius: 10px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 15px rgba(108,93,83,0.18);">저장</button>
                         </div>
                     </section>
         </section>
@@ -415,7 +416,7 @@
         </button>
         <button class="tab-button" type="button" data-tab-target="monitor" aria-controls="tab-monitor" aria-selected="false">
             <span class="tab-icon">2</span>
-            <span>&#44048;&#49884;</span>
+            <span>&#47532;&#48184;&#47088;&#49905;</span>
         </button>
         <button class="tab-button" type="button" data-tab-target="allocation" aria-controls="tab-allocation" aria-selected="false">
             <span class="tab-icon">3</span>
@@ -612,6 +613,7 @@
         const tInputAmount = document.getElementById('tqqq-input-amount');
         const gInputAmount = document.getElementById('gldm-input-amount');
         const totalAutoAmount = document.getElementById('total-auto-amount');
+        const totalKrwAmount = document.getElementById('total-krw-amount');
         const quoteUpdatedAt = document.getElementById('quote-updated-at');
         
         const qAutoRatio = document.getElementById('qqqm-auto-ratio');
@@ -642,12 +644,18 @@
             TQQQ: 0,
             GLDM: 0
         };
+        let usdKrwRate = 0;
 
         const usdFormatter = new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
+        });
+        const krwFormatter = new Intl.NumberFormat('ko-KR', {
+            style: 'currency',
+            currency: 'KRW',
+            maximumFractionDigits: 0
         });
 
         function parseQuantity(value) {
@@ -683,15 +691,16 @@
             tMarketValue.textContent = usdFormatter.format(tAmt);
             gMarketValue.textContent = usdFormatter.format(gAmt);
             totalAutoAmount.textContent = usdFormatter.format(totalAmt);
+            totalKrwAmount.textContent = usdKrwRate ? krwFormatter.format(totalAmt * usdKrwRate) : '₩0';
 
             if (totalAmt > 0) {
                 const qPct = (qAmt / totalAmt) * 100;
                 const tPct = (tAmt / totalAmt) * 100;
                 const gPct = (gAmt / totalAmt) * 100;
 
-                qAutoRatio.textContent = qPct.toFixed(0);
-                tAutoRatio.textContent = tPct.toFixed(0);
-                gAutoRatio.textContent = gPct.toFixed(0);
+                qAutoRatio.textContent = qPct.toFixed(1);
+                tAutoRatio.textContent = tPct.toFixed(1);
+                gAutoRatio.textContent = gPct.toFixed(1);
                 if (nasdaqAutoRatio) nasdaqAutoRatio.textContent = (qPct + tPct).toFixed(1) + '%';
             } else {
                 qAutoRatio.textContent = '0';
@@ -1229,8 +1238,12 @@
 
             const quotes = quoteData.quotes || {};
             Object.assign(livePrices, quotes);
+            usdKrwRate = Number(quoteData.fx?.USDKRW) || usdKrwRate;
             updateAutoCalculations();
-            quoteUpdatedAt.textContent = `현재가 업데이트: ${new Date().toLocaleTimeString('ko-KR')}`;
+            const fxText = usdKrwRate
+                ? ` / USD-KRW ${usdKrwRate.toLocaleString('ko-KR', { maximumFractionDigits: 2 })}`
+                : ' / 환율 대기';
+            quoteUpdatedAt.textContent = `현재가/환율 업데이트: ${new Date().toLocaleTimeString('ko-KR')}${fxText}`;
 
             return quotes;
         }
