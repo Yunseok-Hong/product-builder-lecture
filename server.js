@@ -41,6 +41,7 @@ http.createServer((req, res) => {
         '.html': 'text/html',
         '.js': 'text/javascript',
         '.css': 'text/css',
+        '.webmanifest': 'application/manifest+json',
         '.json': 'application/json',
         '.png': 'image/png',
         '.jpg': 'image/jpg',
