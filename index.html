@@ -855,20 +855,40 @@
         const FINNHUB_KEY = 'd7qd8qpr01qi8jan0oegd7qd8qpr01qi8jan0of0';
         const SYMBOL = 'QQQM';
         const PORTFOLIO_SYMBOLS = ['QQQM', 'TQQQ', 'GLDM'];
+        const VAPID_PUBLIC_KEY = 'BOaROthSjD18q2BZMJRbbyoAi4JgiQ0IN3svlzee2GD_E8vT_wEqduNU-EwIoqxFSPu4DWO5UsNkXabRAK9xCTE';
         const notificationState = document.getElementById('notification-state');
 
-        function updateNotificationState() {
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
+        }
+
+        async function updateNotificationState() {
             if (!('Notification' in window)) {
-                notificationState.textContent = '알림 상태: 이 브라우저에서 지원 안 됨';
+                notificationState.textContent = '?? ??: ? ?????? ?? ? ?';
                 return;
             }
 
             const labelMap = {
-                granted: '허용됨',
-                denied: '차단됨',
-                default: '요청 전'
+                granted: '???',
+                denied: '???',
+                default: '?? ?'
             };
-            notificationState.textContent = `알림 상태: ${labelMap[Notification.permission] || Notification.permission}`;
+            let suffix = '';
+
+            if (Notification.permission === 'granted' && 'serviceWorker' in navigator && 'PushManager' in window) {
+                try {
+                    const registration = await navigator.serviceWorker.ready;
+                    const subscription = await registration.pushManager.getSubscription();
+                    suffix = subscription ? ' / ?? ?? ???' : ' / ?? ?? ???';
+                } catch (error) {
+                    suffix = ' / ?? ?? ?? ??';
+                }
+            }
+
+            notificationState.textContent = `?? ??: ${labelMap[Notification.permission] || Notification.permission}${suffix}`;
         }
 
         function buildRecommendationNotificationText() {
@@ -881,44 +901,79 @@
             ].join('\n');
         }
 
-        function requestNotificationPermission() {
+        async function savePushSubscription(subscription) {
+            const response = await fetch('/api/push-subscription', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(subscription)
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(result.error || `?? ?? ??: ${response.status}`);
+            return result;
+        }
+
+        async function ensureServerPushSubscription() {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                alert('? ????? ?? ?? ??? ???? ????. iPhone ? ?? PWA?? ?? ??? ???.');
+                return null;
+            }
+
+            const registration = await navigator.serviceWorker.ready;
+            let subscription = await registration.pushManager.getSubscription();
+            if (!subscription) {
+                subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                });
+            }
+
+            await savePushSubscription(subscription);
+            await updateNotificationState();
+            return subscription;
+        }
+
+        async function requestNotificationPermission() {
             if (!('Notification' in window)) {
-                updateNotificationState();
-                alert('이 브라우저에서는 알림을 지원하지 않습니다.');
+                await updateNotificationState();
+                alert('? ??????? ??? ???? ????.');
                 return;
             }
 
-            Notification.requestPermission().then(permission => {
-                updateNotificationState();
-                if (permission === "granted") {
-                    alert("알림 권한이 허용되었습니다!");
-                    new Notification("알림 시스템 시작", { body: "QQQM 감시가 시작되었습니다." });
-                } else if (permission === "denied") {
-                    alert("알림이 차단되어 있습니다. iPhone 설정에서 Market Pulse 알림을 허용해 주세요.");
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                try {
+                    await ensureServerPushSubscription();
+                    alert('?? ??? ???? ?? ?? ??? ???????.');
+                    new Notification('?? ??? ??', { body: 'QQQM ??? ???????.' });
+                } catch (error) {
+                    alert(`?? ??? ????? ?? ?? ?? ??? ??????: ${error.message}`);
                 }
-            });
+            } else if (permission === 'denied') {
+                alert('??? ???? ????. iPhone ???? Market Pulse ??? ??? ???.');
+            }
+            await updateNotificationState();
         }
 
         async function ensureNotificationPermission() {
             if (!('Notification' in window)) {
-                updateNotificationState();
-                alert('이 브라우저에서는 알림을 지원하지 않습니다.');
+                await updateNotificationState();
+                alert('? ??????? ??? ???? ????.');
                 return false;
             }
 
             if (Notification.permission === 'granted') {
-                updateNotificationState();
+                await updateNotificationState();
                 return true;
             }
 
             if (Notification.permission === 'denied') {
-                updateNotificationState();
-                alert('알림이 차단되어 있습니다. iPhone 설정에서 Market Pulse 알림을 허용해 주세요.');
+                await updateNotificationState();
+                alert('??? ???? ????. iPhone ???? Market Pulse ??? ??? ???.');
                 return false;
             }
 
             const permission = await Notification.requestPermission();
-            updateNotificationState();
+            await updateNotificationState();
             return permission === 'granted';
         }
 
@@ -926,10 +981,22 @@
             const allowed = await ensureNotificationPermission();
             if (!allowed) return;
 
-            new Notification('Market Pulse 리밸런싱 테스트', {
-                body: buildRecommendationNotificationText(),
-                requireInteraction: true
-            });
+            try {
+                await ensureServerPushSubscription();
+                const response = await fetch('/api/send-test-push', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: 'Market Pulse ?? ?? ???',
+                        body: buildRecommendationNotificationText()
+                    })
+                });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(result.error || `?? ?? ??: ${response.status}`);
+                alert(`?? ?? ?? ??: ?? ${result.success}, ?? ${result.failed}`);
+            } catch (error) {
+                alert(`?? ?? ??? ??: ${error.message}`);
+            }
         }
 
         async function fetchMarketData() {
