@@ -41,6 +41,8 @@
                 </div>
                 <div class="monitor-item" style="justify-content: flex-end; align-items: flex-end;">
                     <button class="alert-btn" onclick="requestNotificationPermission()">알림 권한 허용</button>
+                    <button class="alert-btn secondary-alert" onclick="sendRebalanceTestNotification()">리밸런싱 알림 테스트</button>
+                    <span class="notification-state" id="notification-state">알림 상태 확인 중...</span>
                 </div>
             </div>
         </section>
@@ -853,13 +855,80 @@
         const FINNHUB_KEY = 'd7qd8qpr01qi8jan0oegd7qd8qpr01qi8jan0of0';
         const SYMBOL = 'QQQM';
         const PORTFOLIO_SYMBOLS = ['QQQM', 'TQQQ', 'GLDM'];
+        const notificationState = document.getElementById('notification-state');
+
+        function updateNotificationState() {
+            if (!('Notification' in window)) {
+                notificationState.textContent = '알림 상태: 이 브라우저에서 지원 안 됨';
+                return;
+            }
+
+            const labelMap = {
+                granted: '허용됨',
+                denied: '차단됨',
+                default: '요청 전'
+            };
+            notificationState.textContent = `알림 상태: ${labelMap[Notification.permission] || Notification.permission}`;
+        }
+
+        function buildRecommendationNotificationText() {
+            return [
+                rebalanceSummary.textContent,
+                `QQQM: ${qqqmOrder.textContent}`,
+                `TQQQ: ${tqqqOrder.textContent}`,
+                `GLDM: ${gldmOrder.textContent}`,
+                rebalanceProjection.textContent
+            ].join('\n');
+        }
 
         function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                updateNotificationState();
+                alert('이 브라우저에서는 알림을 지원하지 않습니다.');
+                return;
+            }
+
             Notification.requestPermission().then(permission => {
+                updateNotificationState();
                 if (permission === "granted") {
                     alert("알림 권한이 허용되었습니다!");
                     new Notification("알림 시스템 시작", { body: "QQQM 감시가 시작되었습니다." });
+                } else if (permission === "denied") {
+                    alert("알림이 차단되어 있습니다. iPhone 설정에서 Market Pulse 알림을 허용해 주세요.");
                 }
+            });
+        }
+
+        async function ensureNotificationPermission() {
+            if (!('Notification' in window)) {
+                updateNotificationState();
+                alert('이 브라우저에서는 알림을 지원하지 않습니다.');
+                return false;
+            }
+
+            if (Notification.permission === 'granted') {
+                updateNotificationState();
+                return true;
+            }
+
+            if (Notification.permission === 'denied') {
+                updateNotificationState();
+                alert('알림이 차단되어 있습니다. iPhone 설정에서 Market Pulse 알림을 허용해 주세요.');
+                return false;
+            }
+
+            const permission = await Notification.requestPermission();
+            updateNotificationState();
+            return permission === 'granted';
+        }
+
+        async function sendRebalanceTestNotification() {
+            const allowed = await ensureNotificationPermission();
+            if (!allowed) return;
+
+            new Notification('Market Pulse 리밸런싱 테스트', {
+                body: buildRecommendationNotificationText(),
+                requireInteraction: true
             });
         }
 
@@ -977,12 +1046,7 @@
 
         function triggerFinalAlert() {
             const title = `장 마감 전: QQQM ${dailyAlertFlag.type}! (클릭하여 확인)`;
-            const recommendationText = [
-                rebalanceSummary.textContent,
-                `QQQM: ${qqqmOrder.textContent}`,
-                `TQQQ: ${tqqqOrder.textContent}`,
-                `GLDM: ${gldmOrder.textContent}`
-            ].join('\n');
+            const recommendationText = buildRecommendationNotificationText();
             const body = `기록된 도달가: $${dailyAlertFlag.price.toFixed(2)} (%b: ${dailyAlertFlag.bPercent.toFixed(2)})\n${recommendationText}\n알림 창을 클릭해야 반복 알림이 종료됩니다.`;
             
             if (Notification.permission === "granted") {
@@ -1008,7 +1072,10 @@
                 navigator.serviceWorker.register('/service-worker.js').catch(error => {
                     console.error('Service worker registration failed:', error);
                 });
+                updateNotificationState();
             });
+        } else {
+            updateNotificationState();
         }
     </script>
 

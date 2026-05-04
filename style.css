@@ -468,6 +468,23 @@ h1 {
     transform: scale(1.05);
 }
 
+.alert-btn.secondary-alert {
+    margin-top: 0.6rem;
+    background: #0f172a;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+}
+
+.alert-btn.secondary-alert:hover {
+    background: #1e293b;
+}
+
+.notification-state {
+    color: #94a3b8;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-top: 0.55rem;
+}
+
 footer {
     margin-top: auto;
     padding: 2rem;
