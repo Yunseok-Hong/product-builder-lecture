@@ -1,4 +1,4 @@
-const CACHE_NAME = 'market-pulse-v3';
+const CACHE_NAME = 'market-pulse-v4';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -44,6 +44,19 @@ self.addEventListener('fetch', event => {
           return response;
         })
         .catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
+
+  if (requestUrl.pathname.endsWith('.css') || requestUrl.pathname.endsWith('.js') || requestUrl.pathname.endsWith('.webmanifest')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          const responseCopy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseCopy));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
     );
     return;
   }

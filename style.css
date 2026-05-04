@@ -46,10 +46,12 @@ h1 {
     width: 100%;
 }
 
+.tab-panel[hidden] {
+    display: none !important;
+}
+
 .tab-panel:not(.active) {
-    position: absolute;
-    left: -9999px;
-    top: auto;
+    display: none !important;
     visibility: hidden;
     pointer-events: none;
 }

@@ -424,6 +424,10 @@
             const tabButtons = Array.from(document.querySelectorAll('[data-tab-target]'));
             const tabPanels = Array.from(document.querySelectorAll('[data-tab-panel]'));
 
+            tabPanels.forEach(panel => {
+                panel.hidden = !panel.classList.contains('active');
+            });
+
             tabButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const target = button.dataset.tabTarget;
@@ -435,7 +439,9 @@
                     });
 
                     tabPanels.forEach(panel => {
-                        panel.classList.toggle('active', panel.dataset.tabPanel === target);
+                        const isActive = panel.dataset.tabPanel === target;
+                        panel.classList.toggle('active', isActive);
+                        panel.hidden = !isActive;
                     });
 
                     if (target === 'charts') {
