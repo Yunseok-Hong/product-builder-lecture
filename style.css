@@ -1,16 +1,15 @@
 :root {
     --bottom-tabs-height: 76px;
-    --app-bg: #fefae0;
-    --app-bg-soft: #e9edc9;
-    --surface: #faedcd;
-    --surface-strong: #fefae0;
-    --sage: #ccd5ae;
-    --accent: #d4a373;
-    --accent-dark: #8a5a2b;
-    --text: #3a2f24;
-    --muted: #786854;
-    --line: rgba(138, 90, 43, 0.22);
-    --shadow: rgba(138, 90, 43, 0.16);
+    --app-bg: #f7f1e8;
+    --app-bg-soft: #dfd3c3;
+    --surface: #eadfd2;
+    --surface-strong: #fbf6ef;
+    --accent: #9f8473;
+    --accent-dark: #6c5d53;
+    --text: #3f352f;
+    --muted: #6c5d53;
+    --line: rgba(108, 93, 83, 0.22);
+    --shadow: rgba(108, 93, 83, 0.16);
 }
 
 html {
@@ -35,7 +34,7 @@ body {
 header {
     padding: 2rem;
     text-align: center;
-    background: linear-gradient(180deg, rgba(204, 213, 174, 0.75) 0%, rgba(254, 250, 224, 0) 100%);
+    background: linear-gradient(180deg, rgba(199, 177, 153, 0.58) 0%, rgba(247, 241, 232, 0) 100%);
 }
 
 h1 {
@@ -95,7 +94,7 @@ h1 {
     gap: 0.35rem;
     min-height: var(--bottom-tabs-height);
     padding: 0.55rem 0.75rem calc(0.55rem + env(safe-area-inset-bottom));
-    background: rgba(254, 250, 224, 0.94);
+    background: rgba(247, 241, 232, 0.94);
     border-top: 1px solid var(--line);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
@@ -123,8 +122,8 @@ h1 {
 
 .tab-button.active {
     color: var(--text);
-    background: rgba(212, 163, 115, 0.22);
-    border-color: rgba(138, 90, 43, 0.24);
+    background: rgba(159, 132, 115, 0.2);
+    border-color: rgba(108, 93, 83, 0.26);
 }
 
 .tab-icon {
@@ -134,7 +133,7 @@ h1 {
     width: 22px;
     height: 22px;
     border-radius: 999px;
-    background: rgba(204, 213, 174, 0.65);
+    background: rgba(199, 177, 153, 0.42);
     font-size: 0.72rem;
 }
 
@@ -173,7 +172,7 @@ h1 {
 }
 
 .card {
-    background: rgba(250, 237, 205, 0.8);
+    background: rgba(223, 211, 195, 0.72);
     border: 1px solid var(--line);
     border-radius: 24px;
     padding: 1.5rem;
@@ -185,7 +184,7 @@ h1 {
 
 .card:hover {
     transform: translateY(-5px);
-    border-color: rgba(138, 90, 43, 0.36);
+    border-color: rgba(108, 93, 83, 0.36);
 }
 
 .card-header {
@@ -242,7 +241,7 @@ h1 {
 
 .calculator {
     grid-column: 1 / -1;
-    background: rgba(250, 237, 205, 0.86);
+    background: rgba(223, 211, 195, 0.76);
     border: 1px solid var(--line);
     border-radius: 24px;
     padding: 2.5rem;
@@ -285,8 +284,8 @@ h1 {
 
 .input-wrapper input {
     width: 100%;
-    background: rgba(254, 250, 224, 0.88);
-    border: 1px solid rgba(138, 90, 43, 0.2);
+    background: rgba(251, 246, 239, 0.88);
+    border: 1px solid rgba(108, 93, 83, 0.2);
     border-radius: 12px;
     padding: 1rem;
     padding-right: 3rem;
@@ -299,7 +298,7 @@ h1 {
 .input-wrapper input:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 4px rgba(212, 163, 115, 0.18);
+    box-shadow: 0 0 0 4px rgba(159, 132, 115, 0.18);
 }
 
 .input-wrapper .unit {
@@ -315,11 +314,11 @@ h1 {
     gap: 1.5rem;
     margin-top: 2rem;
     padding-top: 2rem;
-    border-top: 1px solid rgba(138, 90, 43, 0.14);
+    border-top: 1px solid rgba(108, 93, 83, 0.14);
 }
 
 .result-item {
-    background: rgba(254, 250, 224, 0.72);
+    background: rgba(251, 246, 239, 0.7);
     padding: 1.5rem;
     border-radius: 16px;
     display: flex;
@@ -352,8 +351,8 @@ h1 {
 .lot-panel {
     margin-top: 1.5rem;
     padding: 1.5rem;
-    background: rgba(254, 250, 224, 0.6);
-    border: 1px solid rgba(138, 90, 43, 0.16);
+    background: rgba(251, 246, 239, 0.55);
+    border: 1px solid rgba(108, 93, 83, 0.16);
     border-radius: 16px;
 }
 
@@ -412,8 +411,8 @@ h1 {
     flex-direction: column;
     gap: 0.45rem;
     padding: 1rem;
-    background: rgba(250, 237, 205, 0.75);
-    border: 1px solid rgba(138, 90, 43, 0.14);
+    background: rgba(223, 211, 195, 0.48);
+    border: 1px solid rgba(108, 93, 83, 0.14);
     border-radius: 12px;
 }
 
@@ -434,8 +433,8 @@ h1 {
 }
 
 .secondary-btn {
-    border: 1px solid rgba(138, 90, 43, 0.26);
-    background: rgba(212, 163, 115, 0.18);
+    border: 1px solid rgba(108, 93, 83, 0.26);
+    background: rgba(159, 132, 115, 0.17);
     color: var(--text);
     border-radius: 10px;
     padding: 0.75rem 1rem;
@@ -466,8 +465,8 @@ h1 {
     align-items: center;
     gap: 1rem;
     padding: 0.9rem 1rem;
-    background: rgba(250, 237, 205, 0.75);
-    border: 1px solid rgba(138, 90, 43, 0.14);
+    background: rgba(223, 211, 195, 0.48);
+    border: 1px solid rgba(108, 93, 83, 0.14);
     border-radius: 12px;
 }
 
@@ -497,7 +496,7 @@ h1 {
 }
 
 .lot-state.hold {
-    background: rgba(204, 213, 174, 0.35);
+    background: rgba(199, 177, 153, 0.32);
     color: var(--text);
 }
 
@@ -518,7 +517,7 @@ h1 {
 
 .alert-monitor {
     grid-column: 1 / -1;
-    background: rgba(250, 237, 205, 0.86);
+    background: rgba(223, 211, 195, 0.76);
     border: 1px solid var(--line);
     border-radius: 24px;
     padding: 2rem;
@@ -604,13 +603,13 @@ h1 {
 
 .alert-btn.secondary-alert {
     margin-top: 0.6rem;
-    background: rgba(254, 250, 224, 0.8);
-    border: 1px solid rgba(138, 90, 43, 0.26);
+    background: rgba(251, 246, 239, 0.78);
+    border: 1px solid rgba(108, 93, 83, 0.26);
     color: var(--text);
 }
 
 .alert-btn.secondary-alert:hover {
-    background: rgba(212, 163, 115, 0.24);
+    background: rgba(159, 132, 115, 0.2);
 }
 
 .notification-state {
@@ -621,8 +620,8 @@ h1 {
 }
 
 .server-status-panel {
-    background: rgba(254, 250, 224, 0.62);
-    border: 1px solid rgba(138, 90, 43, 0.16);
+    background: rgba(251, 246, 239, 0.58);
+    border: 1px solid rgba(108, 93, 83, 0.16);
     border-radius: 16px;
     padding: 1rem;
 }
