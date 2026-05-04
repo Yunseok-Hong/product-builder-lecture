@@ -45,6 +45,25 @@
                     <span class="notification-state" id="notification-state">알림 상태 확인 중...</span>
                 </div>
             </div>
+            <div class="server-status-panel">
+                <div class="server-status-header">
+                    <div>
+                        <span class="monitor-label">서버 감시 상태</span>
+                        <div class="server-status-value" id="server-monitor-status">확인 중...</div>
+                    </div>
+                    <label class="ack-control">
+                        <input type="checkbox" id="alert-ack-checkbox">
+                        <span>오늘 알림 확인 완료</span>
+                    </label>
+                </div>
+                <div class="server-status-grid">
+                    <span id="server-last-check">마지막 확인: --</span>
+                    <span id="server-bpercent">서버 BB %b: --</span>
+                    <span id="server-market-calendar">시장 캘린더: --</span>
+                    <span id="server-last-push">마지막 알림: --</span>
+                </div>
+                <div class="server-calendar-warning" id="server-calendar-warning"></div>
+            </div>
         </section>
         <!-- QQQM Card -->
         <section class="card" id="qqqm-card">
@@ -852,11 +871,17 @@
         }
 
         // --- Finnhub Monitoring Logic ---
-        const FINNHUB_KEY = 'd7qd8qpr01qi8jan0oegd7qd8qpr01qi8jan0of0';
         const SYMBOL = 'QQQM';
         const PORTFOLIO_SYMBOLS = ['QQQM', 'TQQQ', 'GLDM'];
         const VAPID_PUBLIC_KEY = 'BOaROthSjD18q2BZMJRbbyoAi4JgiQ0IN3svlzee2GD_E8vT_wEqduNU-EwIoqxFSPu4DWO5UsNkXabRAK9xCTE';
         const notificationState = document.getElementById('notification-state');
+        const serverMonitorStatus = document.getElementById('server-monitor-status');
+        const serverLastCheck = document.getElementById('server-last-check');
+        const serverBPercent = document.getElementById('server-bpercent');
+        const serverMarketCalendar = document.getElementById('server-market-calendar');
+        const serverLastPush = document.getElementById('server-last-push');
+        const serverCalendarWarning = document.getElementById('server-calendar-warning');
+        const alertAckCheckbox = document.getElementById('alert-ack-checkbox');
 
         function urlBase64ToUint8Array(base64String) {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -999,6 +1024,69 @@
             }
         }
 
+        function formatDateTime(value) {
+            if (!value) return '--';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '--';
+            return date.toLocaleString('ko-KR');
+        }
+
+        function describeMarketStatus(marketStatus) {
+            if (!marketStatus) return '--';
+            if (!marketStatus.isTradingDay) {
+                return marketStatus.isWeekend ? '주말 휴장' : '미국 휴장일';
+            }
+            return marketStatus.isEarlyClose
+                ? `조기 폐장일, 알림 ${marketStatus.alertTimeEt} ET`
+                : `정상 거래일, 알림 ${marketStatus.alertTimeEt} ET`;
+        }
+
+        async function loadServerMonitorStatus() {
+            try {
+                const response = await fetch('/api/monitor-status');
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || `상태 확인 실패: ${response.status}`);
+
+                const status = data.monitorStatus || {};
+                const alertState = data.alertState || {};
+                serverMonitorStatus.textContent = status.ok
+                    ? status.mode === 'skipped' ? `대기 (${status.reason})` : '정상 감시 중'
+                    : '상태 없음';
+                serverLastCheck.textContent = `마지막 확인: ${formatDateTime(status.updatedAt)}`;
+                serverBPercent.textContent = `서버 BB %b: ${typeof status.bPercent === 'number' ? status.bPercent.toFixed(4) : '--'}`;
+                serverMarketCalendar.textContent = `시장 캘린더: ${describeMarketStatus(status.marketStatus)}`;
+                serverLastPush.textContent = `마지막 알림: ${formatDateTime(alertState.lastPushedAtIso)}`;
+                serverCalendarWarning.textContent = status.marketStatus?.calendarWarning || '';
+                alertAckCheckbox.checked = Boolean(alertState.acknowledged);
+            } catch (error) {
+                serverMonitorStatus.textContent = '상태 확인 실패';
+                serverCalendarWarning.textContent = error.message;
+            }
+        }
+
+        async function setTodayAlertAcknowledged(acknowledged) {
+            const response = await fetch('/api/ack-alert', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ acknowledged })
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(result.error || `확인 상태 저장 실패: ${response.status}`);
+            await loadServerMonitorStatus();
+        }
+
+        alertAckCheckbox.addEventListener('change', async () => {
+            alertAckCheckbox.disabled = true;
+            try {
+                await setTodayAlertAcknowledged(alertAckCheckbox.checked);
+            } catch (error) {
+                alert(error.message);
+                alertAckCheckbox.checked = !alertAckCheckbox.checked;
+            } finally {
+                alertAckCheckbox.disabled = false;
+            }
+        });
+
         async function fetchMarketData() {
             try {
                 // 1. Finnhub으로 현재가 가져오기 (quote는 무료로 가능)
@@ -1031,19 +1119,11 @@
         }
 
         async function fetchLiveQuotes(symbols) {
-            const results = await Promise.all(symbols.map(async (symbol) => {
-                const quoteUrl = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`;
-                const quoteRes = await fetch(quoteUrl);
-                if (!quoteRes.ok) throw new Error(`Finnhub 오류: ${quoteRes.status}`);
+            const quoteRes = await fetch(`/api/quotes?symbols=${symbols.join(',')}`);
+            const quoteData = await quoteRes.json();
+            if (!quoteRes.ok) throw new Error(quoteData.error || `현재가 오류: ${quoteRes.status}`);
 
-                const quoteData = await quoteRes.json();
-                const price = Number(quoteData.c);
-                if (!price) throw new Error(`${symbol} 현재가 없음`);
-
-                return [symbol, price];
-            }));
-
-            const quotes = Object.fromEntries(results);
+            const quotes = quoteData.quotes || {};
             Object.assign(livePrices, quotes);
             updateAutoCalculations();
             quoteUpdatedAt.textContent = `현재가 업데이트: ${new Date().toLocaleTimeString('ko-KR')}`;
@@ -1132,7 +1212,9 @@
         }
 
         setInterval(fetchMarketData, 30000);
+        setInterval(loadServerMonitorStatus, 60000);
         fetchMarketData();
+        loadServerMonitorStatus();
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

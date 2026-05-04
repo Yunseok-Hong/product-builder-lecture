@@ -485,6 +485,60 @@ h1 {
     margin-top: 0.55rem;
 }
 
+.server-status-panel {
+    background: rgba(15, 23, 42, 0.45);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 16px;
+    padding: 1rem;
+}
+
+.server-status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.server-status-value {
+    color: #e2e8f0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin-top: 0.25rem;
+}
+
+.ack-control {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #cbd5e1;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.ack-control input {
+    width: 18px;
+    height: 18px;
+    accent-color: #10b981;
+}
+
+.server-status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.server-calendar-warning {
+    color: #fbbf24;
+    font-size: 0.88rem;
+    font-weight: 800;
+    margin-top: 0.8rem;
+}
+
 footer {
     margin-top: auto;
     padding: 2rem;

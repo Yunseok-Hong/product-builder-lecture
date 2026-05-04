@@ -1,8 +1,22 @@
 const SYMBOL = 'QQQM';
 const SUBSCRIPTIONS_KEY = 'push_subscriptions';
-const SETTINGS_KEY = 'user_settings';
 const ALERT_STATE_KEY = 'server_alert_state';
+const MONITOR_STATUS_KEY = 'server_monitor_status';
 const CHECK_INTERVAL_NOTICE = 'Cloudflare Cron should run this worker every 1 minute.';
+const CALENDAR_MAX_YEAR = 2028;
+const MARKET_HOLIDAYS = new Set([
+    '2026-01-01', '2026-01-19', '2026-02-16', '2026-04-03', '2026-05-25',
+    '2026-06-19', '2026-07-03', '2026-09-07', '2026-11-26', '2026-12-25',
+    '2027-01-01', '2027-01-18', '2027-02-15', '2027-03-26', '2027-05-31',
+    '2027-06-18', '2027-07-05', '2027-09-06', '2027-11-25', '2027-12-24',
+    '2028-01-17', '2028-02-21', '2028-04-14', '2028-05-29', '2028-06-19',
+    '2028-07-04', '2028-09-04', '2028-11-23', '2028-12-25'
+]);
+const EARLY_CLOSE_DATES = new Set([
+    '2026-07-02', '2026-11-27', '2026-12-24',
+    '2027-07-02', '2027-11-26',
+    '2028-07-03', '2028-11-24'
+]);
 const encoder = new TextEncoder();
 
 function base64UrlToBytes(value) {
@@ -178,6 +192,7 @@ function getNewYorkParts(date = new Date()) {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
+        weekday: 'short',
         hour: '2-digit',
         minute: '2-digit',
         hour12: false
@@ -188,13 +203,43 @@ function getNewYorkParts(date = new Date()) {
 
     return {
         dateKey: `${parts.year}-${parts.month}-${parts.day}`,
+        year: Number(parts.year),
+        month: Number(parts.month),
+        weekday: parts.weekday,
         hour: Number(parts.hour),
         minute: Number(parts.minute)
     };
 }
 
-function isAfterAlertTime(parts) {
-    return parts.hour > 15 || (parts.hour === 15 && parts.minute >= 30);
+function getMarketCalendarStatus(parts) {
+    const isWeekend = parts.weekday === 'Sat' || parts.weekday === 'Sun';
+    const isHoliday = MARKET_HOLIDAYS.has(parts.dateKey);
+    const isEarlyClose = EARLY_CLOSE_DATES.has(parts.dateKey);
+    const closeHour = isEarlyClose ? 13 : 16;
+    const alertHour = isEarlyClose ? 12 : 15;
+    const alertMinute = 30;
+    const shouldReviewCalendar = parts.month >= 11;
+    const calendarWarning = parts.year >= CALENDAR_MAX_YEAR
+        ? `Hardcoded NYSE market calendar ends in ${CALENDAR_MAX_YEAR}. Update next year's holidays and early closes.`
+        : shouldReviewCalendar
+            ? 'Annual reminder: review and hardcode next year NYSE holidays/early closes before year-end.'
+            : null;
+
+    return {
+        isTradingDay: !isWeekend && !isHoliday,
+        isWeekend,
+        isHoliday,
+        isEarlyClose,
+        closeTimeEt: `${String(closeHour).padStart(2, '0')}:00`,
+        alertTimeEt: `${String(alertHour).padStart(2, '0')}:${String(alertMinute).padStart(2, '0')}`,
+        calendarMaxYear: CALENDAR_MAX_YEAR,
+        calendarWarning
+    };
+}
+
+function isAfterAlertTime(parts, marketStatus) {
+    const [alertHour, alertMinute] = marketStatus.alertTimeEt.split(':').map(Number);
+    return parts.hour > alertHour || (parts.hour === alertHour && parts.minute >= alertMinute);
 }
 
 async function fetchQuote(symbol, env) {
@@ -248,6 +293,13 @@ async function readJson(env, key, fallback) {
     return raw ? JSON.parse(raw) : fallback;
 }
 
+async function writeMonitorStatus(env, status) {
+    await env.KV.put(MONITOR_STATUS_KEY, JSON.stringify({
+        ...status,
+        updatedAt: new Date().toISOString()
+    }));
+}
+
 async function notifySubscriptions(env, payload) {
     const subscriptions = await readJson(env, SUBSCRIPTIONS_KEY, []);
     const results = await Promise.allSettled(
@@ -277,15 +329,31 @@ function buildPushBody(state) {
 
 async function runMonitor(env) {
     const nyParts = getNewYorkParts();
-    const currentPrice = await fetchQuote(SYMBOL, env);
-    const closes = await fetchRecentCloses(SYMBOL);
-    const bPercent = calculateBPercent(currentPrice, closes);
+    const marketStatus = getMarketCalendarStatus(nyParts);
     const previousState = await readJson(env, ALERT_STATE_KEY, {});
     let state = previousState.dateKey === nyParts.dateKey ? previousState : {
         dateKey: nyParts.dateKey,
         acknowledged: false,
         lastPushedAt: 0
     };
+
+    if (!marketStatus.isTradingDay) {
+        const status = {
+            ok: true,
+            mode: 'skipped',
+            reason: marketStatus.isWeekend ? 'weekend' : 'market holiday',
+            nyDate: nyParts.dateKey,
+            marketStatus,
+            alertState: state,
+            pushed: false
+        };
+        await writeMonitorStatus(env, status);
+        return status;
+    }
+
+    const currentPrice = await fetchQuote(SYMBOL, env);
+    const closes = await fetchRecentCloses(SYMBOL);
+    const bPercent = calculateBPercent(currentPrice, closes);
 
     if (bPercent <= 0 || bPercent >= 1) {
         state = {
@@ -302,7 +370,7 @@ async function runMonitor(env) {
     }
 
     const shouldPush = state.type
-        && isAfterAlertTime(nyParts)
+        && isAfterAlertTime(nyParts, marketStatus)
         && !state.acknowledged
         && Date.now() - Number(state.lastPushedAt || 0) >= 5 * 60 * 1000;
 
@@ -319,16 +387,20 @@ async function runMonitor(env) {
         await env.KV.put(ALERT_STATE_KEY, JSON.stringify(state));
     }
 
-    return {
+    const status = {
         ok: true,
         notice: CHECK_INTERVAL_NOTICE,
         nyDate: nyParts.dateKey,
         currentPrice,
         bPercent,
+        marketStatus,
         alertState: state,
         pushed: Boolean(pushResult),
         pushResult
     };
+    await writeMonitorStatus(env, status);
+
+    return status;
 }
 
 async function runTestPush(env) {
