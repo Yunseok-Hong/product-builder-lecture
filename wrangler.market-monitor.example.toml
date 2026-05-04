@@ -1,0 +1,16 @@
+name = "market-pulse-monitor"
+main = "workers/market-monitor.js"
+compatibility_date = "2026-05-04"
+
+[triggers]
+crons = ["* * * * *"]
+
+[[kv_namespaces]]
+binding = "KV"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+
+# Required Worker variables/secrets:
+# FINNHUB_KEY
+# VAPID_PUBLIC_KEY
+# VAPID_PRIVATE_KEY
+# VAPID_SUBJECT

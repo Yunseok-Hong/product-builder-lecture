@@ -1,4 +1,4 @@
-const CACHE_NAME = 'market-pulse-v2';
+const CACHE_NAME = 'market-pulse-v3';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -62,11 +62,12 @@ self.addEventListener('push', event => {
   const data = event.data ? event.data.json() : {};
   const title = data.title || 'Market Pulse';
   const options = {
-    body: data.body || '새 알림이 도착했습니다.',
+    body: data.body || 'A new alert has arrived.',
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
     data: {
-      url: data.url || '/'
+      url: data.url || '/',
+      ackUrl: data.ackUrl || null
     }
   };
 
@@ -76,12 +77,16 @@ self.addEventListener('push', event => {
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   const targetUrl = new URL(event.notification.data?.url || '/', self.location.origin).href;
+  const ackUrl = event.notification.data?.ackUrl;
 
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
-      const existingClient = clients.find(client => client.url === targetUrl);
-      if (existingClient) return existingClient.focus();
-      return self.clients.openWindow(targetUrl);
-    })
+    Promise.all([
+      ackUrl ? fetch(ackUrl, { method: 'POST' }).catch(() => null) : Promise.resolve(null),
+      self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+        const existingClient = clients.find(client => client.url === targetUrl);
+        if (existingClient) return existingClient.focus();
+        return self.clients.openWindow(targetUrl);
+      })
+    ])
   );
 });
