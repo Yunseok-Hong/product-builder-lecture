@@ -289,6 +289,29 @@ h1 {
     gap: 1rem;
 }
 
+#tab-holdings .holdings-summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.holding-asset-card {
+    background: rgba(251, 246, 239, 0.62);
+    border: 1px solid rgba(108, 93, 83, 0.14);
+    border-radius: 14px;
+    padding: 1rem;
+}
+
+.holding-asset-card.qqqm {
+    border-left: 4px solid #3b82f6;
+}
+
+.holding-asset-card.tqqq {
+    border-left: 4px solid #ff416c;
+}
+
+.holding-asset-card.gldm {
+    border-left: 4px solid #f59e0b;
+}
+
 #tab-holdings .holdings-row {
     display: grid;
     grid-template-columns: minmax(120px, 1fr) minmax(150px, 220px);
@@ -307,6 +330,25 @@ h1 {
 
 #tab-holdings .holdings-row .input-wrapper input {
     text-align: right;
+}
+
+.holding-data-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.holding-data-row strong {
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 800;
+    text-align: right;
+    white-space: nowrap;
 }
 
 .input-group {
@@ -362,6 +404,14 @@ h1 {
     border-top: 1px solid rgba(108, 93, 83, 0.14);
 }
 
+#tab-holdings .holdings-ratio-results {
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-top: 1rem;
+    padding-top: 0;
+    border-top: 0;
+}
+
 .result-item {
     background: rgba(251, 246, 239, 0.7);
     padding: 1.5rem;
@@ -369,6 +419,52 @@ h1 {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+}
+
+#tab-holdings .holdings-ratio-card {
+    background: rgba(199, 177, 153, 0.26);
+    border: 1px solid rgba(108, 93, 83, 0.18);
+    color: #786854;
+    padding: 15px;
+    gap: 0.45rem;
+    text-align: center;
+}
+
+#tab-holdings .holdings-ratio-card .result-label {
+    color: #786854;
+    font-weight: 600;
+    text-align: center;
+}
+
+.ratio-triplet {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.55rem;
+    font-size: 1.35rem;
+    font-weight: 800;
+}
+
+.ratio-number {
+    font-size: 1.35rem;
+    font-weight: 800;
+}
+
+.ratio-number.qqqm {
+    color: #3b82f6;
+}
+
+.ratio-number.tqqq {
+    color: #ff416c;
+}
+
+.ratio-number.gldm {
+    color: #f59e0b;
+}
+
+.ratio-separator {
+    color: #786854;
+    font-weight: 800;
 }
 
 .result-label {
@@ -744,6 +840,12 @@ footer {
     text-align: center;
     color: var(--muted);
     font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+    #tab-holdings .holdings-summary-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 480px) {

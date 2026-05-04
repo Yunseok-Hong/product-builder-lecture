@@ -32,26 +32,56 @@
                                 <div class="holdings-title-sub">(현재가 기준 비중 자동 계산)</div>
                             </div>
                         </div>
-                        <div class="calc-grid">
-                            <div class="input-group holdings-row">
-                                <label>QQQM 보유 수량</label>
-                                <div class="input-wrapper">
-                                    <input type="text" id="qqqm-input-amount" value="0" inputmode="decimal">
-                                    <span class="unit">주</span>
+                        <div class="calc-grid holdings-summary-grid">
+                            <div class="holding-asset-card qqqm">
+                                <div class="input-group holdings-row">
+                                    <label>QQQM 보유 수량</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="qqqm-input-amount" value="0" inputmode="decimal">
+                                        <span class="unit">주</span>
+                                    </div>
+                                </div>
+                                <div class="holding-data-row">
+                                    <span>QQQM 현재가</span>
+                                    <strong id="qqqm-live-price">--</strong>
+                                </div>
+                                <div class="holding-data-row">
+                                    <span>QQQM 평가금액</span>
+                                    <strong id="qqqm-market-value">$0.00</strong>
                                 </div>
                             </div>
-                            <div class="input-group holdings-row">
-                                <label>TQQQ 보유 수량</label>
-                                <div class="input-wrapper">
-                                    <input type="text" id="tqqq-input-amount" value="0" inputmode="decimal">
-                                    <span class="unit">주</span>
+                            <div class="holding-asset-card tqqq">
+                                <div class="input-group holdings-row">
+                                    <label>TQQQ 보유 수량</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="tqqq-input-amount" value="0" inputmode="decimal">
+                                        <span class="unit">주</span>
+                                    </div>
+                                </div>
+                                <div class="holding-data-row">
+                                    <span>TQQQ 현재가</span>
+                                    <strong id="tqqq-live-price">--</strong>
+                                </div>
+                                <div class="holding-data-row">
+                                    <span>TQQQ 평가금액</span>
+                                    <strong id="tqqq-market-value">$0.00</strong>
                                 </div>
                             </div>
-                            <div class="input-group holdings-row">
-                                <label>GLDM 보유 수량</label>
-                                <div class="input-wrapper">
-                                    <input type="text" id="gldm-input-amount" value="0" inputmode="decimal">
-                                    <span class="unit">주</span>
+                            <div class="holding-asset-card gldm">
+                                <div class="input-group holdings-row">
+                                    <label>GLDM 보유 수량</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="gldm-input-amount" value="0" inputmode="decimal">
+                                        <span class="unit">주</span>
+                                    </div>
+                                </div>
+                                <div class="holding-data-row">
+                                    <span>GLDM 현재가</span>
+                                    <strong id="gldm-live-price">--</strong>
+                                </div>
+                                <div class="holding-data-row">
+                                    <span>GLDM 평가금액</span>
+                                    <strong id="gldm-market-value">$0.00</strong>
                                 </div>
                             </div>
                             <div class="input-group" style="grid-column: 1 / -1;">
@@ -62,28 +92,16 @@
                             </div>
                         </div>
             
-                        <div class="results">
-                            <div class="result-item">
-                                <span class="result-label">QQQM 현재가 / 평가금액</span>
-                                <span class="holding-meta" id="qqqm-live-price">현재가 --</span>
-                                <span class="holding-meta" id="qqqm-market-value">$0.00</span>
-                                <span class="result-value" id="qqqm-auto-ratio">0.0%</span>
-                            </div>
-                            <div class="result-item">
-                                <span class="result-label">TQQQ 현재가 / 평가금액</span>
-                                <span class="holding-meta" id="tqqq-live-price">현재가 --</span>
-                                <span class="holding-meta" id="tqqq-market-value">$0.00</span>
-                                <span class="result-value" id="tqqq-auto-ratio" style="color: #FF416C;">0.0%</span>
-                            </div>
-                            <div class="result-item">
-                                <span class="result-label">GLDM 현재가 / 평가금액</span>
-                                <span class="holding-meta" id="gldm-live-price">현재가 --</span>
-                                <span class="holding-meta" id="gldm-market-value">$0.00</span>
-                                <span class="result-value gold" id="gldm-auto-ratio">0.0%</span>
-                            </div>
-                            <div class="result-item" style="grid-column: 1 / -1; background: #dfd3c3;">
-                                <span class="result-label" style="text-align: center;">나스닥 총 비중 (QQQM + TQQQ)</span>
-                                <span class="result-value" id="nasdaq-auto-ratio" style="color: #6c5d53; text-align: center;">0.0%</span>
+                        <div class="results holdings-ratio-results">
+                            <div class="result-item holdings-ratio-card">
+                                <span class="result-label">QQQM : TQQQ : GLDM</span>
+                                <div class="ratio-triplet" aria-label="QQQM TQQQ GLDM 비중">
+                                    <strong class="ratio-number qqqm" id="qqqm-auto-ratio">0</strong>
+                                    <span class="ratio-separator">:</span>
+                                    <strong class="ratio-number tqqq" id="tqqq-auto-ratio">0</strong>
+                                    <span class="ratio-separator">:</span>
+                                    <strong class="ratio-number gldm" id="gldm-auto-ratio">0</strong>
+                                </div>
                             </div>
                         </div>
             
@@ -658,9 +676,9 @@
             const gAmt = gQty * livePrices.GLDM;
             const totalAmt = qAmt + tAmt + gAmt;
 
-            qLivePrice.textContent = `현재가 ${livePrices.QQQM ? usdFormatter.format(livePrices.QQQM) : '--'}`;
-            tLivePrice.textContent = `현재가 ${livePrices.TQQQ ? usdFormatter.format(livePrices.TQQQ) : '--'}`;
-            gLivePrice.textContent = `현재가 ${livePrices.GLDM ? usdFormatter.format(livePrices.GLDM) : '--'}`;
+            qLivePrice.textContent = livePrices.QQQM ? usdFormatter.format(livePrices.QQQM) : '--';
+            tLivePrice.textContent = livePrices.TQQQ ? usdFormatter.format(livePrices.TQQQ) : '--';
+            gLivePrice.textContent = livePrices.GLDM ? usdFormatter.format(livePrices.GLDM) : '--';
             qMarketValue.textContent = usdFormatter.format(qAmt);
             tMarketValue.textContent = usdFormatter.format(tAmt);
             gMarketValue.textContent = usdFormatter.format(gAmt);
@@ -671,15 +689,15 @@
                 const tPct = (tAmt / totalAmt) * 100;
                 const gPct = (gAmt / totalAmt) * 100;
 
-                qAutoRatio.textContent = qPct.toFixed(1) + '%';
-                tAutoRatio.textContent = tPct.toFixed(1) + '%';
-                gAutoRatio.textContent = gPct.toFixed(1) + '%';
-                nasdaqAutoRatio.textContent = (qPct + tPct).toFixed(1) + '%';
+                qAutoRatio.textContent = qPct.toFixed(0);
+                tAutoRatio.textContent = tPct.toFixed(0);
+                gAutoRatio.textContent = gPct.toFixed(0);
+                if (nasdaqAutoRatio) nasdaqAutoRatio.textContent = (qPct + tPct).toFixed(1) + '%';
             } else {
-                qAutoRatio.textContent = '0.0%';
-                tAutoRatio.textContent = '0.0%';
-                gAutoRatio.textContent = '0.0%';
-                nasdaqAutoRatio.textContent = '0.0%';
+                qAutoRatio.textContent = '0';
+                tAutoRatio.textContent = '0';
+                gAutoRatio.textContent = '0';
+                if (nasdaqAutoRatio) nasdaqAutoRatio.textContent = '0.0%';
             }
 
             updateRebalanceRecommendation();
