@@ -23,361 +23,390 @@
         <p class="subtitle">실시간 미국 시장 및 원자재 현황</p>
     </header>
 
-    <main class="dashboard">
-        <!-- Real-time Alert Monitor -->
-        <section class="alert-monitor" id="monitor-section">
-            <div class="monitor-header">
-                <div class="calc-title" style="margin:0"><span>🔔</span> QQQM 실시간 감시 시스템</div>
-                <div id="status-badge" class="status-badge loading">연결 중...</div>
-            </div>
-            <div class="monitor-grid">
-                <div class="monitor-item">
-                    <span class="monitor-label">QQQM 현재가</span>
-                    <span class="monitor-value" id="current-price">--</span>
-                    <span class="monitor-meta" id="current-price-updated-at">최근 가져온 시간: --</span>
-                </div>
-                <div class="monitor-item">
-                    <span class="monitor-label">BB %b 수치</span>
-                    <span class="monitor-value" id="current-b-percent">--</span>
-                </div>
-                <div class="monitor-item" style="justify-content: flex-end; align-items: flex-end;">
-                    <button class="alert-btn" onclick="requestNotificationPermission()">알림 권한 허용</button>
-                    <button class="alert-btn secondary-alert" onclick="sendRebalanceTestNotification()">리밸런싱 알림 테스트</button>
-                    <span class="notification-state" id="notification-state">알림 상태 확인 중...</span>
-                </div>
-            </div>
-            <div class="data-error-panel" id="client-data-error" hidden></div>
-            <div class="server-status-panel">
-                <div class="server-status-header">
-                    <div>
-                        <span class="monitor-label">서버 감시 상태</span>
-                        <div class="server-status-value" id="server-monitor-status">확인 중...</div>
-                    </div>
-                    <label class="ack-control">
-                        <input type="checkbox" id="alert-ack-checkbox">
-                        <span>오늘 알림 확인 완료</span>
-                    </label>
-                </div>
-                <div class="server-status-grid">
-                    <span id="server-last-check">마지막 확인: --</span>
-                    <span id="server-bpercent">서버 BB %b: --</span>
-                    <span id="server-market-calendar">시장 캘린더: --</span>
-                    <span id="server-last-push">마지막 알림: --</span>
-                </div>
-                <div class="server-calendar-warning" id="server-calendar-warning"></div>
-                <div class="data-error-panel server-error" id="server-data-error" hidden></div>
-            </div>
-        </section>
-        <!-- QQQM Card -->
-        <section class="card" id="qqqm-card">
-            <div class="card-header">
-                <div class="symbol-info">
-                    <div class="symbol-icon">Q</div>
-                    <div class="symbol-name">
-                        <span class="ticker">QQQM</span>
-                        <span class="full-name">Nasdaq 100 Index ETF</span>
-                    </div>
-                </div>
-            </div>
-            <div class="chart-container">
-                <!-- TradingView Widget BEGIN -->
-                <div class="tradingview-widget-container" style="height:100%;width:100%">
-                    <div id="tradingview_qqqm" style="height:100%;width:100%"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                    <script type="text/javascript">
-                    new TradingView.widget(
-                    {
-                        "autosize": true,
-                        "symbol": "NASDAQ:QQQM",
-                        "interval": "D",
-                        "timezone": "Etc/UTC",
-                        "theme": "dark",
-                        "style": "1",
-                        "locale": "kr",
-                        "toolbar_bg": "#f1f3f6",
-                        "enable_publishing": false,
-                        "allow_symbol_change": true,
-                        "container_id": "tradingview_qqqm",
-                        "studies": [
-                            "BB@tv-basicstudies",
-                            "BollingerBandsR@tv-basicstudies"
-                        ]
-                    }
-                    );
-                    </script>
-                </div>
-                <!-- TradingView Widget END -->
-            </div>
-        </section>
-
-        <!-- GLDM Card -->
-        <section class="card" id="gldm-card">
-            <div class="card-header">
-                <div class="symbol-info">
-                    <div class="symbol-icon gold">G</div>
-                    <div class="symbol-name">
-                        <span class="ticker">GLDM</span>
-                        <span class="full-name">SPDR Gold MiniShares Trust</span>
-                    </div>
-                </div>
-            </div>
-            <div class="chart-container">
-                <!-- TradingView Widget BEGIN -->
-                <div class="tradingview-widget-container" style="height:100%;width:100%">
-                    <div id="tradingview_gldm" style="height:100%;width:100%"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                    <script type="text/javascript">
-                    new TradingView.widget(
-                    {
-                        "autosize": true,
-                        "symbol": "AMEX:GLDM",
-                        "interval": "D",
-                        "timezone": "Etc/UTC",
-                        "theme": "dark",
-                        "style": "1",
-                        "locale": "kr",
-                        "toolbar_bg": "#f1f3f6",
-                        "enable_publishing": false,
-                        "allow_symbol_change": true,
-                        "container_id": "tradingview_gldm",
-                        "studies": [
-                            "BB@tv-basicstudies",
-                            "BollingerBandsR@tv-basicstudies"
-                        ]
-                    }
-                    );
-                    </script>
-                </div>
-                <!-- TradingView Widget END -->
-            </div>
-        </section>
-
-        <!-- TQQQ Card -->
-        <section class="card" id="tqqq-card">
-            <div class="card-header">
-                <div class="symbol-info">
-                    <div class="symbol-icon" style="background: linear-gradient(135deg, #FF4B2B 0%, #FF416C 100%); box-shadow: 0 4px 15px rgba(255, 65, 108, 0.3);">T</div>
-                    <div class="symbol-name">
-                        <span class="ticker">TQQQ</span>
-                        <span class="full-name">ProShares UltraPro QQQ</span>
-                    </div>
-                </div>
-            </div>
-            <div class="chart-container">
-                <!-- TradingView Widget BEGIN -->
-                <div class="tradingview-widget-container" style="height:100%;width:100%">
-                    <div id="tradingview_tqqq" style="height:100%;width:100%"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                    <script type="text/javascript">
-                    new TradingView.widget(
-                    {
-                        "autosize": true,
-                        "symbol": "NASDAQ:TQQQ",
-                        "interval": "D",
-                        "timezone": "Etc/UTC",
-                        "theme": "dark",
-                        "style": "1",
-                        "locale": "kr",
-                        "toolbar_bg": "#f1f3f6",
-                        "enable_publishing": false,
-                        "allow_symbol_change": true,
-                        "container_id": "tradingview_tqqq",
-                        "studies": [
-                            "BB@tv-basicstudies",
-                            "BollingerBandsR@tv-basicstudies"
-                        ]
-                    }
-                    );
-                    </script>
-                </div>
-                <!-- TradingView Widget END -->
-            </div>
-        </section>
-
-        <!-- Portfolio Calculator Section -->
-        <section class="calculator">
-            <div class="calc-title">
-                <span>📊</span> 포트폴리오 자산 배분 계산기
-            </div>
-            <div class="calc-grid">
-                <div class="input-group">
-                    <label>총 투자 자산</label>
-                    <div class="input-wrapper">
-                        <input type="text" id="total-assets" value="1,000,000">
-                        <span class="unit">원</span>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label>QQQM 비중 (%)</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="qqqm-ratio" value="50" min="0" max="100" step="0.1">
-                        <span class="unit">%</span>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label>TQQQ 비중 (%)</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="tqqq-ratio" value="0" min="0" max="100" step="0.1">
-                        <span class="unit">%</span>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label>GLDM 비중 (%)</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="gldm-ratio" value="50" min="0" max="100" step="0.1">
-                        <span class="unit">%</span>
-                    </div>
-                </div>
-                <div class="input-group" style="grid-column: 1 / -1;">
-                    <div class="nasdaq-ratio-display" style="padding: 15px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; text-align: center; color: #94a3b8; font-weight: 600;">
-                        나스닥 비중 (QQQM + TQQQ): <span id="nasdaq-ratio-val" style="color: #3b82f6; font-weight: 800; font-size: 1.2em; margin-left: 10px;">50.0%</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="results">
-                <div class="result-item">
-                    <span class="result-label">QQQM 투자 금액</span>
-                    <span class="result-value" id="qqqm-amount">500,000 원</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">TQQQ 투자 금액</span>
-                    <span class="result-value" id="tqqq-amount" style="color: #FF416C;">0 원</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">GLDM 투자 금액</span>
-                    <span class="result-value gold" id="gldm-amount">500,000 원</span>
-                </div>
-            </div>
-            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 16px;">
-                <span id="calc-save-msg" style="color: #10b981; font-weight: 600; font-size: 0.9em; opacity: 0; transition: opacity 0.3s;">✓ 저장됨!</span>
-                <button id="calc-save-btn" onclick="saveCalcSettings()" style="padding: 10px 28px; background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff; border: none; border-radius: 10px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 15px rgba(99,102,241,0.35);">💾 저장</button>
-            </div>
-        </section>
-
-        <!-- Quantity to Ratio Calculator Section -->
-        <section class="calculator">
-            <div class="calc-title">
-                <span>💰</span> 종목별 보유 수량 입력 (현재가 기준 비중 자동 계산)
-            </div>
-            <div class="calc-grid">
-                <div class="input-group">
-                    <label>QQQM 보유 수량</label>
-                    <div class="input-wrapper">
-                        <input type="text" id="qqqm-input-amount" value="0" inputmode="decimal">
-                        <span class="unit">주</span>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label>TQQQ 보유 수량</label>
-                    <div class="input-wrapper">
-                        <input type="text" id="tqqq-input-amount" value="0" inputmode="decimal">
-                        <span class="unit">주</span>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label>GLDM 보유 수량</label>
-                    <div class="input-wrapper">
-                        <input type="text" id="gldm-input-amount" value="0" inputmode="decimal">
-                        <span class="unit">주</span>
-                    </div>
-                </div>
-                <div class="input-group" style="grid-column: 1 / -1;">
-                    <div class="nasdaq-ratio-display" style="padding: 15px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; text-align: center; color: #94a3b8; font-weight: 600;">
-                        총 평가금액: <span id="total-auto-amount" style="color: #10b981; font-weight: 800; font-size: 1.2em; margin-left: 10px;">$0.00</span>
-                        <span id="quote-updated-at" style="display:block; margin-top: 6px; font-size: 0.82em; color: #64748b;">현재가 불러오는 중...</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="results">
-                <div class="result-item">
-                    <span class="result-label">QQQM 현재가 / 평가금액</span>
-                    <span class="holding-meta" id="qqqm-live-price">현재가 --</span>
-                    <span class="holding-meta" id="qqqm-market-value">$0.00</span>
-                    <span class="result-value" id="qqqm-auto-ratio">0.0%</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">TQQQ 현재가 / 평가금액</span>
-                    <span class="holding-meta" id="tqqq-live-price">현재가 --</span>
-                    <span class="holding-meta" id="tqqq-market-value">$0.00</span>
-                    <span class="result-value" id="tqqq-auto-ratio" style="color: #FF416C;">0.0%</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">GLDM 현재가 / 평가금액</span>
-                    <span class="holding-meta" id="gldm-live-price">현재가 --</span>
-                    <span class="holding-meta" id="gldm-market-value">$0.00</span>
-                    <span class="result-value gold" id="gldm-auto-ratio">0.0%</span>
-                </div>
-                <div class="result-item" style="grid-column: 1 / -1; background: rgba(59, 130, 246, 0.1);">
-                    <span class="result-label" style="text-align: center;">나스닥 총 비중 (QQQM + TQQQ)</span>
-                    <span class="result-value" id="nasdaq-auto-ratio" style="color: #3b82f6; text-align: center;">0.0%</span>
-                </div>
-            </div>
-
-            <div class="rebalance-panel">
-                <div class="rebalance-header">
-                    <div>
-                        <span class="result-label">BB %b 리밸런싱 상태</span>
-                        <div class="rebalance-status wait" id="rebalance-status">대기</div>
-                    </div>
-                    <div class="rebalance-bpercent" id="rebalance-bpercent">BB %b --</div>
-                </div>
-                <div class="rebalance-summary" id="rebalance-summary">현재가와 BB %b 데이터를 기다리는 중입니다.</div>
-                <div class="order-grid">
-                    <div class="order-card">
-                        <span class="order-label">QQQM</span>
-                        <strong id="qqqm-order">대기</strong>
-                    </div>
-                    <div class="order-card">
-                        <span class="order-label">TQQQ</span>
-                        <strong id="tqqq-order">대기</strong>
-                    </div>
-                    <div class="order-card">
-                        <span class="order-label">GLDM</span>
-                        <strong id="gldm-order">대기</strong>
-                    </div>
-                </div>
-                <div class="rebalance-projection" id="rebalance-projection">예상 조정 후 비중: --</div>
-            </div>
-
-            <div class="lot-panel">
-                <div class="lot-header">
-                    <div>
-                        <span class="result-label">TQQQ lot 기록</span>
-                        <div class="lot-help">실제 주문 후 매수가와 수량을 입력하세요.</div>
-                    </div>
-                    <button class="secondary-btn" id="apply-profitable-lots-btn" onclick="applyProfitableLotSale()" disabled>추천 매도 반영</button>
-                </div>
-                <div class="lot-input-grid">
-                    <div class="input-group">
-                        <label>TQQQ 매수가</label>
-                        <div class="input-wrapper">
-                            <input type="text" id="tqqq-lot-price" value="" inputmode="decimal" placeholder="예: 50">
-                            <span class="unit">$</span>
+    <main class="dashboard app-tabs">
+        <section class="tab-panel active" id="tab-holdings" data-tab-panel="holdings" aria-label="&#51333;&#47785;&#48324; &#48372;&#50976; &#49688;&#47049; &#51077;&#47141;">
+            <!-- Quantity to Ratio Calculator Section -->
+                    <section class="calculator">
+                        <div class="calc-title">
+                            <span>💰</span> 종목별 보유 수량 입력 (현재가 기준 비중 자동 계산)
                         </div>
-                    </div>
-                    <div class="input-group">
-                        <label>TQQQ 수량</label>
-                        <div class="input-wrapper">
-                            <input type="text" id="tqqq-lot-qty" value="" inputmode="numeric" placeholder="예: 10">
-                            <span class="unit">주</span>
+                        <div class="calc-grid">
+                            <div class="input-group">
+                                <label>QQQM 보유 수량</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="qqqm-input-amount" value="0" inputmode="decimal">
+                                    <span class="unit">주</span>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>TQQQ 보유 수량</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="tqqq-input-amount" value="0" inputmode="decimal">
+                                    <span class="unit">주</span>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>GLDM 보유 수량</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="gldm-input-amount" value="0" inputmode="decimal">
+                                    <span class="unit">주</span>
+                                </div>
+                            </div>
+                            <div class="input-group" style="grid-column: 1 / -1;">
+                                <div class="nasdaq-ratio-display" style="padding: 15px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; text-align: center; color: #94a3b8; font-weight: 600;">
+                                    총 평가금액: <span id="total-auto-amount" style="color: #10b981; font-weight: 800; font-size: 1.2em; margin-left: 10px;">$0.00</span>
+                                    <span id="quote-updated-at" style="display:block; margin-top: 6px; font-size: 0.82em; color: #64748b;">현재가 불러오는 중...</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <button class="secondary-btn add-lot-btn" onclick="addTqqqLot()">lot 추가</button>
-                </div>
-                <div class="lot-list" id="tqqq-lot-list">
-                    <div class="empty-lot">저장된 TQQQ lot이 없습니다.</div>
-                </div>
-            </div>
-            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 16px;">
-                <span id="amount-save-msg" style="color: #10b981; font-weight: 600; font-size: 0.9em; opacity: 0; transition: opacity 0.3s;">✓ 저장됨!</span>
-                <button id="amount-save-btn" onclick="saveAmountSettings()" style="padding: 10px 28px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; border-radius: 10px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 15px rgba(16,185,129,0.35);">💾 저장</button>
+            
+                        <div class="results">
+                            <div class="result-item">
+                                <span class="result-label">QQQM 현재가 / 평가금액</span>
+                                <span class="holding-meta" id="qqqm-live-price">현재가 --</span>
+                                <span class="holding-meta" id="qqqm-market-value">$0.00</span>
+                                <span class="result-value" id="qqqm-auto-ratio">0.0%</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">TQQQ 현재가 / 평가금액</span>
+                                <span class="holding-meta" id="tqqq-live-price">현재가 --</span>
+                                <span class="holding-meta" id="tqqq-market-value">$0.00</span>
+                                <span class="result-value" id="tqqq-auto-ratio" style="color: #FF416C;">0.0%</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">GLDM 현재가 / 평가금액</span>
+                                <span class="holding-meta" id="gldm-live-price">현재가 --</span>
+                                <span class="holding-meta" id="gldm-market-value">$0.00</span>
+                                <span class="result-value gold" id="gldm-auto-ratio">0.0%</span>
+                            </div>
+                            <div class="result-item" style="grid-column: 1 / -1; background: rgba(59, 130, 246, 0.1);">
+                                <span class="result-label" style="text-align: center;">나스닥 총 비중 (QQQM + TQQQ)</span>
+                                <span class="result-value" id="nasdaq-auto-ratio" style="color: #3b82f6; text-align: center;">0.0%</span>
+                            </div>
+                        </div>
+            
+                        <div class="rebalance-panel">
+                            <div class="rebalance-header">
+                                <div>
+                                    <span class="result-label">BB %b 리밸런싱 상태</span>
+                                    <div class="rebalance-status wait" id="rebalance-status">대기</div>
+                                </div>
+                                <div class="rebalance-bpercent" id="rebalance-bpercent">BB %b --</div>
+                            </div>
+                            <div class="rebalance-summary" id="rebalance-summary">현재가와 BB %b 데이터를 기다리는 중입니다.</div>
+                            <div class="order-grid">
+                                <div class="order-card">
+                                    <span class="order-label">QQQM</span>
+                                    <strong id="qqqm-order">대기</strong>
+                                </div>
+                                <div class="order-card">
+                                    <span class="order-label">TQQQ</span>
+                                    <strong id="tqqq-order">대기</strong>
+                                </div>
+                                <div class="order-card">
+                                    <span class="order-label">GLDM</span>
+                                    <strong id="gldm-order">대기</strong>
+                                </div>
+                            </div>
+                            <div class="rebalance-projection" id="rebalance-projection">예상 조정 후 비중: --</div>
+                        </div>
+            
+                        <div class="lot-panel">
+                            <div class="lot-header">
+                                <div>
+                                    <span class="result-label">TQQQ lot 기록</span>
+                                    <div class="lot-help">실제 주문 후 매수가와 수량을 입력하세요.</div>
+                                </div>
+                                <button class="secondary-btn" id="apply-profitable-lots-btn" onclick="applyProfitableLotSale()" disabled>추천 매도 반영</button>
+                            </div>
+                            <div class="lot-input-grid">
+                                <div class="input-group">
+                                    <label>TQQQ 매수가</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="tqqq-lot-price" value="" inputmode="decimal" placeholder="예: 50">
+                                        <span class="unit">$</span>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <label>TQQQ 수량</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="tqqq-lot-qty" value="" inputmode="numeric" placeholder="예: 10">
+                                        <span class="unit">주</span>
+                                    </div>
+                                </div>
+                                <button class="secondary-btn add-lot-btn" onclick="addTqqqLot()">lot 추가</button>
+                            </div>
+                            <div class="lot-list" id="tqqq-lot-list">
+                                <div class="empty-lot">저장된 TQQQ lot이 없습니다.</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 16px;">
+                            <span id="amount-save-msg" style="color: #10b981; font-weight: 600; font-size: 0.9em; opacity: 0; transition: opacity 0.3s;">✓ 저장됨!</span>
+                            <button id="amount-save-btn" onclick="saveAmountSettings()" style="padding: 10px 28px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; border-radius: 10px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 15px rgba(16,185,129,0.35);">💾 저장</button>
+                        </div>
+                    </section>
+        </section>
+
+        <section class="tab-panel" id="tab-monitor" data-tab-panel="monitor" aria-label="QQQM &#49892;&#49884;&#44036; &#44048;&#49884; &#49884;&#49828;&#53596;">
+            <!-- Real-time Alert Monitor -->
+                    <section class="alert-monitor" id="monitor-section">
+                        <div class="monitor-header">
+                            <div class="calc-title" style="margin:0"><span>🔔</span> QQQM 실시간 감시 시스템</div>
+                            <div id="status-badge" class="status-badge loading">연결 중...</div>
+                        </div>
+                        <div class="monitor-grid">
+                            <div class="monitor-item">
+                                <span class="monitor-label">QQQM 현재가</span>
+                                <span class="monitor-value" id="current-price">--</span>
+                                <span class="monitor-meta" id="current-price-updated-at">최근 가져온 시간: --</span>
+                            </div>
+                            <div class="monitor-item">
+                                <span class="monitor-label">BB %b 수치</span>
+                                <span class="monitor-value" id="current-b-percent">--</span>
+                            </div>
+                            <div class="monitor-item" style="justify-content: flex-end; align-items: flex-end;">
+                                <button class="alert-btn" onclick="requestNotificationPermission()">알림 권한 허용</button>
+                                <button class="alert-btn secondary-alert" onclick="sendRebalanceTestNotification()">리밸런싱 알림 테스트</button>
+                                <span class="notification-state" id="notification-state">알림 상태 확인 중...</span>
+                            </div>
+                        </div>
+                        <div class="data-error-panel" id="client-data-error" hidden></div>
+                        <div class="server-status-panel">
+                            <div class="server-status-header">
+                                <div>
+                                    <span class="monitor-label">서버 감시 상태</span>
+                                    <div class="server-status-value" id="server-monitor-status">확인 중...</div>
+                                </div>
+                                <label class="ack-control">
+                                    <input type="checkbox" id="alert-ack-checkbox">
+                                    <span>오늘 알림 확인 완료</span>
+                                </label>
+                            </div>
+                            <div class="server-status-grid">
+                                <span id="server-last-check">마지막 확인: --</span>
+                                <span id="server-bpercent">서버 BB %b: --</span>
+                                <span id="server-market-calendar">시장 캘린더: --</span>
+                                <span id="server-last-push">마지막 알림: --</span>
+                            </div>
+                            <div class="server-calendar-warning" id="server-calendar-warning"></div>
+                            <div class="data-error-panel server-error" id="server-data-error" hidden></div>
+                        </div>
+                    </section>
+        </section>
+
+        <section class="tab-panel" id="tab-allocation" data-tab-panel="allocation" aria-label="&#54252;&#53944;&#54260;&#47532;&#50724; &#51088;&#49328; &#48176;&#48516; &#44228;&#49328;&#44592;">
+            <!-- Portfolio Calculator Section -->
+                    <section class="calculator">
+                        <div class="calc-title">
+                            <span>📊</span> 포트폴리오 자산 배분 계산기
+                        </div>
+                        <div class="calc-grid">
+                            <div class="input-group">
+                                <label>총 투자 자산</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="total-assets" value="1,000,000">
+                                    <span class="unit">원</span>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>QQQM 비중 (%)</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="qqqm-ratio" value="50" min="0" max="100" step="0.1">
+                                    <span class="unit">%</span>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>TQQQ 비중 (%)</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="tqqq-ratio" value="0" min="0" max="100" step="0.1">
+                                    <span class="unit">%</span>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>GLDM 비중 (%)</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="gldm-ratio" value="50" min="0" max="100" step="0.1">
+                                    <span class="unit">%</span>
+                                </div>
+                            </div>
+                            <div class="input-group" style="grid-column: 1 / -1;">
+                                <div class="nasdaq-ratio-display" style="padding: 15px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; text-align: center; color: #94a3b8; font-weight: 600;">
+                                    나스닥 비중 (QQQM + TQQQ): <span id="nasdaq-ratio-val" style="color: #3b82f6; font-weight: 800; font-size: 1.2em; margin-left: 10px;">50.0%</span>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <div class="results">
+                            <div class="result-item">
+                                <span class="result-label">QQQM 투자 금액</span>
+                                <span class="result-value" id="qqqm-amount">500,000 원</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">TQQQ 투자 금액</span>
+                                <span class="result-value" id="tqqq-amount" style="color: #FF416C;">0 원</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">GLDM 투자 금액</span>
+                                <span class="result-value gold" id="gldm-amount">500,000 원</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 16px;">
+                            <span id="calc-save-msg" style="color: #10b981; font-weight: 600; font-size: 0.9em; opacity: 0; transition: opacity 0.3s;">✓ 저장됨!</span>
+                            <button id="calc-save-btn" onclick="saveCalcSettings()" style="padding: 10px 28px; background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff; border: none; border-radius: 10px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 15px rgba(99,102,241,0.35);">💾 저장</button>
+                        </div>
+                    </section>
+        </section>
+
+        <section class="tab-panel charts-panel" id="tab-charts" data-tab-panel="charts" aria-label="QQQM TQQQ GLDM &#52264;&#53944;">
+            <div class="charts-grid">
+                <!-- QQQM Card -->
+                        <section class="card" id="qqqm-card">
+                            <div class="card-header">
+                                <div class="symbol-info">
+                                    <div class="symbol-icon">Q</div>
+                                    <div class="symbol-name">
+                                        <span class="ticker">QQQM</span>
+                                        <span class="full-name">Nasdaq 100 Index ETF</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <!-- TradingView Widget BEGIN -->
+                                <div class="tradingview-widget-container" style="height:100%;width:100%">
+                                    <div id="tradingview_qqqm" style="height:100%;width:100%"></div>
+                                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                                    <script type="text/javascript">
+                                    new TradingView.widget(
+                                    {
+                                        "autosize": true,
+                                        "symbol": "NASDAQ:QQQM",
+                                        "interval": "D",
+                                        "timezone": "Etc/UTC",
+                                        "theme": "dark",
+                                        "style": "1",
+                                        "locale": "kr",
+                                        "toolbar_bg": "#f1f3f6",
+                                        "enable_publishing": false,
+                                        "allow_symbol_change": true,
+                                        "container_id": "tradingview_qqqm",
+                                        "studies": [
+                                            "BB@tv-basicstudies",
+                                            "BollingerBandsR@tv-basicstudies"
+                                        ]
+                                    }
+                                    );
+                                    </script>
+                                </div>
+                                <!-- TradingView Widget END -->
+                            </div>
+                        </section>
+
+                <!-- TQQQ Card -->
+                        <section class="card" id="tqqq-card">
+                            <div class="card-header">
+                                <div class="symbol-info">
+                                    <div class="symbol-icon" style="background: linear-gradient(135deg, #FF4B2B 0%, #FF416C 100%); box-shadow: 0 4px 15px rgba(255, 65, 108, 0.3);">T</div>
+                                    <div class="symbol-name">
+                                        <span class="ticker">TQQQ</span>
+                                        <span class="full-name">ProShares UltraPro QQQ</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <!-- TradingView Widget BEGIN -->
+                                <div class="tradingview-widget-container" style="height:100%;width:100%">
+                                    <div id="tradingview_tqqq" style="height:100%;width:100%"></div>
+                                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                                    <script type="text/javascript">
+                                    new TradingView.widget(
+                                    {
+                                        "autosize": true,
+                                        "symbol": "NASDAQ:TQQQ",
+                                        "interval": "D",
+                                        "timezone": "Etc/UTC",
+                                        "theme": "dark",
+                                        "style": "1",
+                                        "locale": "kr",
+                                        "toolbar_bg": "#f1f3f6",
+                                        "enable_publishing": false,
+                                        "allow_symbol_change": true,
+                                        "container_id": "tradingview_tqqq",
+                                        "studies": [
+                                            "BB@tv-basicstudies",
+                                            "BollingerBandsR@tv-basicstudies"
+                                        ]
+                                    }
+                                    );
+                                    </script>
+                                </div>
+                                <!-- TradingView Widget END -->
+                            </div>
+                        </section>
+
+                <!-- GLDM Card -->
+                        <section class="card" id="gldm-card">
+                            <div class="card-header">
+                                <div class="symbol-info">
+                                    <div class="symbol-icon gold">G</div>
+                                    <div class="symbol-name">
+                                        <span class="ticker">GLDM</span>
+                                        <span class="full-name">SPDR Gold MiniShares Trust</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <!-- TradingView Widget BEGIN -->
+                                <div class="tradingview-widget-container" style="height:100%;width:100%">
+                                    <div id="tradingview_gldm" style="height:100%;width:100%"></div>
+                                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                                    <script type="text/javascript">
+                                    new TradingView.widget(
+                                    {
+                                        "autosize": true,
+                                        "symbol": "AMEX:GLDM",
+                                        "interval": "D",
+                                        "timezone": "Etc/UTC",
+                                        "theme": "dark",
+                                        "style": "1",
+                                        "locale": "kr",
+                                        "toolbar_bg": "#f1f3f6",
+                                        "enable_publishing": false,
+                                        "allow_symbol_change": true,
+                                        "container_id": "tradingview_gldm",
+                                        "studies": [
+                                            "BB@tv-basicstudies",
+                                            "BollingerBandsR@tv-basicstudies"
+                                        ]
+                                    }
+                                    );
+                                    </script>
+                                </div>
+                                <!-- TradingView Widget END -->
+                            </div>
+                        </section>
             </div>
         </section>
     </main>
 
-    <script>
+    <nav class="bottom-tabs" aria-label="&#50545; &#51452;&#50836; &#54868;&#47732;">
+        <button class="tab-button active" type="button" data-tab-target="holdings" aria-controls="tab-holdings" aria-selected="true">
+            <span class="tab-icon">1</span>
+            <span>&#48372;&#50976;&#49688;&#47049;</span>
+        </button>
+        <button class="tab-button" type="button" data-tab-target="monitor" aria-controls="tab-monitor" aria-selected="false">
+            <span class="tab-icon">2</span>
+            <span>&#44048;&#49884;</span>
+        </button>
+        <button class="tab-button" type="button" data-tab-target="allocation" aria-controls="tab-allocation" aria-selected="false">
+            <span class="tab-icon">3</span>
+            <span>&#51088;&#49328;&#48176;&#48516;</span>
+        </button>
+        <button class="tab-button" type="button" data-tab-target="charts" aria-controls="tab-charts" aria-selected="false">
+            <span class="tab-icon">4</span>
+            <span>&#52264;&#53944;</span>
+        </button>
+    </nav>
+<script>
         const totalInput = document.getElementById('total-assets');
         const qqqmRatio = document.getElementById('qqqm-ratio');
         const tqqqRatio = document.getElementById('tqqq-ratio');
@@ -390,6 +419,33 @@
         let currentBPercent = null;
         let tqqqLots = [];
         let profitableLotIdsForRecommendation = [];
+
+        function initTabs() {
+            const tabButtons = Array.from(document.querySelectorAll('[data-tab-target]'));
+            const tabPanels = Array.from(document.querySelectorAll('[data-tab-panel]'));
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const target = button.dataset.tabTarget;
+
+                    tabButtons.forEach(item => {
+                        const isActive = item === button;
+                        item.classList.toggle('active', isActive);
+                        item.setAttribute('aria-selected', String(isActive));
+                    });
+
+                    tabPanels.forEach(panel => {
+                        panel.classList.toggle('active', panel.dataset.tabPanel === target);
+                    });
+
+                    if (target === 'charts') {
+                        setTimeout(() => window.dispatchEvent(new Event('resize')), 120);
+                    }
+
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
+        }
 
         // Cloudflare KV에 설정 저장
         async function saveSettings() {
@@ -1236,6 +1292,7 @@
 
         setInterval(fetchMarketData, 30000);
         setInterval(loadServerMonitorStatus, 60000);
+        initTabs();
         fetchMarketData();
         loadServerMonitorStatus();
 
