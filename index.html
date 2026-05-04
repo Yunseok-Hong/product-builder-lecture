@@ -217,6 +217,10 @@
                     <span class="result-value gold" id="gldm-amount">500,000 원</span>
                 </div>
             </div>
+            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 16px;">
+                <span id="calc-save-msg" style="color: #10b981; font-weight: 600; font-size: 0.9em; opacity: 0; transition: opacity 0.3s;">✓ 저장됨!</span>
+                <button id="calc-save-btn" onclick="saveCalcSettings()" style="padding: 10px 28px; background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff; border: none; border-radius: 10px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 15px rgba(99,102,241,0.35);">💾 저장</button>
+            </div>
         </section>
 
         <!-- Amount to Ratio Calculator Section -->
@@ -270,6 +274,10 @@
                     <span class="result-label" style="text-align: center;">나스닥 총 비중 (QQQM + TQQQ)</span>
                     <span class="result-value" id="nasdaq-auto-ratio" style="color: #3b82f6; text-align: center;">0.0%</span>
                 </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 16px;">
+                <span id="amount-save-msg" style="color: #10b981; font-weight: 600; font-size: 0.9em; opacity: 0; transition: opacity 0.3s;">✓ 저장됨!</span>
+                <button id="amount-save-btn" onclick="saveAmountSettings()" style="padding: 10px 28px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; border-radius: 10px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 15px rgba(16,185,129,0.35);">💾 저장</button>
             </div>
         </section>
     </main>
@@ -397,9 +405,6 @@
             qqqmAmountDisp.textContent = `${qAmount} 원`;
             tqqqAmountDisp.textContent = `${tAmount} 원`;
             gldmAmountDisp.textContent = `${gAmount} 원`;
-
-            // 설정 저장
-            saveSettings();
         }
 
         totalInput.addEventListener('input', () => updateCalculations('total'));
@@ -460,9 +465,6 @@
                 gAutoRatio.textContent = '0.0%';
                 nasdaqAutoRatio.textContent = '0.0%';
             }
-
-            // 설정 저장
-            saveSettings();
         }
 
         qInputAmount.addEventListener('input', updateAutoCalculations);
@@ -472,6 +474,21 @@
         qInputAmount.addEventListener('click', function() { this.select(); });
         tInputAmount.addEventListener('click', function() { this.select(); });
         gInputAmount.addEventListener('click', function() { this.select(); });
+
+        // 저장 버튼 핸들러
+        async function saveCalcSettings() {
+            await saveSettings();
+            const msg = document.getElementById('calc-save-msg');
+            msg.style.opacity = '1';
+            setTimeout(() => { msg.style.opacity = '0'; }, 2000);
+        }
+
+        async function saveAmountSettings() {
+            await saveSettings();
+            const msg = document.getElementById('amount-save-msg');
+            msg.style.opacity = '1';
+            setTimeout(() => { msg.style.opacity = '0'; }, 2000);
+        }
 
         // --- Finnhub Monitoring Logic ---
         const FINNHUB_KEY = 'd7qd8qpr01qi8jan0oegd7qd8qpr01qi8jan0of0';
