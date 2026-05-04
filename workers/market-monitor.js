@@ -326,6 +326,27 @@ async function runMonitor(env) {
     };
 }
 
+async function runTestPush(env) {
+    const pushResult = await notifySubscriptions(env, {
+        title: 'Market Pulse Cron Worker Test',
+        body: [
+            'This test push was sent by the market monitor Worker.',
+            'If this notification arrived, Cron Worker push delivery is configured correctly.'
+        ].join('\n'),
+        url: '/',
+        ackUrl: '/api/ack-alert'
+    });
+    const state = await readJson(env, ALERT_STATE_KEY, {});
+    state.testPushedAt = new Date().toISOString();
+    await env.KV.put(ALERT_STATE_KEY, JSON.stringify(state));
+
+    return {
+        ok: true,
+        testPush: true,
+        pushResult
+    };
+}
+
 export default {
     async scheduled(event, env, ctx) {
         ctx.waitUntil(runMonitor(env));
@@ -333,6 +354,11 @@ export default {
 
     async fetch(request, env) {
         try {
+            const url = new URL(request.url);
+            if (url.searchParams.get('testPush') === '1') {
+                return jsonResponse(await runTestPush(env));
+            }
+
             const result = await runMonitor(env);
             return jsonResponse(result);
         } catch (error) {
