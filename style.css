@@ -429,6 +429,11 @@ h1 {
     color: #fbbf24;
 }
 
+.status-badge.error {
+    background: rgba(239, 68, 68, 0.18);
+    color: #fca5a5;
+}
+
 .monitor-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -542,6 +547,26 @@ h1 {
     color: #fbbf24;
     font-size: 0.88rem;
     font-weight: 800;
+    margin-top: 0.8rem;
+}
+
+.data-error-panel {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.32);
+    border-radius: 12px;
+    color: #fecaca;
+    font-size: 0.88rem;
+    font-weight: 800;
+    line-height: 1.45;
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+}
+
+.data-error-panel[hidden] {
+    display: none;
+}
+
+.data-error-panel.server-error {
     margin-top: 0.8rem;
 }
 

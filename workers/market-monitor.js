@@ -427,7 +427,10 @@ async function runTestPush(env) {
 
 export default {
     async scheduled(event, env, ctx) {
-        ctx.waitUntil(runMonitor(env));
+        ctx.waitUntil(runMonitor(env).catch(error => writeMonitorStatus(env, {
+            ok: false,
+            error: error.message
+        })));
     },
 
     async fetch(request, env) {
@@ -440,7 +443,13 @@ export default {
             const result = await runMonitor(env);
             return jsonResponse(result);
         } catch (error) {
-            return jsonResponse({ ok: false, error: error.message }, 500);
+            const failureStatus = {
+                ok: false,
+                error: error.message,
+                updatedAt: new Date().toISOString()
+            };
+            await env.KV?.put?.(MONITOR_STATUS_KEY, JSON.stringify(failureStatus)).catch(() => null);
+            return jsonResponse(failureStatus, 500);
         }
     }
 };

@@ -46,6 +46,7 @@
                     <span class="notification-state" id="notification-state">알림 상태 확인 중...</span>
                 </div>
             </div>
+            <div class="data-error-panel" id="client-data-error" hidden></div>
             <div class="server-status-panel">
                 <div class="server-status-header">
                     <div>
@@ -64,6 +65,7 @@
                     <span id="server-last-push">마지막 알림: --</span>
                 </div>
                 <div class="server-calendar-warning" id="server-calendar-warning"></div>
+                <div class="data-error-panel server-error" id="server-data-error" hidden></div>
             </div>
         </section>
         <!-- QQQM Card -->
@@ -883,7 +885,21 @@
         const serverMarketCalendar = document.getElementById('server-market-calendar');
         const serverLastPush = document.getElementById('server-last-push');
         const serverCalendarWarning = document.getElementById('server-calendar-warning');
+        const clientDataError = document.getElementById('client-data-error');
+        const serverDataError = document.getElementById('server-data-error');
         const alertAckCheckbox = document.getElementById('alert-ack-checkbox');
+
+        function setErrorPanel(panel, message) {
+            if (!panel) return;
+            if (!message) {
+                panel.hidden = true;
+                panel.textContent = '';
+                return;
+            }
+
+            panel.hidden = false;
+            panel.textContent = message;
+        }
 
         function urlBase64ToUint8Array(base64String) {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -1059,10 +1075,12 @@
                 serverMarketCalendar.textContent = `시장 캘린더: ${describeMarketStatus(status.marketStatus)}`;
                 serverLastPush.textContent = `마지막 알림: ${formatDateTime(alertState.lastPushedAtIso)}`;
                 serverCalendarWarning.textContent = status.marketStatus?.calendarWarning || '';
+                setErrorPanel(serverDataError, status.ok === false ? `서버 감시 오류: ${status.error || '알 수 없는 오류'}` : '');
                 alertAckCheckbox.checked = Boolean(alertState.acknowledged);
             } catch (error) {
                 serverMonitorStatus.textContent = '상태 확인 실패';
                 serverCalendarWarning.textContent = error.message;
+                setErrorPanel(serverDataError, `서버 상태 API 오류: ${error.message}`);
             }
         }
 
@@ -1110,13 +1128,15 @@
                     calculateAndDisplay(currentPrice, closes);
                     document.getElementById('status-badge').className = 'status-badge';
                     document.getElementById('status-badge').textContent = '정상 작동 중';
+                    setErrorPanel(clientDataError, '');
                 } else {
                     throw new Error("과거 데이터 부족");
                 }
             } catch (error) {
                 console.error("Monitor Error:", error);
-                document.getElementById('status-badge').className = 'status-badge loading';
+                document.getElementById('status-badge').className = 'status-badge error';
                 document.getElementById('status-badge').textContent = '데이터 오류: ' + error.message;
+                setErrorPanel(clientDataError, `앱 화면 데이터 오류: ${error.message}`);
             }
         }
 
