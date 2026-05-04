@@ -1,18 +1,29 @@
 :root {
     --bottom-tabs-height: 76px;
+    --app-bg: #fefae0;
+    --app-bg-soft: #e9edc9;
+    --surface: #faedcd;
+    --surface-strong: #fefae0;
+    --sage: #ccd5ae;
+    --accent: #d4a373;
+    --accent-dark: #8a5a2b;
+    --text: #3a2f24;
+    --muted: #786854;
+    --line: rgba(138, 90, 43, 0.22);
+    --shadow: rgba(138, 90, 43, 0.16);
 }
 
 html {
     min-height: 100%;
-    background-color: #0a0e17;
+    background-color: var(--app-bg);
 }
 
 body {
     margin: 0;
     padding: 0;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: #0a0e17;
-    color: #ffffff;
+    background: linear-gradient(180deg, var(--app-bg) 0%, var(--app-bg-soft) 100%);
+    color: var(--text);
     display: flex;
     flex-direction: column;
     min-height: 100svh;
@@ -24,14 +35,14 @@ body {
 header {
     padding: 2rem;
     text-align: center;
-    background: linear-gradient(180deg, rgba(30, 41, 59, 0.5) 0%, rgba(10, 14, 23, 0) 100%);
+    background: linear-gradient(180deg, rgba(204, 213, 174, 0.75) 0%, rgba(254, 250, 224, 0) 100%);
 }
 
 h1 {
     font-size: 2.5rem;
     font-weight: 800;
     margin: 0;
-    background: linear-gradient(90deg, #60a5fa, #a78bfa);
+    background: linear-gradient(90deg, var(--accent-dark), var(--accent));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -39,7 +50,7 @@ h1 {
 }
 
 .subtitle {
-    color: #94a3b8;
+    color: var(--muted);
     margin-top: 0.5rem;
     font-size: 1.1rem;
 }
@@ -84,8 +95,8 @@ h1 {
     gap: 0.35rem;
     min-height: var(--bottom-tabs-height);
     padding: 0.55rem 0.75rem calc(0.55rem + env(safe-area-inset-bottom));
-    background: rgba(10, 14, 23, 0.94);
-    border-top: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(254, 250, 224, 0.94);
+    border-top: 1px solid var(--line);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     box-sizing: border-box;
@@ -103,7 +114,7 @@ h1 {
     border: 1px solid transparent;
     border-radius: 12px;
     background: transparent;
-    color: #94a3b8;
+    color: var(--muted);
     font: inherit;
     font-size: 0.78rem;
     font-weight: 800;
@@ -111,9 +122,9 @@ h1 {
 }
 
 .tab-button.active {
-    color: #e2e8f0;
-    background: rgba(59, 130, 246, 0.16);
-    border-color: rgba(96, 165, 250, 0.28);
+    color: var(--text);
+    background: rgba(212, 163, 115, 0.22);
+    border-color: rgba(138, 90, 43, 0.24);
 }
 
 .tab-icon {
@@ -123,12 +134,12 @@ h1 {
     width: 22px;
     height: 22px;
     border-radius: 999px;
-    background: rgba(148, 163, 184, 0.14);
+    background: rgba(204, 213, 174, 0.65);
     font-size: 0.72rem;
 }
 
 .tab-button.active .tab-icon {
-    background: #3b82f6;
+    background: var(--accent);
     color: #fff;
 }
 
@@ -162,8 +173,8 @@ h1 {
 }
 
 .card {
-    background: rgba(30, 41, 59, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(250, 237, 205, 0.8);
+    border: 1px solid var(--line);
     border-radius: 24px;
     padding: 1.5rem;
     backdrop-filter: blur(12px);
@@ -174,7 +185,7 @@ h1 {
 
 .card:hover {
     transform: translateY(-5px);
-    border-color: rgba(96, 165, 250, 0.5);
+    border-color: rgba(138, 90, 43, 0.36);
 }
 
 .card-header {
@@ -193,7 +204,7 @@ h1 {
 .symbol-icon {
     width: 48px;
     height: 48px;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -218,7 +229,7 @@ h1 {
 
 .full-name {
     font-size: 0.9rem;
-    color: #94a3b8;
+    color: var(--muted);
 }
 
 .chart-container {
@@ -231,8 +242,8 @@ h1 {
 
 .calculator {
     grid-column: 1 / -1;
-    background: rgba(30, 41, 59, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(250, 237, 205, 0.86);
+    border: 1px solid var(--line);
     border-radius: 24px;
     padding: 2.5rem;
     backdrop-filter: blur(12px);
@@ -262,7 +273,7 @@ h1 {
 
 .input-group label {
     font-size: 0.9rem;
-    color: #94a3b8;
+    color: var(--muted);
     font-weight: 600;
 }
 
@@ -274,12 +285,12 @@ h1 {
 
 .input-wrapper input {
     width: 100%;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(254, 250, 224, 0.88);
+    border: 1px solid rgba(138, 90, 43, 0.2);
     border-radius: 12px;
     padding: 1rem;
     padding-right: 3rem;
-    color: white;
+    color: var(--text);
     font-size: 1.1rem;
     font-weight: 600;
     transition: all 0.3s ease;
@@ -287,14 +298,14 @@ h1 {
 
 .input-wrapper input:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(212, 163, 115, 0.18);
 }
 
 .input-wrapper .unit {
     position: absolute;
     right: 1.2rem;
-    color: #475569;
+    color: var(--muted);
     font-weight: 700;
 }
 
@@ -304,11 +315,11 @@ h1 {
     gap: 1.5rem;
     margin-top: 2rem;
     padding-top: 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(138, 90, 43, 0.14);
 }
 
 .result-item {
-    background: rgba(15, 23, 42, 0.4);
+    background: rgba(254, 250, 224, 0.72);
     padding: 1.5rem;
     border-radius: 16px;
     display: flex;
@@ -318,7 +329,7 @@ h1 {
 
 .result-label {
     font-size: 0.85rem;
-    color: #94a3b8;
+    color: var(--muted);
 }
 
 .result-value {
@@ -332,7 +343,7 @@ h1 {
 }
 
 .holding-meta {
-    color: #cbd5e1;
+    color: var(--text);
     font-size: 0.95rem;
     font-weight: 700;
 }
@@ -341,8 +352,8 @@ h1 {
 .lot-panel {
     margin-top: 1.5rem;
     padding: 1.5rem;
-    background: rgba(15, 23, 42, 0.38);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(254, 250, 224, 0.6);
+    border: 1px solid rgba(138, 90, 43, 0.16);
     border-radius: 16px;
 }
 
@@ -362,7 +373,7 @@ h1 {
 }
 
 .rebalance-status.wait {
-    color: #94a3b8;
+    color: var(--muted);
 }
 
 .rebalance-status.down {
@@ -374,7 +385,7 @@ h1 {
 }
 
 .rebalance-bpercent {
-    color: #cbd5e1;
+    color: var(--text);
     font-family: 'Monaco', monospace;
     font-size: 1.05rem;
     font-weight: 800;
@@ -384,7 +395,7 @@ h1 {
 .rebalance-summary,
 .rebalance-projection,
 .lot-help {
-    color: #94a3b8;
+    color: var(--muted);
     line-height: 1.5;
 }
 
@@ -401,19 +412,19 @@ h1 {
     flex-direction: column;
     gap: 0.45rem;
     padding: 1rem;
-    background: rgba(2, 6, 23, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(250, 237, 205, 0.75);
+    border: 1px solid rgba(138, 90, 43, 0.14);
     border-radius: 12px;
 }
 
 .order-label {
-    color: #64748b;
+    color: var(--muted);
     font-size: 0.8rem;
     font-weight: 800;
 }
 
 .order-card strong {
-    color: #f8fafc;
+    color: var(--text);
     font-size: 1.1rem;
 }
 
@@ -423,9 +434,9 @@ h1 {
 }
 
 .secondary-btn {
-    border: 1px solid rgba(148, 163, 184, 0.28);
-    background: rgba(15, 23, 42, 0.85);
-    color: #e2e8f0;
+    border: 1px solid rgba(138, 90, 43, 0.26);
+    background: rgba(212, 163, 115, 0.18);
+    color: var(--text);
     border-radius: 10px;
     padding: 0.75rem 1rem;
     font-weight: 800;
@@ -455,14 +466,14 @@ h1 {
     align-items: center;
     gap: 1rem;
     padding: 0.9rem 1rem;
-    background: rgba(2, 6, 23, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(250, 237, 205, 0.75);
+    border: 1px solid rgba(138, 90, 43, 0.14);
     border-radius: 12px;
 }
 
 .lot-row span {
     display: block;
-    color: #64748b;
+    color: var(--muted);
     font-size: 0.82rem;
     margin-top: 0.25rem;
 }
@@ -486,8 +497,8 @@ h1 {
 }
 
 .lot-state.hold {
-    background: rgba(148, 163, 184, 0.14);
-    color: #cbd5e1;
+    background: rgba(204, 213, 174, 0.35);
+    color: var(--text);
 }
 
 .mini-btn {
@@ -501,14 +512,14 @@ h1 {
 }
 
 .empty-lot {
-    color: #64748b;
+    color: var(--muted);
     padding: 0.75rem 0;
 }
 
 .alert-monitor {
     grid-column: 1 / -1;
-    background: rgba(30, 41, 59, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(250, 237, 205, 0.86);
+    border: 1px solid var(--line);
     border-radius: 24px;
     padding: 2rem;
     backdrop-filter: blur(12px);
@@ -560,7 +571,7 @@ h1 {
 
 .monitor-label {
     font-size: 0.85rem;
-    color: #94a3b8;
+    color: var(--muted);
 }
 
 .monitor-value {
@@ -570,13 +581,13 @@ h1 {
 }
 
 .monitor-meta {
-    color: #64748b;
+    color: var(--muted);
     font-size: 0.82rem;
     font-weight: 700;
 }
 
 .alert-btn {
-    background: #3b82f6;
+    background: var(--accent);
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -587,30 +598,31 @@ h1 {
 }
 
 .alert-btn:hover {
-    background: #2563eb;
+    background: var(--accent-dark);
     transform: scale(1.05);
 }
 
 .alert-btn.secondary-alert {
     margin-top: 0.6rem;
-    background: #0f172a;
-    border: 1px solid rgba(148, 163, 184, 0.28);
+    background: rgba(254, 250, 224, 0.8);
+    border: 1px solid rgba(138, 90, 43, 0.26);
+    color: var(--text);
 }
 
 .alert-btn.secondary-alert:hover {
-    background: #1e293b;
+    background: rgba(212, 163, 115, 0.24);
 }
 
 .notification-state {
-    color: #94a3b8;
+    color: var(--muted);
     font-size: 0.82rem;
     font-weight: 700;
     margin-top: 0.55rem;
 }
 
 .server-status-panel {
-    background: rgba(15, 23, 42, 0.45);
-    border: 1px solid rgba(148, 163, 184, 0.16);
+    background: rgba(254, 250, 224, 0.62);
+    border: 1px solid rgba(138, 90, 43, 0.16);
     border-radius: 16px;
     padding: 1rem;
 }
@@ -623,7 +635,7 @@ h1 {
 }
 
 .server-status-value {
-    color: #e2e8f0;
+    color: var(--text);
     font-size: 1.15rem;
     font-weight: 800;
     margin-top: 0.25rem;
@@ -633,7 +645,7 @@ h1 {
     display: flex;
     align-items: center;
     gap: 0.55rem;
-    color: #cbd5e1;
+    color: var(--text);
     font-weight: 800;
     cursor: pointer;
     white-space: nowrap;
@@ -642,7 +654,7 @@ h1 {
 .ack-control input {
     width: 18px;
     height: 18px;
-    accent-color: #10b981;
+    accent-color: var(--accent);
 }
 
 .server-status-grid {
@@ -650,7 +662,7 @@ h1 {
     grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
     gap: 0.75rem;
     margin-top: 1rem;
-    color: #94a3b8;
+    color: var(--muted);
     font-size: 0.9rem;
     font-weight: 700;
 }
@@ -686,6 +698,6 @@ footer {
     margin-top: auto;
     padding: 2rem;
     text-align: center;
-    color: #475569;
+    color: var(--muted);
     font-size: 0.9rem;
 }
