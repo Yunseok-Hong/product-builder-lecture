@@ -291,7 +291,10 @@
                 totalAssets: totalInput.value,
                 qqqmRatio: qqqmRatio.value,
                 tqqqRatio: tqqqRatio.value,
-                gldmRatio: gldmRatio.value
+                gldmRatio: gldmRatio.value,
+                qqqmInputAmount: document.getElementById('qqqm-input-amount')?.value || '0',
+                tqqqInputAmount: document.getElementById('tqqq-input-amount')?.value || '0',
+                gldmInputAmount: document.getElementById('gldm-input-amount')?.value || '0'
             };
             try {
                 await fetch('/api/settings', {
@@ -314,6 +317,14 @@
                 if (settings.qqqmRatio) qqqmRatio.value = settings.qqqmRatio;
                 if (settings.tqqqRatio) tqqqRatio.value = settings.tqqqRatio;
                 if (settings.gldmRatio) gldmRatio.value = settings.gldmRatio;
+
+                // 종목별 금액 입력값 복원
+                const qqqmAmtEl = document.getElementById('qqqm-input-amount');
+                const tqqqAmtEl = document.getElementById('tqqq-input-amount');
+                const gldmAmtEl = document.getElementById('gldm-input-amount');
+                if (settings.qqqmInputAmount && qqqmAmtEl) qqqmAmtEl.value = settings.qqqmInputAmount;
+                if (settings.tqqqInputAmount && tqqqAmtEl) tqqqAmtEl.value = settings.tqqqInputAmount;
+                if (settings.gldmInputAmount && gldmAmtEl) gldmAmtEl.value = settings.gldmInputAmount;
             } catch (error) {
                 console.error("설정 불러오기 실패:", error);
             }
@@ -449,6 +460,9 @@
                 gAutoRatio.textContent = '0.0%';
                 nasdaqAutoRatio.textContent = '0.0%';
             }
+
+            // 설정 저장
+            saveSettings();
         }
 
         qInputAmount.addEventListener('input', updateAutoCalculations);
