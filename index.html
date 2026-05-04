@@ -223,56 +223,119 @@
             </div>
         </section>
 
-        <!-- Amount to Ratio Calculator Section -->
+        <!-- Quantity to Ratio Calculator Section -->
         <section class="calculator">
             <div class="calc-title">
-                <span>💰</span> 종목별 금액 입력 (비중 자동 계산)
+                <span>💰</span> 종목별 보유 수량 입력 (현재가 기준 비중 자동 계산)
             </div>
             <div class="calc-grid">
                 <div class="input-group">
-                    <label>QQQM 투자 금액</label>
+                    <label>QQQM 보유 수량</label>
                     <div class="input-wrapper">
-                        <input type="text" id="qqqm-input-amount" value="0">
-                        <span class="unit">원</span>
+                        <input type="text" id="qqqm-input-amount" value="0" inputmode="decimal">
+                        <span class="unit">주</span>
                     </div>
                 </div>
                 <div class="input-group">
-                    <label>TQQQ 투자 금액</label>
+                    <label>TQQQ 보유 수량</label>
                     <div class="input-wrapper">
-                        <input type="text" id="tqqq-input-amount" value="0">
-                        <span class="unit">원</span>
+                        <input type="text" id="tqqq-input-amount" value="0" inputmode="decimal">
+                        <span class="unit">주</span>
                     </div>
                 </div>
                 <div class="input-group">
-                    <label>GLDM 투자 금액</label>
+                    <label>GLDM 보유 수량</label>
                     <div class="input-wrapper">
-                        <input type="text" id="gldm-input-amount" value="0">
-                        <span class="unit">원</span>
+                        <input type="text" id="gldm-input-amount" value="0" inputmode="decimal">
+                        <span class="unit">주</span>
                     </div>
                 </div>
                 <div class="input-group" style="grid-column: 1 / -1;">
                     <div class="nasdaq-ratio-display" style="padding: 15px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; text-align: center; color: #94a3b8; font-weight: 600;">
-                        총 투자 자산: <span id="total-auto-amount" style="color: #10b981; font-weight: 800; font-size: 1.2em; margin-left: 10px;">0 원</span>
+                        총 평가금액: <span id="total-auto-amount" style="color: #10b981; font-weight: 800; font-size: 1.2em; margin-left: 10px;">$0.00</span>
+                        <span id="quote-updated-at" style="display:block; margin-top: 6px; font-size: 0.82em; color: #64748b;">현재가 불러오는 중...</span>
                     </div>
                 </div>
             </div>
 
             <div class="results">
                 <div class="result-item">
-                    <span class="result-label">QQQM 비중</span>
+                    <span class="result-label">QQQM 현재가 / 평가금액</span>
+                    <span class="holding-meta" id="qqqm-live-price">현재가 --</span>
+                    <span class="holding-meta" id="qqqm-market-value">$0.00</span>
                     <span class="result-value" id="qqqm-auto-ratio">0.0%</span>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">TQQQ 비중</span>
+                    <span class="result-label">TQQQ 현재가 / 평가금액</span>
+                    <span class="holding-meta" id="tqqq-live-price">현재가 --</span>
+                    <span class="holding-meta" id="tqqq-market-value">$0.00</span>
                     <span class="result-value" id="tqqq-auto-ratio" style="color: #FF416C;">0.0%</span>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">GLDM 비중</span>
+                    <span class="result-label">GLDM 현재가 / 평가금액</span>
+                    <span class="holding-meta" id="gldm-live-price">현재가 --</span>
+                    <span class="holding-meta" id="gldm-market-value">$0.00</span>
                     <span class="result-value gold" id="gldm-auto-ratio">0.0%</span>
                 </div>
                 <div class="result-item" style="grid-column: 1 / -1; background: rgba(59, 130, 246, 0.1);">
                     <span class="result-label" style="text-align: center;">나스닥 총 비중 (QQQM + TQQQ)</span>
                     <span class="result-value" id="nasdaq-auto-ratio" style="color: #3b82f6; text-align: center;">0.0%</span>
+                </div>
+            </div>
+
+            <div class="rebalance-panel">
+                <div class="rebalance-header">
+                    <div>
+                        <span class="result-label">BB %b 리밸런싱 상태</span>
+                        <div class="rebalance-status wait" id="rebalance-status">대기</div>
+                    </div>
+                    <div class="rebalance-bpercent" id="rebalance-bpercent">BB %b --</div>
+                </div>
+                <div class="rebalance-summary" id="rebalance-summary">현재가와 BB %b 데이터를 기다리는 중입니다.</div>
+                <div class="order-grid">
+                    <div class="order-card">
+                        <span class="order-label">QQQM</span>
+                        <strong id="qqqm-order">대기</strong>
+                    </div>
+                    <div class="order-card">
+                        <span class="order-label">TQQQ</span>
+                        <strong id="tqqq-order">대기</strong>
+                    </div>
+                    <div class="order-card">
+                        <span class="order-label">GLDM</span>
+                        <strong id="gldm-order">대기</strong>
+                    </div>
+                </div>
+                <div class="rebalance-projection" id="rebalance-projection">예상 조정 후 비중: --</div>
+            </div>
+
+            <div class="lot-panel">
+                <div class="lot-header">
+                    <div>
+                        <span class="result-label">TQQQ lot 기록</span>
+                        <div class="lot-help">실제 주문 후 매수가와 수량을 입력하세요.</div>
+                    </div>
+                    <button class="secondary-btn" id="apply-profitable-lots-btn" onclick="applyProfitableLotSale()" disabled>추천 매도 반영</button>
+                </div>
+                <div class="lot-input-grid">
+                    <div class="input-group">
+                        <label>TQQQ 매수가</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="tqqq-lot-price" value="" inputmode="decimal" placeholder="예: 50">
+                            <span class="unit">$</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>TQQQ 수량</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="tqqq-lot-qty" value="" inputmode="numeric" placeholder="예: 10">
+                            <span class="unit">주</span>
+                        </div>
+                    </div>
+                    <button class="secondary-btn add-lot-btn" onclick="addTqqqLot()">lot 추가</button>
+                </div>
+                <div class="lot-list" id="tqqq-lot-list">
+                    <div class="empty-lot">저장된 TQQQ lot이 없습니다.</div>
                 </div>
             </div>
             <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 16px;">
@@ -292,6 +355,9 @@
         const qqqmAmountDisp = document.getElementById('qqqm-amount');
         const tqqqAmountDisp = document.getElementById('tqqq-amount');
         const gldmAmountDisp = document.getElementById('gldm-amount');
+        let currentBPercent = null;
+        let tqqqLots = [];
+        let profitableLotIdsForRecommendation = [];
 
         // Cloudflare KV에 설정 저장
         async function saveSettings() {
@@ -300,9 +366,10 @@
                 qqqmRatio: qqqmRatio.value,
                 tqqqRatio: tqqqRatio.value,
                 gldmRatio: gldmRatio.value,
-                qqqmInputAmount: document.getElementById('qqqm-input-amount')?.value || '0',
-                tqqqInputAmount: document.getElementById('tqqq-input-amount')?.value || '0',
-                gldmInputAmount: document.getElementById('gldm-input-amount')?.value || '0'
+                qqqmQuantity: document.getElementById('qqqm-input-amount')?.value || '0',
+                tqqqQuantity: document.getElementById('tqqq-input-amount')?.value || '0',
+                gldmQuantity: document.getElementById('gldm-input-amount')?.value || '0',
+                tqqqLots
             };
             try {
                 await fetch('/api/settings', {
@@ -326,13 +393,14 @@
                 if (settings.tqqqRatio) tqqqRatio.value = settings.tqqqRatio;
                 if (settings.gldmRatio) gldmRatio.value = settings.gldmRatio;
 
-                // 종목별 금액 입력값 복원
+                // 종목별 보유 수량 입력값 복원
                 const qqqmAmtEl = document.getElementById('qqqm-input-amount');
                 const tqqqAmtEl = document.getElementById('tqqq-input-amount');
                 const gldmAmtEl = document.getElementById('gldm-input-amount');
-                if (settings.qqqmInputAmount && qqqmAmtEl) qqqmAmtEl.value = settings.qqqmInputAmount;
-                if (settings.tqqqInputAmount && tqqqAmtEl) tqqqAmtEl.value = settings.tqqqInputAmount;
-                if (settings.gldmInputAmount && gldmAmtEl) gldmAmtEl.value = settings.gldmInputAmount;
+                if (settings.qqqmQuantity && qqqmAmtEl) qqqmAmtEl.value = settings.qqqmQuantity;
+                if (settings.tqqqQuantity && tqqqAmtEl) tqqqAmtEl.value = settings.tqqqQuantity;
+                if (settings.gldmQuantity && gldmAmtEl) gldmAmtEl.value = settings.gldmQuantity;
+                if (Array.isArray(settings.tqqqLots)) tqqqLots = settings.tqqqLots;
             } catch (error) {
                 console.error("설정 불러오기 실패:", error);
             }
@@ -425,35 +493,86 @@
         }
         init();
 
-        // --- Amount to Ratio Calculator Logic ---
+        // --- Quantity to Ratio Calculator Logic ---
         const qInputAmount = document.getElementById('qqqm-input-amount');
         const tInputAmount = document.getElementById('tqqq-input-amount');
         const gInputAmount = document.getElementById('gldm-input-amount');
         const totalAutoAmount = document.getElementById('total-auto-amount');
+        const quoteUpdatedAt = document.getElementById('quote-updated-at');
         
         const qAutoRatio = document.getElementById('qqqm-auto-ratio');
         const tAutoRatio = document.getElementById('tqqq-auto-ratio');
         const gAutoRatio = document.getElementById('gldm-auto-ratio');
         const nasdaqAutoRatio = document.getElementById('nasdaq-auto-ratio');
+        const qLivePrice = document.getElementById('qqqm-live-price');
+        const tLivePrice = document.getElementById('tqqq-live-price');
+        const gLivePrice = document.getElementById('gldm-live-price');
+        const qMarketValue = document.getElementById('qqqm-market-value');
+        const tMarketValue = document.getElementById('tqqq-market-value');
+        const gMarketValue = document.getElementById('gldm-market-value');
+        const rebalanceStatus = document.getElementById('rebalance-status');
+        const rebalanceBPercent = document.getElementById('rebalance-bpercent');
+        const rebalanceSummary = document.getElementById('rebalance-summary');
+        const rebalanceProjection = document.getElementById('rebalance-projection');
+        const qqqmOrder = document.getElementById('qqqm-order');
+        const tqqqOrder = document.getElementById('tqqq-order');
+        const gldmOrder = document.getElementById('gldm-order');
+        const lotPriceInput = document.getElementById('tqqq-lot-price');
+        const lotQtyInput = document.getElementById('tqqq-lot-qty');
+        const lotList = document.getElementById('tqqq-lot-list');
+        const applyProfitableLotsBtn = document.getElementById('apply-profitable-lots-btn');
+
+        const livePrices = {
+            QQQM: 0,
+            TQQQ: 0,
+            GLDM: 0
+        };
+
+        const usdFormatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+        function parseQuantity(value) {
+            return parseFloat(String(value).replace(/,/g, '')) || 0;
+        }
+
+        function formatQuantityInput(input) {
+            const raw = input.value.replace(/[^0-9.]/g, '');
+            const parts = raw.split('.');
+            const normalized = parts.length > 1 ? `${parts[0]}.${parts.slice(1).join('')}` : parts[0];
+            input.value = normalized;
+        }
 
         function updateAutoCalculations() {
-            // Format inputs with commas
+            // 보유 수량은 소수점 입력도 허용한다.
             [qInputAmount, tInputAmount, gInputAmount].forEach(input => {
-                let val = input.value.replace(/[^0-9]/g, '');
-                input.value = val !== '' ? parseInt(val, 10).toLocaleString('ko-KR') : '0';
+                formatQuantityInput(input);
             });
 
-            let qAmt = parseFloat(qInputAmount.value.replace(/,/g, '')) || 0;
-            let tAmt = parseFloat(tInputAmount.value.replace(/,/g, '')) || 0;
-            let gAmt = parseFloat(gInputAmount.value.replace(/,/g, '')) || 0;
+            const qQty = parseQuantity(qInputAmount.value);
+            const tQty = parseQuantity(tInputAmount.value);
+            const gQty = parseQuantity(gInputAmount.value);
 
-            let totalAmt = qAmt + tAmt + gAmt;
-            totalAutoAmount.textContent = totalAmt.toLocaleString('ko-KR') + ' 원';
+            const qAmt = qQty * livePrices.QQQM;
+            const tAmt = tQty * livePrices.TQQQ;
+            const gAmt = gQty * livePrices.GLDM;
+            const totalAmt = qAmt + tAmt + gAmt;
+
+            qLivePrice.textContent = `현재가 ${livePrices.QQQM ? usdFormatter.format(livePrices.QQQM) : '--'}`;
+            tLivePrice.textContent = `현재가 ${livePrices.TQQQ ? usdFormatter.format(livePrices.TQQQ) : '--'}`;
+            gLivePrice.textContent = `현재가 ${livePrices.GLDM ? usdFormatter.format(livePrices.GLDM) : '--'}`;
+            qMarketValue.textContent = usdFormatter.format(qAmt);
+            tMarketValue.textContent = usdFormatter.format(tAmt);
+            gMarketValue.textContent = usdFormatter.format(gAmt);
+            totalAutoAmount.textContent = usdFormatter.format(totalAmt);
 
             if (totalAmt > 0) {
-                let qPct = (qAmt / totalAmt) * 100;
-                let tPct = (tAmt / totalAmt) * 100;
-                let gPct = (gAmt / totalAmt) * 100;
+                const qPct = (qAmt / totalAmt) * 100;
+                const tPct = (tAmt / totalAmt) * 100;
+                const gPct = (gAmt / totalAmt) * 100;
 
                 qAutoRatio.textContent = qPct.toFixed(1) + '%';
                 tAutoRatio.textContent = tPct.toFixed(1) + '%';
@@ -465,6 +584,238 @@
                 gAutoRatio.textContent = '0.0%';
                 nasdaqAutoRatio.textContent = '0.0%';
             }
+
+            updateRebalanceRecommendation();
+            renderTqqqLots();
+        }
+
+        function getPortfolioSnapshot() {
+            const qQty = parseQuantity(qInputAmount.value);
+            const tQty = parseQuantity(tInputAmount.value);
+            const gQty = parseQuantity(gInputAmount.value);
+            const qVal = qQty * livePrices.QQQM;
+            const tVal = tQty * livePrices.TQQQ;
+            const gVal = gQty * livePrices.GLDM;
+            const total = qVal + tVal + gVal;
+
+            return { qQty, tQty, gQty, qVal, tVal, gVal, total };
+        }
+
+        function formatOrder(action, shares) {
+            return shares > 0 ? `${action} ${shares.toLocaleString('ko-KR')}주` : '추천 없음';
+        }
+
+        function ratioText(qVal, tVal, gVal) {
+            const total = qVal + tVal + gVal;
+            if (!total) return '예상 조정 후 비중: --';
+
+            const nasdaqPct = ((qVal + tVal) / total) * 100;
+            const goldPct = (gVal / total) * 100;
+            return `예상 조정 후 비중: 나스닥 ${nasdaqPct.toFixed(1)}% / 금 ${goldPct.toFixed(1)}%`;
+        }
+
+        function setRebalanceMode(mode, label) {
+            rebalanceStatus.className = `rebalance-status ${mode}`;
+            rebalanceStatus.textContent = label;
+        }
+
+        function resetRecommendation(summary) {
+            profitableLotIdsForRecommendation = [];
+            qqqmOrder.textContent = '대기';
+            tqqqOrder.textContent = '대기';
+            gldmOrder.textContent = '대기';
+            rebalanceSummary.textContent = summary;
+            rebalanceProjection.textContent = '예상 조정 후 비중: --';
+            applyProfitableLotsBtn.disabled = true;
+        }
+
+        function findDownsidePlan(snapshot) {
+            const targetGold = snapshot.total * 0.3;
+            const maxSell = Math.max(0, Math.min(
+                Math.floor(snapshot.gQty),
+                Math.floor((snapshot.gVal - targetGold) / livePrices.GLDM)
+            ));
+
+            let best = { sellG: 0, buyT: 0, qVal: snapshot.qVal, tVal: snapshot.tVal, gVal: snapshot.gVal, leftover: 0, score: Infinity };
+            for (let sellG = 0; sellG <= maxSell; sellG += 1) {
+                const proceeds = sellG * livePrices.GLDM;
+                const buyT = Math.floor(proceeds / livePrices.TQQQ);
+                if (sellG > 0 && buyT === 0) continue;
+                const leftover = proceeds - (buyT * livePrices.TQQQ);
+                const qVal = snapshot.qVal;
+                const tVal = snapshot.tVal + (buyT * livePrices.TQQQ);
+                const gVal = snapshot.gVal - proceeds;
+                const total = qVal + tVal + gVal;
+                const nasdaqPct = total ? (qVal + tVal) / total : 0;
+                const score = Math.abs(nasdaqPct - 0.7) + (leftover / Math.max(snapshot.total, 1) * 0.001);
+
+                if (score < best.score) {
+                    best = { sellG, buyT, qVal, tVal, gVal, leftover, score };
+                }
+            }
+
+            return best;
+        }
+
+        function findUpsidePlan(snapshot, profitableLots) {
+            const lotSellQty = profitableLots.reduce((sum, lot) => sum + Math.floor(parseQuantity(lot.qty)), 0);
+            const sellT = Math.min(Math.floor(snapshot.tQty), lotSellQty);
+            const proceeds = sellT * livePrices.TQQQ;
+            const tValAfterSale = snapshot.tVal - proceeds;
+            const maxQ = Math.floor(proceeds / livePrices.QQQM);
+            let best = { sellT, buyQ: 0, buyG: 0, qVal: snapshot.qVal, tVal: tValAfterSale, gVal: snapshot.gVal, leftover: proceeds, score: Infinity };
+
+            for (let buyQ = 0; buyQ <= maxQ; buyQ += 1) {
+                const cashAfterQ = proceeds - (buyQ * livePrices.QQQM);
+                const maxG = Math.floor(cashAfterQ / livePrices.GLDM);
+                const nasdaqVal = snapshot.qVal + (buyQ * livePrices.QQQM) + tValAfterSale;
+                const idealG = Math.max(0, Math.round(((nasdaqVal * 0.3 / 0.7) - snapshot.gVal) / livePrices.GLDM));
+                const candidates = [...new Set([0, maxG, maxG - 1, idealG, idealG - 1, idealG + 1])]
+                    .filter(shares => shares >= 0 && shares <= maxG);
+
+                candidates.forEach((buyG) => {
+                    const qVal = snapshot.qVal + (buyQ * livePrices.QQQM);
+                    const gVal = snapshot.gVal + (buyG * livePrices.GLDM);
+                    const leftover = cashAfterQ - (buyG * livePrices.GLDM);
+                    const total = qVal + tValAfterSale + gVal;
+                    const nasdaqPct = total ? (qVal + tValAfterSale) / total : 0;
+                    const score = Math.abs(nasdaqPct - 0.7) + (leftover / Math.max(proceeds, 1) * 0.0005);
+
+                    if (score < best.score) {
+                        best = { sellT, buyQ, buyG, qVal, tVal: tValAfterSale, gVal, leftover, score };
+                    }
+                });
+            }
+
+            return best;
+        }
+
+        function updateRebalanceRecommendation() {
+            rebalanceBPercent.textContent = currentBPercent === null ? 'BB %b --' : `BB %b ${currentBPercent.toFixed(4)}`;
+
+            if (!livePrices.QQQM || !livePrices.TQQQ || !livePrices.GLDM) {
+                setRebalanceMode('wait', '대기');
+                resetRecommendation('현재가 데이터를 기다리는 중입니다.');
+                return;
+            }
+
+            const snapshot = getPortfolioSnapshot();
+            if (!snapshot.total) {
+                setRebalanceMode('wait', '대기');
+                resetRecommendation('보유 수량을 입력하면 추천 주문을 계산합니다.');
+                return;
+            }
+
+            if (currentBPercent === null) {
+                setRebalanceMode('wait', '대기');
+                resetRecommendation('BB %b 데이터를 기다리는 중입니다.');
+                return;
+            }
+
+            if (currentBPercent <= 0) {
+                const plan = findDownsidePlan(snapshot);
+                setRebalanceMode('down', '하락 리밸런싱');
+                profitableLotIdsForRecommendation = [];
+                qqqmOrder.textContent = '추천 없음';
+                tqqqOrder.textContent = formatOrder('매수', plan.buyT);
+                gldmOrder.textContent = formatOrder('매도', plan.sellG);
+                rebalanceSummary.textContent = plan.sellG > 0
+                    ? 'GLDM 일부를 매도해 TQQQ를 매수하면 7:3 비중에 가까워집니다.'
+                    : 'GLDM 비중이 이미 30% 이하라 매도 추천이 없습니다.';
+                rebalanceProjection.textContent = `${ratioText(plan.qVal, plan.tVal, plan.gVal)} / 예상 예수금 ${usdFormatter.format(plan.leftover)}`;
+                applyProfitableLotsBtn.disabled = true;
+                return;
+            }
+
+            if (currentBPercent >= 1) {
+                const profitableLots = tqqqLots.filter(lot => livePrices.TQQQ > Number(lot.price));
+                profitableLotIdsForRecommendation = profitableLots.map(lot => lot.id);
+                const plan = findUpsidePlan(snapshot, profitableLots);
+
+                setRebalanceMode('up', '상승 리밸런싱');
+                qqqmOrder.textContent = formatOrder('매수', plan.buyQ);
+                tqqqOrder.textContent = formatOrder('매도', plan.sellT);
+                gldmOrder.textContent = formatOrder('매수', plan.buyG);
+                rebalanceSummary.textContent = profitableLots.length
+                    ? `수익 중인 TQQQ lot ${profitableLots.length}개를 전량 매도 대상으로 계산했습니다.`
+                    : '수익 중인 TQQQ lot이 없어 매도 추천이 없습니다.';
+                rebalanceProjection.textContent = `${ratioText(plan.qVal, plan.tVal, plan.gVal)} / 예상 예수금 ${usdFormatter.format(plan.leftover)}`;
+                applyProfitableLotsBtn.disabled = profitableLots.length === 0;
+                return;
+            }
+
+            setRebalanceMode('wait', '대기');
+            resetRecommendation('BB %b가 0과 1 사이입니다. 리밸런싱 조건이 아닙니다.');
+        }
+
+        async function addTqqqLot() {
+            const price = parseFloat(lotPriceInput.value.replace(/[^0-9.]/g, ''));
+            const qty = Math.floor(parseQuantity(lotQtyInput.value));
+
+            if (!price || !qty) {
+                alert('TQQQ 매수가와 정수 수량을 입력해 주세요.');
+                return;
+            }
+
+            tqqqLots.push({
+                id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                price,
+                qty,
+                createdAt: new Date().toISOString()
+            });
+
+            lotPriceInput.value = '';
+            lotQtyInput.value = '';
+            renderTqqqLots();
+            updateRebalanceRecommendation();
+            await saveSettings();
+        }
+
+        async function deleteTqqqLot(id) {
+            tqqqLots = tqqqLots.filter(lot => lot.id !== id);
+            renderTqqqLots();
+            updateRebalanceRecommendation();
+            await saveSettings();
+        }
+
+        async function applyProfitableLotSale() {
+            if (!profitableLotIdsForRecommendation.length) return;
+
+            tqqqLots = tqqqLots.filter(lot => !profitableLotIdsForRecommendation.includes(lot.id));
+            profitableLotIdsForRecommendation = [];
+            renderTqqqLots();
+            updateRebalanceRecommendation();
+            await saveSettings();
+        }
+
+        function renderTqqqLots() {
+            if (!lotList) return;
+
+            if (!tqqqLots.length) {
+                lotList.innerHTML = '<div class="empty-lot">저장된 TQQQ lot이 없습니다.</div>';
+                return;
+            }
+
+            lotList.innerHTML = tqqqLots.map((lot) => {
+                const price = Number(lot.price);
+                const qty = Math.floor(parseQuantity(lot.qty));
+                const isProfit = livePrices.TQQQ > price;
+                const state = livePrices.TQQQ ? (isProfit ? '수익' : '보유') : '대기';
+                const stateClass = isProfit ? 'profit' : 'hold';
+
+                return `
+                    <div class="lot-row">
+                        <div>
+                            <strong>${qty.toLocaleString('ko-KR')}주 @ ${usdFormatter.format(price)}</strong>
+                            <span>${new Date(lot.createdAt).toLocaleDateString('ko-KR')}</span>
+                        </div>
+                        <div class="lot-actions">
+                            <span class="lot-state ${stateClass}">${state}</span>
+                            <button class="mini-btn" onclick="deleteTqqqLot('${lot.id}')">삭제</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         qInputAmount.addEventListener('input', updateAutoCalculations);
@@ -493,6 +844,7 @@
         // --- Finnhub Monitoring Logic ---
         const FINNHUB_KEY = 'd7qd8qpr01qi8jan0oegd7qd8qpr01qi8jan0of0';
         const SYMBOL = 'QQQM';
+        const PORTFOLIO_SYMBOLS = ['QQQM', 'TQQQ', 'GLDM'];
 
         function requestNotificationPermission() {
             Notification.requestPermission().then(permission => {
@@ -506,12 +858,8 @@
         async function fetchMarketData() {
             try {
                 // 1. Finnhub으로 현재가 가져오기 (quote는 무료로 가능)
-                const quoteUrl = `https://finnhub.io/api/v1/quote?symbol=${SYMBOL}&token=${FINNHUB_KEY}`;
-                const quoteRes = await fetch(quoteUrl);
-
-                if (!quoteRes.ok) throw new Error(`Finnhub 오류: ${quoteRes.status}`);
-                const quoteData = await quoteRes.json();
-                const currentPrice = quoteData.c;
+                const quotes = await fetchLiveQuotes(PORTFOLIO_SYMBOLS);
+                const currentPrice = quotes[SYMBOL];
 
                 // 2. 로컬 프록시를 통해 Yahoo Finance 과거 데이터 가져오기 (CORS 우회)
                 const period2 = Math.floor(Date.now() / 1000);
@@ -538,6 +886,27 @@
             }
         }
 
+        async function fetchLiveQuotes(symbols) {
+            const results = await Promise.all(symbols.map(async (symbol) => {
+                const quoteUrl = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`;
+                const quoteRes = await fetch(quoteUrl);
+                if (!quoteRes.ok) throw new Error(`Finnhub 오류: ${quoteRes.status}`);
+
+                const quoteData = await quoteRes.json();
+                const price = Number(quoteData.c);
+                if (!price) throw new Error(`${symbol} 현재가 없음`);
+
+                return [symbol, price];
+            }));
+
+            const quotes = Object.fromEntries(results);
+            Object.assign(livePrices, quotes);
+            updateAutoCalculations();
+            quoteUpdatedAt.textContent = `현재가 업데이트: ${new Date().toLocaleTimeString('ko-KR')}`;
+
+            return quotes;
+        }
+
         function calculateAndDisplay(currentPrice, closes) {
             const period = 20;
             const recentCloses = closes.slice(-period);
@@ -552,6 +921,8 @@
 
             document.getElementById('current-price').textContent = `$${currentPrice.toFixed(2)}`;
             document.getElementById('current-b-percent').textContent = bPercent.toFixed(4);
+            currentBPercent = bPercent;
+            updateRebalanceRecommendation();
 
             // 실시간 변동에 따라 알림 조건 달성 여부 기록 및 시간 체크
             checkAlertCondition(currentPrice, bPercent);
@@ -598,7 +969,13 @@
 
         function triggerFinalAlert() {
             const title = `장 마감 전: QQQM ${dailyAlertFlag.type}! (클릭하여 확인)`;
-            const body = `기록된 도달가: $${dailyAlertFlag.price} (%b: ${dailyAlertFlag.bPercent.toFixed(2)})\n알림 창을 클릭해야 반복 알림이 종료됩니다.`;
+            const recommendationText = [
+                rebalanceSummary.textContent,
+                `QQQM: ${qqqmOrder.textContent}`,
+                `TQQQ: ${tqqqOrder.textContent}`,
+                `GLDM: ${gldmOrder.textContent}`
+            ].join('\n');
+            const body = `기록된 도달가: $${dailyAlertFlag.price.toFixed(2)} (%b: ${dailyAlertFlag.bPercent.toFixed(2)})\n${recommendationText}\n알림 창을 클릭해야 반복 알림이 종료됩니다.`;
             
             if (Notification.permission === "granted") {
                 const noti = new Notification(title, { body, requireInteraction: true });
