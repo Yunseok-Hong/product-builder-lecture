@@ -452,6 +452,12 @@ h1 {
     font-family: 'Monaco', monospace;
 }
 
+.monitor-meta {
+    color: #64748b;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
 .alert-btn {
     background: #3b82f6;
     color: white;

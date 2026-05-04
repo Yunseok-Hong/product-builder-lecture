@@ -34,6 +34,7 @@
                 <div class="monitor-item">
                     <span class="monitor-label">QQQM 현재가</span>
                     <span class="monitor-value" id="current-price">--</span>
+                    <span class="monitor-meta" id="current-price-updated-at">최근 가져온 시간: --</span>
                 </div>
                 <div class="monitor-item">
                     <span class="monitor-label">BB %b 수치</span>
@@ -539,6 +540,7 @@
         const qMarketValue = document.getElementById('qqqm-market-value');
         const tMarketValue = document.getElementById('tqqq-market-value');
         const gMarketValue = document.getElementById('gldm-market-value');
+        const currentPriceUpdatedAt = document.getElementById('current-price-updated-at');
         const rebalanceStatus = document.getElementById('rebalance-status');
         const rebalanceBPercent = document.getElementById('rebalance-bpercent');
         const rebalanceSummary = document.getElementById('rebalance-summary');
@@ -1145,6 +1147,7 @@
 
             document.getElementById('current-price').textContent = `$${currentPrice.toFixed(2)}`;
             document.getElementById('current-b-percent').textContent = bPercent.toFixed(4);
+            currentPriceUpdatedAt.textContent = `최근 가져온 시간: ${new Date().toLocaleTimeString('ko-KR')}`;
             currentBPercent = bPercent;
             updateRebalanceRecommendation();
 
