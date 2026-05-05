@@ -1,4 +1,4 @@
-const CACHE_NAME = 'market-pulse-v5';
+const CACHE_NAME = 'market-pulse-v6';
 const APP_SHELL = [
   '/',
   '/index.html',
