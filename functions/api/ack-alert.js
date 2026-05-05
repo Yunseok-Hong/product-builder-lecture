@@ -1,4 +1,5 @@
-const ALERT_STATE_KEY = 'server_alert_state';
+const MONITOR_SYMBOL = 'TQQQ';
+const ALERT_STATE_KEY = `server_alert_state_${MONITOR_SYMBOL}`;
 
 function jsonResponse(body, status = 200) {
     return new Response(JSON.stringify(body), {

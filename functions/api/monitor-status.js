@@ -1,5 +1,6 @@
-const ALERT_STATE_KEY = 'server_alert_state';
-const MONITOR_STATUS_KEY = 'server_monitor_status';
+const MONITOR_SYMBOL = 'TQQQ';
+const ALERT_STATE_KEY = `server_alert_state_${MONITOR_SYMBOL}`;
+const MONITOR_STATUS_KEY = `server_monitor_status_${MONITOR_SYMBOL}`;
 
 function jsonResponse(body, status = 200) {
     return new Response(JSON.stringify(body), {
@@ -20,7 +21,7 @@ export async function onRequestGet({ env }) {
             readJson(env, ALERT_STATE_KEY, {})
         ]);
 
-        return jsonResponse({ monitorStatus, alertState });
+        return jsonResponse({ monitorSymbol: MONITOR_SYMBOL, monitorStatus, alertState });
     } catch (error) {
         return jsonResponse({ error: error.message }, 500);
     }

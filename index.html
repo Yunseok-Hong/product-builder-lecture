@@ -1044,9 +1044,10 @@
 
                 const status = data.monitorStatus || {};
                 const alertState = data.alertState || {};
+                const serverSymbol = status.symbol || data.monitorSymbol || 'TQQQ';
                 serverMonitorStatus.textContent = status.ok
-                    ? status.mode === 'skipped' ? `대기 (${status.reason})` : '정상 감시 중'
-                    : '상태 없음';
+                    ? status.mode === 'skipped' ? `${serverSymbol} 대기 (${status.reason})` : `${serverSymbol} 정상 감시 중`
+                    : `${serverSymbol} 상태 없음`;
                 serverLastCheck.textContent = `마지막 확인: ${formatDateTime(status.updatedAt)}`;
                 serverBPercent.textContent = `서버 BB %b: ${typeof status.bPercent === 'number' ? status.bPercent.toFixed(4) : '--'}`;
                 serverCurrentPrice.textContent = `서버 현재가: ${typeof status.currentPrice === 'number' ? usdFormatter.format(status.currentPrice) : '--'}`;

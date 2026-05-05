@@ -1,7 +1,7 @@
 const SYMBOL = 'TQQQ';
 const SUBSCRIPTIONS_KEY = 'push_subscriptions';
-const ALERT_STATE_KEY = 'server_alert_state';
-const MONITOR_STATUS_KEY = 'server_monitor_status';
+const ALERT_STATE_KEY = `server_alert_state_${SYMBOL}`;
+const MONITOR_STATUS_KEY = `server_monitor_status_${SYMBOL}`;
 const CHECK_INTERVAL_NOTICE = 'Cloudflare Cron should run this worker every 1 minute.';
 const CALENDAR_MAX_YEAR = 2028;
 const MARKET_HOLIDAYS = new Set([
@@ -397,6 +397,7 @@ async function runMonitor(env) {
 
     const status = {
         ok: true,
+        symbol: SYMBOL,
         notice: CHECK_INTERVAL_NOTICE,
         nyDate: nyParts.dateKey,
         currentPrice,
@@ -457,6 +458,7 @@ export default {
         } catch (error) {
             const failureStatus = {
                 ok: false,
+                symbol: SYMBOL,
                 error: error.message,
                 updatedAt: new Date().toISOString()
             };
