@@ -523,6 +523,10 @@ h1 {
     color: #f59e0b;
 }
 
+.rebalance-status.consecutive {
+    color: #b7791f;
+}
+
 .rebalance-bpercent {
     color: var(--text);
     font-family: 'Monaco', monospace;

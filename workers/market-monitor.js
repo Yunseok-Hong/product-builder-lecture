@@ -3,6 +3,7 @@ const SUBSCRIPTIONS_KEY = 'push_subscriptions';
 const ALERT_STATE_KEY = `server_alert_state_${SYMBOL}`;
 const MONITOR_STATUS_KEY = `server_monitor_status_${SYMBOL}`;
 const CHECK_INTERVAL_NOTICE = 'Cloudflare Cron should run this worker every 1 minute.';
+const SAME_DIRECTION_SKIP_COUNT = 4;
 const CALENDAR_MAX_YEAR = 2028;
 const MARKET_HOLIDAYS = new Set([
     '2026-01-01', '2026-01-19', '2026-02-16', '2026-04-03', '2026-05-25',
@@ -296,6 +297,69 @@ function calculateBPercent(currentPrice, closes) {
     return (currentPrice - lowerBand) / (upperBand - lowerBand);
 }
 
+function getSignalType(bPercent) {
+    if (bPercent >= 1) return 'upper';
+    if (bPercent <= 0) return 'lower';
+    return null;
+}
+
+function getSignalLabel(signalType) {
+    return signalType === 'upper' ? 'upper band breakout' : 'lower band touch';
+}
+
+function evaluateSignalState(previousState, signalType, dateKey, currentPrice, bPercent) {
+    let state = {
+        ...previousState,
+        dateKey,
+        price: currentPrice,
+        bPercent,
+        signalType,
+        type: getSignalLabel(signalType),
+        skipCount: SAME_DIRECTION_SKIP_COUNT,
+        acknowledged: previousState.dateKey === dateKey ? Boolean(previousState.acknowledged) : false,
+        lastPushedAt: previousState.dateKey === dateKey ? Number(previousState.lastPushedAt || 0) : 0,
+        lastCheckedAt: new Date().toISOString()
+    };
+
+    let consecutiveSignalCount = Number(previousState.consecutiveSignalCount || 0);
+    const isSameDirection = signalType === previousState.lastSignalType;
+    let shouldExecute = false;
+
+    if (isSameDirection && previousState.lastCountedSignalDate === dateKey && previousState.actionMode) {
+        shouldExecute = previousState.actionMode === 'execute';
+    } else if (!isSameDirection) {
+        shouldExecute = true;
+        consecutiveSignalCount = 0;
+    } else {
+        if (previousState.lastCountedSignalDate !== dateKey) {
+            consecutiveSignalCount += 1;
+        }
+        shouldExecute = consecutiveSignalCount > SAME_DIRECTION_SKIP_COUNT;
+        if (shouldExecute) consecutiveSignalCount = 0;
+    }
+
+    state = {
+        ...state,
+        actionMode: shouldExecute ? 'execute' : 'consecutive',
+        shouldExecute,
+        consecutiveSignalCount,
+        lastCountedSignalDate: dateKey
+    };
+
+    if (shouldExecute) {
+        state.lastSignalType = signalType;
+        state.lastExecutedAt = new Date().toISOString();
+    } else {
+        state.lastSignalType = previousState.lastSignalType || signalType;
+    }
+
+    if (!state.firstSeenAt || !isSameDirection || shouldExecute) {
+        state.firstSeenAt = new Date().toISOString();
+    }
+
+    return state;
+}
+
 async function readJson(env, key, fallback) {
     const raw = await env.KV.get(key);
     return raw ? JSON.parse(raw) : fallback;
@@ -322,12 +386,23 @@ async function notifySubscriptions(env, payload) {
 }
 
 function buildPushBody(state) {
+    if (state.actionMode === 'consecutive') {
+        return [
+            `${SYMBOL} ${state.type}`,
+            `Status: waiting on same-direction signal (${state.consecutiveSignalCount}/${state.skipCount} skipped).`,
+            `Price: $${state.price.toFixed(2)}`,
+            `BB %b: ${state.bPercent.toFixed(4)}`,
+            'No rebalance execution today. Keep monitoring.'
+        ].join('\n');
+    }
+
     const direction = state.bPercent >= 1
-        ? 'Action: review profitable TQQQ lots, then consider moving proceeds into GLDM.'
-        : 'Action: consider moving part of GLDM into TQQQ.';
+        ? 'Action: open Market Pulse and rebalance toward the TQQQ/GLDM target weights.'
+        : 'Action: open Market Pulse and rebalance toward the TQQQ/GLDM target weights.';
 
     return [
         `${SYMBOL} ${state.type}`,
+        'Status: execute rebalance check.',
         `Price: $${state.price.toFixed(2)}`,
         `BB %b: ${state.bPercent.toFixed(4)}`,
         direction,
@@ -340,6 +415,7 @@ async function runMonitor(env) {
     const marketStatus = getMarketCalendarStatus(nyParts);
     const previousState = await readJson(env, ALERT_STATE_KEY, {});
     let state = previousState.dateKey === nyParts.dateKey ? previousState : {
+        ...previousState,
         dateKey: nyParts.dateKey,
         acknowledged: false,
         lastPushedAt: 0
@@ -363,21 +439,28 @@ async function runMonitor(env) {
     const history = await fetchRecentCloses(SYMBOL);
     const bPercent = calculateBPercent(currentPrice, history.closes);
 
-    if (bPercent <= 0 || bPercent >= 1) {
+    const signalType = getSignalType(bPercent);
+    if (signalType) {
+        state = evaluateSignalState(state, signalType, nyParts.dateKey, currentPrice, bPercent);
+        await env.KV.put(ALERT_STATE_KEY, JSON.stringify(state));
+    } else {
         state = {
             ...state,
             dateKey: nyParts.dateKey,
-            type: bPercent >= 1 ? 'upper band breakout' : 'lower band touch',
+            actionMode: 'wait',
+            shouldExecute: false,
+            signalType: null,
+            type: null,
             price: currentPrice,
             bPercent,
-            firstSeenAt: state.firstSeenAt || new Date().toISOString(),
-            acknowledged: Boolean(state.acknowledged),
+            acknowledged: false,
+            lastPushedAt: 0,
             lastCheckedAt: new Date().toISOString()
         };
         await env.KV.put(ALERT_STATE_KEY, JSON.stringify(state));
     }
 
-    const shouldPush = state.type
+    const shouldPush = signalType
         && isAfterAlertTime(nyParts, marketStatus)
         && !state.acknowledged
         && Date.now() - Number(state.lastPushedAt || 0) >= 5 * 60 * 1000;
@@ -385,7 +468,7 @@ async function runMonitor(env) {
     let pushResult = null;
     if (shouldPush) {
         pushResult = await notifySubscriptions(env, {
-            title: `Market Pulse: ${SYMBOL} ${state.type}`,
+            title: `Market Pulse: ${SYMBOL} ${state.actionMode === 'consecutive' ? '대기(연속)' : '실행'}`,
             body: buildPushBody(state),
             url: '/',
             ackUrl: '/api/ack-alert'
