@@ -532,6 +532,13 @@ h1 {
     white-space: nowrap;
 }
 
+.rebalance-target-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
 .rebalance-summary,
 .rebalance-projection,
 .lot-help {
@@ -844,6 +851,10 @@ footer {
 
 @media (max-width: 900px) {
     #tab-holdings .holdings-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rebalance-target-grid {
         grid-template-columns: 1fr;
     }
 }

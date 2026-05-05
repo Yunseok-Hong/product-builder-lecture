@@ -1,7 +1,7 @@
 {
   "name": "나스닥+금 포트폴리오 계산기",
   "short_name": "나스닥+금",
-  "description": "QQQM, TQQQ, GLDM 포트폴리오 모니터링 및 리밸런싱 계산기.",
+  "description": "TQQQ, GLDM 포트폴리오 모니터링 및 리밸런싱 계산기.",
   "id": "/",
   "start_url": "/",
   "scope": "/",

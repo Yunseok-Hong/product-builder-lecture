@@ -12,7 +12,7 @@ export async function onRequestGet({ request, env }) {
         }
 
         const url = new URL(request.url);
-        const symbols = (url.searchParams.get('symbols') || 'QQQM')
+        const symbols = (url.searchParams.get('symbols') || 'TQQQ')
             .split(',')
             .map(symbol => symbol.trim().toUpperCase())
             .filter(Boolean);

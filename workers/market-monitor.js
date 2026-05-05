@@ -1,4 +1,4 @@
-const SYMBOL = 'QQQM';
+const SYMBOL = 'TQQQ';
 const SUBSCRIPTIONS_KEY = 'push_subscriptions';
 const ALERT_STATE_KEY = 'server_alert_state';
 const MONITOR_STATUS_KEY = 'server_monitor_status';
@@ -315,11 +315,11 @@ async function notifySubscriptions(env, payload) {
 
 function buildPushBody(state) {
     const direction = state.bPercent >= 1
-        ? 'Action: review profitable TQQQ lots, then consider moving proceeds into QQQM/GLDM.'
+        ? 'Action: review profitable TQQQ lots, then consider moving proceeds into GLDM.'
         : 'Action: consider moving part of GLDM into TQQQ.';
 
     return [
-        `QQQM ${state.type}`,
+        `${SYMBOL} ${state.type}`,
         `Price: $${state.price.toFixed(2)}`,
         `BB %b: ${state.bPercent.toFixed(4)}`,
         direction,
@@ -377,7 +377,7 @@ async function runMonitor(env) {
     let pushResult = null;
     if (shouldPush) {
         pushResult = await notifySubscriptions(env, {
-            title: `Market Pulse: QQQM ${state.type}`,
+            title: `Market Pulse: ${SYMBOL} ${state.type}`,
             body: buildPushBody(state),
             url: '/',
             ackUrl: '/api/ack-alert'

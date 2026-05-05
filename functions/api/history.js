@@ -7,7 +7,7 @@ export async function onRequestGet(context) {
     const { request } = context;
     const url = new URL(request.url);
 
-    const symbol = url.searchParams.get('symbol') || 'QQQM';
+    const symbol = url.searchParams.get('symbol') || 'TQQQ';
     const period1 = url.searchParams.get('period1');
     const period2 = url.searchParams.get('period2');
 
