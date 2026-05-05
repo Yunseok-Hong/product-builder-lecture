@@ -489,16 +489,15 @@ h1 {
 }
 
 .rebalance-panel,
-.lot-panel {
-    margin-top: 1.5rem;
-    padding: 1.5rem;
+.monitor-panel {
+    padding: 1rem;
     background: rgba(251, 246, 239, 0.55);
     border: 1px solid rgba(108, 93, 83, 0.16);
-    border-radius: 16px;
+    border-radius: 12px;
 }
 
 .rebalance-header,
-.lot-header {
+.monitor-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -507,8 +506,8 @@ h1 {
 }
 
 .rebalance-status {
-    margin-top: 0.35rem;
-    font-size: 1.45rem;
+    margin-top: 0.2rem;
+    font-size: 1.2rem;
     font-weight: 800;
 }
 
@@ -535,33 +534,32 @@ h1 {
 .rebalance-target-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
 }
 
 .rebalance-summary,
-.rebalance-projection,
-.lot-help {
+.rebalance-projection {
     color: var(--muted);
     line-height: 1.5;
+    font-size: 0.92rem;
 }
 
-.order-grid,
-.lot-input-grid {
+.order-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
 }
 
 .order-card {
     display: flex;
     flex-direction: column;
-    gap: 0.45rem;
-    padding: 1rem;
+    gap: 0.35rem;
+    padding: 0.8rem;
     background: rgba(223, 211, 195, 0.48);
     border: 1px solid rgba(108, 93, 83, 0.14);
-    border-radius: 12px;
+    border-radius: 10px;
 }
 
 .order-label {
@@ -576,7 +574,7 @@ h1 {
 }
 
 .rebalance-projection {
-    margin-top: 1rem;
+    margin-top: 0.75rem;
     font-weight: 700;
 }
 
@@ -595,91 +593,20 @@ h1 {
     opacity: 0.45;
 }
 
-.add-lot-btn {
-    align-self: end;
-    min-height: 54px;
-}
-
-.lot-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-top: 1rem;
-}
-
-.lot-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.9rem 1rem;
-    background: rgba(223, 211, 195, 0.48);
-    border: 1px solid rgba(108, 93, 83, 0.14);
-    border-radius: 12px;
-}
-
-.lot-row span {
-    display: block;
-    color: var(--muted);
-    font-size: 0.82rem;
-    margin-top: 0.25rem;
-}
-
-.lot-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-}
-
-.lot-state {
-    padding: 0.35rem 0.55rem;
-    border-radius: 999px;
-    font-size: 0.78rem;
-    font-weight: 800;
-}
-
-.lot-state.profit {
-    background: rgba(16, 185, 129, 0.18);
-    color: #34d399;
-}
-
-.lot-state.hold {
-    background: rgba(199, 177, 153, 0.32);
-    color: var(--text);
-}
-
-.mini-btn {
-    border: 0;
-    background: rgba(239, 68, 68, 0.15);
-    color: #fca5a5;
-    border-radius: 8px;
-    padding: 0.45rem 0.7rem;
-    font-weight: 800;
-    cursor: pointer;
-}
-
-.empty-lot {
-    color: var(--muted);
-    padding: 0.75rem 0;
-}
-
 .alert-monitor {
     grid-column: 1 / -1;
-    background: rgba(223, 211, 195, 0.76);
-    border: 1px solid var(--line);
-    border-radius: 24px;
-    padding: 2rem;
-    backdrop-filter: blur(12px);
+    padding: 0;
     margin-bottom: 2rem;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
 }
 
-.monitor-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.monitor-subtitle {
+    color: var(--muted);
+    font-size: 0.86rem;
+    font-weight: 700;
+    margin-top: 0.25rem;
 }
 
 .status-badge {
@@ -688,9 +615,9 @@ h1 {
     gap: 0.5rem;
     background: rgba(34, 197, 94, 0.2);
     color: #4ade80;
-    padding: 0.5rem 1rem;
+    padding: 0.4rem 0.8rem;
     border-radius: 99px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
 }
 
@@ -704,16 +631,20 @@ h1 {
     color: #fca5a5;
 }
 
-.monitor-grid {
+.monitor-compact-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
 }
 
 .monitor-item {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.35rem;
+    padding: 0.8rem;
+    background: rgba(223, 211, 195, 0.36);
+    border: 1px solid rgba(108, 93, 83, 0.12);
+    border-radius: 10px;
 }
 
 .monitor-label {
@@ -722,7 +653,7 @@ h1 {
 }
 
 .monitor-value {
-    font-size: 1.8rem;
+    font-size: 1.25rem;
     font-weight: 800;
     font-family: 'Monaco', monospace;
 }
@@ -737,8 +668,8 @@ h1 {
     background: var(--accent);
     color: white;
     border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -750,7 +681,6 @@ h1 {
 }
 
 .alert-btn.secondary-alert {
-    margin-top: 0.6rem;
     background: rgba(251, 246, 239, 0.78);
     border: 1px solid rgba(108, 93, 83, 0.26);
     color: var(--text);
@@ -764,21 +694,6 @@ h1 {
     color: var(--muted);
     font-size: 0.82rem;
     font-weight: 700;
-    margin-top: 0.55rem;
-}
-
-.server-status-panel {
-    background: rgba(251, 246, 239, 0.58);
-    border: 1px solid rgba(108, 93, 83, 0.16);
-    border-radius: 16px;
-    padding: 1rem;
-}
-
-.server-status-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
 }
 
 .server-status-value {
@@ -807,11 +722,19 @@ h1 {
 .server-status-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-    gap: 0.75rem;
-    margin-top: 1rem;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
     color: var(--muted);
-    font-size: 0.9rem;
+    font-size: 0.84rem;
     font-weight: 700;
+}
+
+.monitor-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
 }
 
 .server-calendar-warning {
@@ -855,6 +778,10 @@ footer {
     }
 
     .rebalance-target-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .monitor-compact-grid {
         grid-template-columns: 1fr;
     }
 }

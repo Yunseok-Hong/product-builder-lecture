@@ -97,47 +97,6 @@
         <section class="tab-panel" id="tab-monitor" data-tab-panel="monitor" aria-label="TQQQ &#49892;&#49884;&#44036; &#44048;&#49884; &#49884;&#49828;&#53596;">
             <!-- Real-time Alert Monitor -->
                     <section class="alert-monitor" id="monitor-section">
-                        <div class="monitor-header">
-                            <div class="calc-title" style="margin:0"><span>🔔</span> TQQQ 실시간 감시 시스템</div>
-                            <div id="status-badge" class="status-badge loading">연결 중...</div>
-                        </div>
-                        <div class="monitor-grid">
-                            <div class="monitor-item">
-                                <span class="monitor-label">TQQQ 현재가</span>
-                                <span class="monitor-value" id="current-price">--</span>
-                                <span class="monitor-meta" id="current-price-updated-at">최근 가져온 시간: --</span>
-                            </div>
-                            <div class="monitor-item">
-                                <span class="monitor-label">BB %b 수치</span>
-                                <span class="monitor-value" id="current-b-percent">--</span>
-                            </div>
-                            <div class="monitor-item" style="justify-content: flex-end; align-items: flex-end;">
-                                <button class="alert-btn" onclick="requestNotificationPermission()">알림 권한 허용</button>
-                                <button class="alert-btn secondary-alert" onclick="sendRebalanceTestNotification()">리밸런싱 알림 테스트</button>
-                                <span class="notification-state" id="notification-state">알림 상태 확인 중...</span>
-                            </div>
-                        </div>
-                        <div class="data-error-panel" id="client-data-error" hidden></div>
-                        <div class="server-status-panel">
-                            <div class="server-status-header">
-                                <div>
-                                    <span class="monitor-label">서버 감시 상태</span>
-                                    <div class="server-status-value" id="server-monitor-status">확인 중...</div>
-                                </div>
-                                <label class="ack-control">
-                                    <input type="checkbox" id="alert-ack-checkbox">
-                                    <span>오늘 알림 확인 완료</span>
-                                </label>
-                            </div>
-                            <div class="server-status-grid">
-                                <span id="server-last-check">마지막 확인: --</span>
-                                <span id="server-bpercent">서버 BB %b: --</span>
-                                <span id="server-market-calendar">시장 캘린더: --</span>
-                                <span id="server-last-push">마지막 알림: --</span>
-                            </div>
-                            <div class="server-calendar-warning" id="server-calendar-warning"></div>
-                            <div class="data-error-panel server-error" id="server-data-error" hidden></div>
-                        </div>
                         <div class="rebalance-panel">
                             <div class="rebalance-header">
                                 <div>
@@ -176,35 +135,50 @@
                             <div class="rebalance-projection" id="rebalance-projection">예상 조정 후 비중: --</div>
                         </div>
 
-                        <div class="lot-panel">
-                            <div class="lot-header">
+                        <div class="monitor-panel">
+                            <div class="monitor-header">
                                 <div>
-                                    <span class="result-label">TQQQ lot 기록</span>
-                                    <div class="lot-help">실제 주문 후 매수가와 수량을 입력하세요.</div>
+                                    <span class="result-label">TQQQ 실시간 감시 시스템</span>
+                                    <div class="monitor-subtitle">실시간 가격, BB %b, 서버 감시 상태</div>
                                 </div>
-                                <button class="secondary-btn" id="apply-profitable-lots-btn" onclick="applyProfitableLotSale()" disabled>추천 매도 반영</button>
+                                <div id="status-badge" class="status-badge loading">연결 중...</div>
                             </div>
-                            <div class="lot-input-grid">
-                                <div class="input-group">
-                                    <label>TQQQ 매수가</label>
-                                    <div class="input-wrapper">
-                                        <input type="text" id="tqqq-lot-price" value="" inputmode="decimal" placeholder="예: 50">
-                                        <span class="unit">$</span>
-                                    </div>
+                            <div class="monitor-compact-grid">
+                                <div class="monitor-item">
+                                    <span class="monitor-label">TQQQ 현재가</span>
+                                    <span class="monitor-value" id="current-price">--</span>
+                                    <span class="monitor-meta" id="current-price-updated-at">최근 가져온 시간: --</span>
                                 </div>
-                                <div class="input-group">
-                                    <label>TQQQ 수량</label>
-                                    <div class="input-wrapper">
-                                        <input type="text" id="tqqq-lot-qty" value="" inputmode="numeric" placeholder="예: 10">
-                                        <span class="unit">주</span>
-                                    </div>
+                                <div class="monitor-item">
+                                    <span class="monitor-label">현재 BB %b</span>
+                                    <span class="monitor-value" id="current-b-percent">--</span>
                                 </div>
-                                <button class="secondary-btn add-lot-btn" onclick="addTqqqLot()">lot 추가</button>
+                                <div class="monitor-item server-monitor-item">
+                                    <span class="monitor-label">서버 감시 상태</span>
+                                    <span class="server-status-value" id="server-monitor-status">확인 중...</span>
+                                </div>
                             </div>
-                            <div class="lot-list" id="tqqq-lot-list">
-                                <div class="empty-lot">저장된 TQQQ lot이 없습니다.</div>
+                            <div class="server-status-grid">
+                                <span id="server-last-check">마지막 확인: --</span>
+                                <span id="server-bpercent">서버 BB %b: --</span>
+                                <span id="server-current-price">서버 현재가: --</span>
+                                <span id="server-last-close">마지막 종가: --</span>
+                                <span id="server-market-calendar">시장 캘린더: --</span>
+                                <span id="server-last-push">마지막 알림: --</span>
                             </div>
-                        </div>
+                            <div class="monitor-actions">
+                                <button class="alert-btn" onclick="requestNotificationPermission()">알림 권한 허용</button>
+                                <button class="alert-btn secondary-alert" onclick="sendRebalanceTestNotification()">리밸런싱 알림 테스트</button>
+                                <label class="ack-control">
+                                    <input type="checkbox" id="alert-ack-checkbox">
+                                    <span>오늘 알림 확인 완료</span>
+                                </label>
+                            </div>
+                            <div class="notification-state" id="notification-state">알림 상태 확인 중...</div>
+                            <div class="server-calendar-warning" id="server-calendar-warning"></div>
+                            <div class="data-error-panel" id="client-data-error" hidden></div>
+                            <div class="data-error-panel server-error" id="server-data-error" hidden></div>
+                            </div>
                     </section>
         </section>
 
@@ -431,8 +405,6 @@
         const tqqqAmountDisp = document.getElementById('tqqq-amount');
         const gldmAmountDisp = document.getElementById('gldm-amount');
         let currentBPercent = null;
-        let tqqqLots = [];
-        let profitableLotIdsForRecommendation = [];
 
         function initTabs() {
             const tabButtons = Array.from(document.querySelectorAll('[data-tab-target]'));
@@ -477,8 +449,7 @@
                 tqqqQuantity: document.getElementById('tqqq-input-amount')?.value || '0',
                 gldmQuantity: document.getElementById('gldm-input-amount')?.value || '0',
                 rebalanceTargetTqqq: document.getElementById('rebalance-target-tqqq')?.value || '70',
-                rebalanceTargetGldm: document.getElementById('rebalance-target-gldm')?.value || '30',
-                tqqqLots
+                rebalanceTargetGldm: document.getElementById('rebalance-target-gldm')?.value || '30'
             };
             try {
                 await fetch('/api/settings', {
@@ -511,7 +482,6 @@
                 if (settings.gldmQuantity && gldmAmtEl) gldmAmtEl.value = settings.gldmQuantity;
                 if (settings.rebalanceTargetTqqq !== undefined && rebalanceTargetTqqqEl) rebalanceTargetTqqqEl.value = settings.rebalanceTargetTqqq;
                 if (settings.rebalanceTargetGldm !== undefined && rebalanceTargetGldmEl) rebalanceTargetGldmEl.value = settings.rebalanceTargetGldm;
-                if (Array.isArray(settings.tqqqLots)) tqqqLots = settings.tqqqLots;
             } catch (error) {
                 console.error("설정 불러오기 실패:", error);
             }
@@ -626,10 +596,6 @@
         const gldmOrder = document.getElementById('gldm-order');
         const rebalanceTargetTqqq = document.getElementById('rebalance-target-tqqq');
         const rebalanceTargetGldm = document.getElementById('rebalance-target-gldm');
-        const lotPriceInput = document.getElementById('tqqq-lot-price');
-        const lotQtyInput = document.getElementById('tqqq-lot-qty');
-        const lotList = document.getElementById('tqqq-lot-list');
-        const applyProfitableLotsBtn = document.getElementById('apply-profitable-lots-btn');
 
         const livePrices = {
             TQQQ: 0,
@@ -692,7 +658,6 @@
             }
 
             updateRebalanceRecommendation();
-            renderTqqqLots();
         }
 
         function getPortfolioSnapshot() {
@@ -748,12 +713,10 @@
         }
 
         function resetRecommendation(summary) {
-            profitableLotIdsForRecommendation = [];
             tqqqOrder.textContent = '대기';
             gldmOrder.textContent = '대기';
             rebalanceSummary.textContent = summary;
             rebalanceProjection.textContent = '예상 조정 후 비중: --';
-            applyProfitableLotsBtn.disabled = true;
         }
 
         function scoreTargetPlan(tVal, gVal, leftover, targetT) {
@@ -836,89 +799,17 @@
                 const targetText = `목표 비중 TQQQ ${(targets.targetT * 100).toFixed(1)}% / GLDM ${(targets.targetG * 100).toFixed(1)}%`;
 
                 setRebalanceMode(mode, label);
-                profitableLotIdsForRecommendation = [];
                 tqqqOrder.textContent = plan.sellT > 0 ? formatOrder('매도', plan.sellT) : formatOrder('매수', plan.buyT);
                 gldmOrder.textContent = plan.sellG > 0 ? formatOrder('매도', plan.sellG) : formatOrder('매수', plan.buyG);
                 rebalanceSummary.textContent = plan.sellT || plan.buyT || plan.sellG || plan.buyG
                     ? `TQQQ BB %b 신호가 발생했습니다. ${targetText}에 가깝게 조정합니다.`
                     : `TQQQ BB %b 신호가 발생했지만 현재 비중이 ${targetText}에 이미 가깝습니다.`;
                 rebalanceProjection.textContent = `${ratioText(0, plan.tVal, plan.gVal)} / 예상 예수금 ${usdFormatter.format(plan.leftover)}`;
-                applyProfitableLotsBtn.disabled = true;
                 return;
             }
 
             setRebalanceMode('wait', '대기');
             resetRecommendation('BB %b가 0과 1 사이입니다. 리밸런싱 조건이 아닙니다.');
-        }
-
-        async function addTqqqLot() {
-            const price = parseFloat(lotPriceInput.value.replace(/[^0-9.]/g, ''));
-            const qty = Math.floor(parseQuantity(lotQtyInput.value));
-
-            if (!price || !qty) {
-                alert('TQQQ 매수가와 정수 수량을 입력해 주세요.');
-                return;
-            }
-
-            tqqqLots.push({
-                id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-                price,
-                qty,
-                createdAt: new Date().toISOString()
-            });
-
-            lotPriceInput.value = '';
-            lotQtyInput.value = '';
-            renderTqqqLots();
-            updateRebalanceRecommendation();
-            await saveSettings();
-        }
-
-        async function deleteTqqqLot(id) {
-            tqqqLots = tqqqLots.filter(lot => lot.id !== id);
-            renderTqqqLots();
-            updateRebalanceRecommendation();
-            await saveSettings();
-        }
-
-        async function applyProfitableLotSale() {
-            if (!profitableLotIdsForRecommendation.length) return;
-
-            tqqqLots = tqqqLots.filter(lot => !profitableLotIdsForRecommendation.includes(lot.id));
-            profitableLotIdsForRecommendation = [];
-            renderTqqqLots();
-            updateRebalanceRecommendation();
-            await saveSettings();
-        }
-
-        function renderTqqqLots() {
-            if (!lotList) return;
-
-            if (!tqqqLots.length) {
-                lotList.innerHTML = '<div class="empty-lot">저장된 TQQQ lot이 없습니다.</div>';
-                return;
-            }
-
-            lotList.innerHTML = tqqqLots.map((lot) => {
-                const price = Number(lot.price);
-                const qty = Math.floor(parseQuantity(lot.qty));
-                const isProfit = livePrices.TQQQ > price;
-                const state = livePrices.TQQQ ? (isProfit ? '수익' : '보유') : '대기';
-                const stateClass = isProfit ? 'profit' : 'hold';
-
-                return `
-                    <div class="lot-row">
-                        <div>
-                            <strong>${qty.toLocaleString('ko-KR')}주 @ ${usdFormatter.format(price)}</strong>
-                            <span>${new Date(lot.createdAt).toLocaleDateString('ko-KR')}</span>
-                        </div>
-                        <div class="lot-actions">
-                            <span class="lot-state ${stateClass}">${state}</span>
-                            <button class="mini-btn" onclick="deleteTqqqLot('${lot.id}')">삭제</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
         }
 
         tInputAmount.addEventListener('input', updateAutoCalculations);
@@ -969,6 +860,8 @@
         const serverMonitorStatus = document.getElementById('server-monitor-status');
         const serverLastCheck = document.getElementById('server-last-check');
         const serverBPercent = document.getElementById('server-bpercent');
+        const serverCurrentPrice = document.getElementById('server-current-price');
+        const serverLastClose = document.getElementById('server-last-close');
         const serverMarketCalendar = document.getElementById('server-market-calendar');
         const serverLastPush = document.getElementById('server-last-push');
         const serverCalendarWarning = document.getElementById('server-calendar-warning');
@@ -1156,6 +1049,8 @@
                     : '상태 없음';
                 serverLastCheck.textContent = `마지막 확인: ${formatDateTime(status.updatedAt)}`;
                 serverBPercent.textContent = `서버 BB %b: ${typeof status.bPercent === 'number' ? status.bPercent.toFixed(4) : '--'}`;
+                serverCurrentPrice.textContent = `서버 현재가: ${typeof status.currentPrice === 'number' ? usdFormatter.format(status.currentPrice) : '--'}`;
+                serverLastClose.textContent = `마지막 종가: ${typeof status.lastClose === 'number' ? `${usdFormatter.format(status.lastClose)} (${formatDateTime(status.lastCloseAt)})` : '--'}`;
                 serverMarketCalendar.textContent = `시장 캘린더: ${describeMarketStatus(status.marketStatus)}`;
                 serverLastPush.textContent = `마지막 알림: ${formatDateTime(alertState.lastPushedAtIso)}`;
                 serverCalendarWarning.textContent = status.marketStatus?.calendarWarning || '';

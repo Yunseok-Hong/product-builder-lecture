@@ -268,13 +268,21 @@ async function fetchRecentCloses(symbol) {
     if (!response.ok) throw new Error(`Yahoo Finance responded with ${response.status}`);
 
     const data = await response.json();
-    const closes = data.chart?.result?.[0]?.indicators?.quote?.[0]?.close
-        ?.filter(value => typeof value === 'number');
+    const result = data.chart?.result?.[0];
+    const closes = result?.indicators?.quote?.[0]?.close;
     if (!closes || closes.length < 20) {
         throw new Error('Not enough Yahoo Finance close data.');
     }
 
-    return closes;
+    const lastCloseIndex = closes.length - 1;
+    return {
+        closes,
+        lastClose: closes[lastCloseIndex],
+        lastCloseAt: result.timestamp?.[lastCloseIndex]
+            ? new Date(result.timestamp[lastCloseIndex] * 1000).toISOString()
+            : null,
+        closeCount: closes.length
+    };
 }
 
 function calculateBPercent(currentPrice, closes) {
@@ -352,8 +360,8 @@ async function runMonitor(env) {
     }
 
     const currentPrice = await fetchQuote(SYMBOL, env);
-    const closes = await fetchRecentCloses(SYMBOL);
-    const bPercent = calculateBPercent(currentPrice, closes);
+    const history = await fetchRecentCloses(SYMBOL);
+    const bPercent = calculateBPercent(currentPrice, history.closes);
 
     if (bPercent <= 0 || bPercent >= 1) {
         state = {
@@ -392,6 +400,10 @@ async function runMonitor(env) {
         notice: CHECK_INTERVAL_NOTICE,
         nyDate: nyParts.dateKey,
         currentPrice,
+        lastClose: history.lastClose,
+        lastCloseAt: history.lastCloseAt,
+        closeCount: history.closeCount,
+        calculatedAt: new Date().toISOString(),
         bPercent,
         marketStatus,
         alertState: state,
