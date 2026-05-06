@@ -90,7 +90,7 @@ h1 {
     bottom: 0;
     z-index: 999;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.35rem;
     min-height: var(--bottom-tabs-height);
     padding: 0.55rem 0.75rem calc(0.55rem + env(safe-area-inset-bottom));
@@ -165,6 +165,24 @@ h1 {
         gap: 1rem;
     }
 
+    .performance-form,
+    .performance-summary-grid,
+    .performance-record-row {
+        grid-template-columns: 1fr;
+    }
+
+    .performance-header {
+        flex-direction: column;
+    }
+
+    .performance-start {
+        white-space: normal;
+    }
+
+    .performance-chart-shell {
+        min-height: 300px;
+    }
+
     .tab-button {
         font-size: 0.72rem;
         min-height: 50px;
@@ -237,6 +255,202 @@ h1 {
     border-radius: 16px;
     overflow: hidden;
     background: #131722;
+}
+
+.performance-board {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.performance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.performance-start {
+    color: var(--muted);
+    font-size: 0.92rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.performance-form {
+    display: grid;
+    grid-template-columns: minmax(150px, 0.75fr) minmax(220px, 1fr) auto;
+    align-items: end;
+    gap: 1rem;
+}
+
+.performance-save-btn {
+    min-height: 54px;
+    padding-inline: 1.4rem;
+}
+
+.performance-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.performance-summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.85rem;
+    background: rgba(251, 246, 239, 0.62);
+    border: 1px solid rgba(108, 93, 83, 0.14);
+    border-left: 4px solid #2f6f73;
+    border-radius: 10px;
+}
+
+.performance-summary-item.qqqm {
+    border-left-color: #2563eb;
+}
+
+.performance-summary-item.tqqq {
+    border-left-color: #e11d48;
+}
+
+.performance-summary-item.gldm {
+    border-left-color: #b7791f;
+}
+
+.performance-summary-item span {
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.performance-summary-item strong {
+    color: var(--text);
+    font-size: 1.12rem;
+    font-weight: 800;
+}
+
+.performance-chart-shell {
+    position: relative;
+    height: min(58vh, 520px);
+    min-height: 340px;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid rgba(108, 93, 83, 0.16);
+    border-radius: 14px;
+    background: #fbf6ef;
+}
+
+#performance-chart {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.performance-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    color: var(--muted);
+    font-weight: 800;
+    text-align: center;
+    background: rgba(251, 246, 239, 0.82);
+}
+
+.performance-empty[hidden] {
+    display: none;
+}
+
+.performance-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+    color: var(--muted);
+    font-size: 0.86rem;
+    font-weight: 800;
+}
+
+.performance-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #2f6f73;
+}
+
+.legend-dot.qqqm {
+    background: #2563eb;
+}
+
+.legend-dot.tqqq {
+    background: #e11d48;
+}
+
+.legend-dot.gldm {
+    background: #b7791f;
+}
+
+.performance-records {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.performance-records-title {
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.performance-record-list {
+    display: grid;
+    gap: 0.55rem;
+}
+
+.performance-record-row,
+.performance-record-empty {
+    display: grid;
+    grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0.85rem;
+    background: rgba(251, 246, 239, 0.62);
+    border: 1px solid rgba(108, 93, 83, 0.14);
+    border-radius: 10px;
+}
+
+.performance-record-row span {
+    color: var(--muted);
+    font-weight: 800;
+}
+
+.performance-record-row strong {
+    color: var(--text);
+    font-weight: 800;
+}
+
+.performance-record-row button {
+    border: 1px solid rgba(108, 93, 83, 0.22);
+    border-radius: 9px;
+    background: rgba(159, 132, 115, 0.16);
+    color: var(--text);
+    padding: 0.45rem 0.7rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.performance-record-empty {
+    display: block;
+    color: var(--muted);
+    font-weight: 800;
 }
 
 .calculator {

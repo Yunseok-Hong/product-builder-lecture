@@ -182,197 +182,71 @@
                     </section>
         </section>
 
-        <section class="tab-panel" id="tab-allocation" data-tab-panel="allocation" aria-label="&#54252;&#53944;&#54260;&#47532;&#50724; &#51088;&#49328; &#48176;&#48516; &#44228;&#49328;&#44592;">
-            <!-- Portfolio Calculator Section -->
-                    <section class="calculator">
-                        <div class="calc-title">
-                            <span>📊</span> 포트폴리오 자산 배분 계산기
-                        </div>
-                        <div class="calc-grid">
-                            <div class="input-group">
-                                <label>총 투자 자산</label>
-                                <div class="input-wrapper">
-                                    <input type="text" id="total-assets" value="1,000,000">
-                                    <span class="unit">원</span>
-                                </div>
-                            </div>
-                            <div class="input-group">
-                                <label>QQQM 비중 (%)</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="qqqm-ratio" value="50" min="0" max="100" step="0.1">
-                                    <span class="unit">%</span>
-                                </div>
-                            </div>
-                            <div class="input-group">
-                                <label>TQQQ 비중 (%)</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="tqqq-ratio" value="0" min="0" max="100" step="0.1">
-                                    <span class="unit">%</span>
-                                </div>
-                            </div>
-                            <div class="input-group">
-                                <label>GLDM 비중 (%)</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="gldm-ratio" value="50" min="0" max="100" step="0.1">
-                                    <span class="unit">%</span>
-                                </div>
-                            </div>
-                            <div class="input-group" style="grid-column: 1 / -1;">
-                                <div class="nasdaq-ratio-display" style="padding: 15px; background: rgba(199, 177, 153, 0.26); border: 1px solid rgba(108, 93, 83, 0.18); border-radius: 12px; text-align: center; color: #786854; font-weight: 600;">
-                                    나스닥 비중 (QQQM + TQQQ): <span id="nasdaq-ratio-val" style="color: #3b82f6; font-weight: 800; font-size: 1.2em; margin-left: 10px;">50.0%</span>
-                                </div>
-                            </div>
-                        </div>
-            
-                        <div class="results">
-                            <div class="result-item">
-                                <span class="result-label">QQQM 투자 금액</span>
-                                <span class="result-value" id="qqqm-amount">500,000 원</span>
-                            </div>
-                            <div class="result-item">
-                                <span class="result-label">TQQQ 투자 금액</span>
-                                <span class="result-value" id="tqqq-amount" style="color: #FF416C;">0 원</span>
-                            </div>
-                            <div class="result-item">
-                                <span class="result-label">GLDM 투자 금액</span>
-                                <span class="result-value gold" id="gldm-amount">500,000 원</span>
-                            </div>
-                        </div>
-                        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 16px;">
-                            <span id="calc-save-msg" style="color: #6c5d53; font-weight: 600; font-size: 0.9em; opacity: 0; transition: opacity 0.3s;">✓ 저장됨!</span>
-                            <button id="calc-save-btn" onclick="saveCalcSettings()" style="padding: 10px 28px; background: linear-gradient(135deg, #9f8473, #6c5d53); color: #fff; border: none; border-radius: 10px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 15px rgba(108,93,83,0.18);">저장</button>
-                        </div>
-                    </section>
-        </section>
+        <section class="tab-panel charts-panel" id="tab-charts" data-tab-panel="charts" aria-label="성과 비교 차트">
+            <section class="calculator performance-board">
+                <div class="performance-header">
+                    <div>
+                        <div class="holdings-title-main">성과 비교 차트</div>
+                        <div class="holdings-title-sub">조정종가 기준, USD 평가금액</div>
+                    </div>
+                    <div class="performance-start" id="performance-start">시작일 --</div>
+                </div>
 
-        <section class="tab-panel charts-panel" id="tab-charts" data-tab-panel="charts" aria-label="QQQM TQQQ GLDM &#52264;&#53944;">
-            <div class="charts-grid">
-                <!-- QQQM Card -->
-                        <section class="card" id="qqqm-card">
-                            <div class="card-header">
-                                <div class="symbol-info">
-                                    <div class="symbol-icon">Q</div>
-                                    <div class="symbol-name">
-                                        <span class="ticker">QQQM</span>
-                                        <span class="full-name">Nasdaq 100 Index ETF</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="chart-container">
-                                <!-- TradingView Widget BEGIN -->
-                                <div class="tradingview-widget-container" style="height:100%;width:100%">
-                                    <div id="tradingview_qqqm" style="height:100%;width:100%"></div>
-                                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                                    <script type="text/javascript">
-                                    new TradingView.widget(
-                                    {
-                                        "autosize": true,
-                                        "symbol": "NASDAQ:QQQM",
-                                        "interval": "D",
-                                        "timezone": "Etc/UTC",
-                                        "theme": "dark",
-                                        "style": "1",
-                                        "locale": "kr",
-                                        "toolbar_bg": "#f1f3f6",
-                                        "enable_publishing": false,
-                                        "allow_symbol_change": true,
-                                        "container_id": "tradingview_qqqm",
-                                        "studies": [
-                                            "BB@tv-basicstudies",
-                                            "BollingerBandsR@tv-basicstudies"
-                                        ]
-                                    }
-                                    );
-                                    </script>
-                                </div>
-                                <!-- TradingView Widget END -->
-                            </div>
-                        </section>
+                <form class="performance-form" id="performance-form">
+                    <div class="input-group">
+                        <label for="performance-date">날짜</label>
+                        <div class="input-wrapper">
+                            <input type="date" id="performance-date" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="performance-value">실제 평가금액</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="performance-value" inputmode="decimal" placeholder="10,000">
+                            <span class="unit">USD</span>
+                        </div>
+                    </div>
+                    <button class="alert-btn performance-save-btn" type="submit">저장</button>
+                </form>
 
-                <!-- TQQQ Card -->
-                        <section class="card" id="tqqq-card">
-                            <div class="card-header">
-                                <div class="symbol-info">
-                                    <div class="symbol-icon" style="background: linear-gradient(135deg, #FF4B2B 0%, #FF416C 100%); box-shadow: 0 4px 15px rgba(255, 65, 108, 0.3);">T</div>
-                                    <div class="symbol-name">
-                                        <span class="ticker">TQQQ</span>
-                                        <span class="full-name">ProShares UltraPro QQQ</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="chart-container">
-                                <!-- TradingView Widget BEGIN -->
-                                <div class="tradingview-widget-container" style="height:100%;width:100%">
-                                    <div id="tradingview_tqqq" style="height:100%;width:100%"></div>
-                                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                                    <script type="text/javascript">
-                                    new TradingView.widget(
-                                    {
-                                        "autosize": true,
-                                        "symbol": "NASDAQ:TQQQ",
-                                        "interval": "D",
-                                        "timezone": "Etc/UTC",
-                                        "theme": "dark",
-                                        "style": "1",
-                                        "locale": "kr",
-                                        "toolbar_bg": "#f1f3f6",
-                                        "enable_publishing": false,
-                                        "allow_symbol_change": true,
-                                        "container_id": "tradingview_tqqq",
-                                        "studies": [
-                                            "BB@tv-basicstudies",
-                                            "BollingerBandsR@tv-basicstudies"
-                                        ]
-                                    }
-                                    );
-                                    </script>
-                                </div>
-                                <!-- TradingView Widget END -->
-                            </div>
-                        </section>
+                <div class="performance-summary-grid" id="performance-summary-grid">
+                    <div class="performance-summary-item">
+                        <span>실제</span>
+                        <strong id="actual-return">--</strong>
+                    </div>
+                    <div class="performance-summary-item qqqm">
+                        <span>QQQM 100%</span>
+                        <strong id="qqqm-return">--</strong>
+                    </div>
+                    <div class="performance-summary-item tqqq">
+                        <span>TQQQ 100%</span>
+                        <strong id="tqqq-return">--</strong>
+                    </div>
+                    <div class="performance-summary-item gldm">
+                        <span>GLDM 100%</span>
+                        <strong id="gldm-return">--</strong>
+                    </div>
+                </div>
 
-                <!-- GLDM Card -->
-                        <section class="card" id="gldm-card">
-                            <div class="card-header">
-                                <div class="symbol-info">
-                                    <div class="symbol-icon gold">G</div>
-                                    <div class="symbol-name">
-                                        <span class="ticker">GLDM</span>
-                                        <span class="full-name">SPDR Gold MiniShares Trust</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="chart-container">
-                                <!-- TradingView Widget BEGIN -->
-                                <div class="tradingview-widget-container" style="height:100%;width:100%">
-                                    <div id="tradingview_gldm" style="height:100%;width:100%"></div>
-                                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                                    <script type="text/javascript">
-                                    new TradingView.widget(
-                                    {
-                                        "autosize": true,
-                                        "symbol": "AMEX:GLDM",
-                                        "interval": "D",
-                                        "timezone": "Etc/UTC",
-                                        "theme": "dark",
-                                        "style": "1",
-                                        "locale": "kr",
-                                        "toolbar_bg": "#f1f3f6",
-                                        "enable_publishing": false,
-                                        "allow_symbol_change": true,
-                                        "container_id": "tradingview_gldm",
-                                        "studies": [
-                                            "BB@tv-basicstudies",
-                                            "BollingerBandsR@tv-basicstudies"
-                                        ]
-                                    }
-                                    );
-                                    </script>
-                                </div>
-                                <!-- TradingView Widget END -->
-                            </div>
-                        </section>
-            </div>
+                <div class="performance-chart-shell">
+                    <canvas id="performance-chart" aria-label="실제 평가금액과 QQQM TQQQ GLDM 100% 투자 성과 비교 차트"></canvas>
+                    <div class="performance-empty" id="performance-empty">첫 평가금액을 저장하면 차트가 표시됩니다.</div>
+                </div>
+
+                <div class="performance-legend" aria-label="차트 범례">
+                    <span><i class="legend-dot actual"></i>실제</span>
+                    <span><i class="legend-dot qqqm"></i>QQQM 100%</span>
+                    <span><i class="legend-dot tqqq"></i>TQQQ 100%</span>
+                    <span><i class="legend-dot gldm"></i>GLDM 100%</span>
+                </div>
+
+                <div class="data-error-panel" id="performance-data-error" hidden></div>
+
+                <div class="performance-records">
+                    <div class="performance-records-title">저장된 실제 평가금액</div>
+                    <div class="performance-record-list" id="performance-record-list"></div>
+                </div>
+            </section>
         </section>
     </main>
 
@@ -385,25 +259,12 @@
             <span class="tab-icon">2</span>
             <span>&#47532;&#48184;&#47088;&#49905;</span>
         </button>
-        <button class="tab-button" type="button" data-tab-target="allocation" aria-controls="tab-allocation" aria-selected="false">
-            <span class="tab-icon">3</span>
-            <span>&#51088;&#49328;&#48176;&#48516;</span>
-        </button>
         <button class="tab-button" type="button" data-tab-target="charts" aria-controls="tab-charts" aria-selected="false">
-            <span class="tab-icon">4</span>
+            <span class="tab-icon">3</span>
             <span>&#52264;&#53944;</span>
         </button>
     </nav>
 <script>
-        const totalInput = document.getElementById('total-assets');
-        const qqqmRatio = document.getElementById('qqqm-ratio');
-        const tqqqRatio = document.getElementById('tqqq-ratio');
-        const gldmRatio = document.getElementById('gldm-ratio');
-        const nasdaqRatioVal = document.getElementById('nasdaq-ratio-val');
-        
-        const qqqmAmountDisp = document.getElementById('qqqm-amount');
-        const tqqqAmountDisp = document.getElementById('tqqq-amount');
-        const gldmAmountDisp = document.getElementById('gldm-amount');
         let currentBPercent = null;
         let serverSignalState = null;
 
@@ -433,6 +294,7 @@
 
                     if (target === 'charts') {
                         setTimeout(() => window.dispatchEvent(new Event('resize')), 120);
+                        loadPerformanceData();
                     }
 
                     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -443,10 +305,6 @@
         // Cloudflare KV에 설정 저장
         async function saveSettings() {
             const settings = {
-                totalAssets: totalInput.value,
-                qqqmRatio: qqqmRatio.value,
-                tqqqRatio: tqqqRatio.value,
-                gldmRatio: gldmRatio.value,
                 tqqqQuantity: document.getElementById('tqqq-input-amount')?.value || '0',
                 gldmQuantity: document.getElementById('gldm-input-amount')?.value || '0',
                 rebalanceTargetTqqq: document.getElementById('rebalance-target-tqqq')?.value || '70',
@@ -469,11 +327,6 @@
                 const response = await fetch('/api/settings');
                 const settings = await response.json();
 
-                if (settings.totalAssets) totalInput.value = settings.totalAssets;
-                if (settings.qqqmRatio) qqqmRatio.value = settings.qqqmRatio;
-                if (settings.tqqqRatio) tqqqRatio.value = settings.tqqqRatio;
-                if (settings.gldmRatio) gldmRatio.value = settings.gldmRatio;
-
                 // 종목별 보유 수량 입력값 복원
                 const tqqqAmtEl = document.getElementById('tqqq-input-amount');
                 const gldmAmtEl = document.getElementById('gldm-input-amount');
@@ -488,89 +341,9 @@
             }
         }
 
-        function updateCalculations(source) {
-            if (source === 'total') {
-                // 숫자만 추출
-                let val = totalInput.value.replace(/[^0-9]/g, '');
-                if (val !== '') {
-                    // 세 자리마다 콤마 추가
-                    totalInput.value = parseInt(val, 10).toLocaleString('ko-KR');
-                } else {
-                    totalInput.value = '0';
-                }
-            }
-
-            // 계산을 위해 콤마 제거 후 숫자로 변환
-            let total = parseFloat(totalInput.value.replace(/,/g, '')) || 0;
-            let qRatio = parseFloat(qqqmRatio.value);
-            let tRatio = parseFloat(tqqqRatio.value);
-            let gRatio = parseFloat(gldmRatio.value);
-
-            if (isNaN(qRatio)) qRatio = 0;
-            if (isNaN(tRatio)) tRatio = 0;
-            if (isNaN(gRatio)) gRatio = 0;
-
-            if (source === 'qqqm') {
-                let maxNasq = 100 - gRatio;
-                if (qRatio < 0) qRatio = 0;
-                if (qRatio > maxNasq) qRatio = maxNasq;
-                
-                tRatio = maxNasq - qRatio;
-                
-                qqqmRatio.value = parseFloat(qRatio.toFixed(1));
-                tqqqRatio.value = parseFloat(tRatio.toFixed(1));
-            } else if (source === 'tqqq') {
-                let maxNasq = 100 - gRatio;
-                if (tRatio < 0) tRatio = 0;
-                if (tRatio > maxNasq) tRatio = maxNasq;
-                
-                qRatio = maxNasq - tRatio;
-                
-                qqqmRatio.value = parseFloat(qRatio.toFixed(1));
-                tqqqRatio.value = parseFloat(tRatio.toFixed(1));
-            } else if (source === 'gldm') {
-                if (gRatio < 0) gRatio = 0;
-                if (gRatio > 100) gRatio = 100;
-                
-                let remaining = 100 - gRatio;
-                
-                if (tRatio > remaining) {
-                    tRatio = remaining;
-                    qRatio = 0;
-                } else {
-                    qRatio = remaining - tRatio;
-                }
-                
-                qqqmRatio.value = parseFloat(qRatio.toFixed(1));
-                tqqqRatio.value = parseFloat(tRatio.toFixed(1));
-                gldmRatio.value = parseFloat(gRatio.toFixed(1));
-            }
-
-            nasdaqRatioVal.textContent = `${(qRatio + tRatio).toFixed(1)}%`;
-
-            const qAmount = Math.round(total * (qRatio / 100)).toLocaleString();
-            const tAmount = Math.round(total * (tRatio / 100)).toLocaleString();
-            const gAmount = Math.round(total * (gRatio / 100)).toLocaleString();
-
-            qqqmAmountDisp.textContent = `${qAmount} 원`;
-            tqqqAmountDisp.textContent = `${tAmount} 원`;
-            gldmAmountDisp.textContent = `${gAmount} 원`;
-        }
-
-        totalInput.addEventListener('input', () => updateCalculations('total'));
-        qqqmRatio.addEventListener('input', () => updateCalculations('qqqm'));
-        tqqqRatio.addEventListener('input', () => updateCalculations('tqqq'));
-        gldmRatio.addEventListener('input', () => updateCalculations('gldm'));
-
-        // 클릭 시 전체 선택
-        qqqmRatio.addEventListener('click', function() { this.select(); });
-        tqqqRatio.addEventListener('click', function() { this.select(); });
-        gldmRatio.addEventListener('click', function() { this.select(); });
-
         // 초기 실행: 불러오기 후 계산 (비동기 처리)
         async function init() {
             await loadSettings();
-            updateCalculations('total');
             updateAutoCalculations();
         }
         init();
@@ -597,12 +370,27 @@
         const gldmOrder = document.getElementById('gldm-order');
         const rebalanceTargetTqqq = document.getElementById('rebalance-target-tqqq');
         const rebalanceTargetGldm = document.getElementById('rebalance-target-gldm');
+        const performanceForm = document.getElementById('performance-form');
+        const performanceDateInput = document.getElementById('performance-date');
+        const performanceValueInput = document.getElementById('performance-value');
+        const performanceStart = document.getElementById('performance-start');
+        const performanceCanvas = document.getElementById('performance-chart');
+        const performanceEmpty = document.getElementById('performance-empty');
+        const performanceRecordList = document.getElementById('performance-record-list');
+        const performanceDataError = document.getElementById('performance-data-error');
+        const performanceReturnEls = {
+            actual: document.getElementById('actual-return'),
+            QQQM: document.getElementById('qqqm-return'),
+            TQQQ: document.getElementById('tqqq-return'),
+            GLDM: document.getElementById('gldm-return')
+        };
 
         const livePrices = {
             TQQQ: 0,
             GLDM: 0
         };
         let usdKrwRate = 0;
+        let performanceState = null;
 
         const usdFormatter = new Intl.NumberFormat('en-US', {
             style: 'currency',
@@ -614,6 +402,12 @@
             style: 'currency',
             currency: 'KRW',
             maximumFractionDigits: 0
+        });
+        const usdValueFormatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
         });
 
         function parseQuantity(value) {
@@ -832,6 +626,238 @@
             resetRecommendation('BB %b가 0과 1 사이입니다. 리밸런싱 조건이 아닙니다.');
         }
 
+        function parseUsdInput(value) {
+            return parseFloat(String(value).replace(/[^0-9.]/g, '')) || 0;
+        }
+
+        function formatPercent(value) {
+            if (!Number.isFinite(value)) return '--';
+            const sign = value > 0 ? '+' : '';
+            return `${sign}${value.toFixed(2)}%`;
+        }
+
+        function getAdjustedClose(row) {
+            return Number(row?.adjustedClose ?? row?.adjClose ?? row?.close);
+        }
+
+        function buildBenchmarkSeries(symbol, closeHistory, startDate, initialValue) {
+            const rows = closeHistory?.[symbol] || {};
+            const dates = Object.keys(rows).filter(date => date >= startDate).sort();
+            const firstDate = dates.find(date => getAdjustedClose(rows[date]) > 0);
+            const firstClose = getAdjustedClose(rows[firstDate]);
+            if (!firstDate || !firstClose) return [];
+
+            return dates.map(date => {
+                const adjustedClose = getAdjustedClose(rows[date]);
+                if (!adjustedClose) return null;
+                return {
+                    date,
+                    value: initialValue * (adjustedClose / firstClose)
+                };
+            }).filter(Boolean);
+        }
+
+        function buildPerformanceSeries(data) {
+            const portfolioValues = [...(data.portfolioValues || [])]
+                .map(item => ({ date: item.date, value: Number(item.valueUsd) }))
+                .filter(item => item.date && Number.isFinite(item.value) && item.value > 0)
+                .sort((a, b) => a.date.localeCompare(b.date));
+
+            if (!portfolioValues.length) {
+                return { startDate: null, initialValue: 0, series: {} };
+            }
+
+            const startDate = portfolioValues[0].date;
+            const initialValue = portfolioValues[0].value;
+            return {
+                startDate,
+                initialValue,
+                series: {
+                    actual: portfolioValues,
+                    QQQM: buildBenchmarkSeries('QQQM', data.closeHistory, startDate, initialValue),
+                    TQQQ: buildBenchmarkSeries('TQQQ', data.closeHistory, startDate, initialValue),
+                    GLDM: buildBenchmarkSeries('GLDM', data.closeHistory, startDate, initialValue)
+                }
+            };
+        }
+
+        function latestReturn(series, initialValue) {
+            if (!series?.length || !initialValue) return NaN;
+            return ((series[series.length - 1].value / initialValue) - 1) * 100;
+        }
+
+        function updatePerformanceSummary(model) {
+            performanceStart.textContent = model.startDate ? `시작일 ${model.startDate}` : '시작일 --';
+            Object.entries(performanceReturnEls).forEach(([key, element]) => {
+                element.textContent = formatPercent(latestReturn(model.series[key], model.initialValue));
+            });
+        }
+
+        function drawPerformanceChart(model) {
+            const canvas = performanceCanvas;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.clientWidth;
+            const height = canvas.clientHeight;
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = Math.max(1, Math.floor(width * dpr));
+            canvas.height = Math.max(1, Math.floor(height * dpr));
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, width, height);
+
+            const colors = {
+                actual: '#2f6f73',
+                QQQM: '#2563eb',
+                TQQQ: '#e11d48',
+                GLDM: '#b7791f'
+            };
+            const allPoints = Object.values(model.series).flat();
+            if (!allPoints.length) {
+                performanceEmpty.hidden = false;
+                return;
+            }
+            performanceEmpty.hidden = true;
+
+            const allDates = [...new Set(allPoints.map(point => point.date))].sort();
+            const allValues = allPoints.map(point => point.value);
+            const minValue = Math.min(...allValues, model.initialValue);
+            const maxValue = Math.max(...allValues, model.initialValue);
+            const padding = Math.max(1, (maxValue - minValue) * 0.12);
+            const yMin = minValue - padding;
+            const yMax = maxValue + padding;
+            const margin = { top: 24, right: 18, bottom: 42, left: 74 };
+            const plotWidth = width - margin.left - margin.right;
+            const plotHeight = height - margin.top - margin.bottom;
+            const xForDate = date => {
+                const index = allDates.indexOf(date);
+                return margin.left + (allDates.length <= 1 ? plotWidth : (index / (allDates.length - 1)) * plotWidth);
+            };
+            const yForValue = value => margin.top + ((yMax - value) / (yMax - yMin)) * plotHeight;
+
+            ctx.fillStyle = '#fbf6ef';
+            ctx.fillRect(0, 0, width, height);
+            ctx.strokeStyle = 'rgba(108, 93, 83, 0.16)';
+            ctx.lineWidth = 1;
+            ctx.fillStyle = '#786854';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            for (let i = 0; i <= 4; i += 1) {
+                const y = margin.top + (plotHeight / 4) * i;
+                const value = yMax - ((yMax - yMin) / 4) * i;
+                ctx.beginPath();
+                ctx.moveTo(margin.left, y);
+                ctx.lineTo(margin.left + plotWidth, y);
+                ctx.stroke();
+                ctx.fillText(usdValueFormatter.format(value), margin.left - 10, y);
+            }
+
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText(allDates[0], margin.left, margin.top + plotHeight + 14);
+            if (allDates.length > 1) {
+                ctx.textAlign = 'right';
+                ctx.fillText(allDates[allDates.length - 1], margin.left + plotWidth, margin.top + plotHeight + 14);
+            }
+
+            Object.entries(model.series).forEach(([key, points]) => {
+                if (!points?.length) return;
+                ctx.strokeStyle = colors[key];
+                ctx.lineWidth = key === 'actual' ? 3 : 2;
+                ctx.beginPath();
+                points.forEach((point, index) => {
+                    const x = xForDate(point.date);
+                    const y = yForValue(point.value);
+                    if (index === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+
+                points.forEach(point => {
+                    const x = xForDate(point.date);
+                    const y = yForValue(point.value);
+                    ctx.fillStyle = colors[key];
+                    ctx.beginPath();
+                    ctx.arc(x, y, key === 'actual' ? 4 : 2.8, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            });
+        }
+
+        function renderPerformanceRecords(values) {
+            const rows = [...(values || [])].sort((a, b) => b.date.localeCompare(a.date));
+            if (!rows.length) {
+                performanceRecordList.innerHTML = '<div class="performance-record-empty">저장된 기록이 없습니다.</div>';
+                return;
+            }
+
+            performanceRecordList.innerHTML = rows.map(item => `
+                <div class="performance-record-row">
+                    <span>${item.date}</span>
+                    <strong>${usdValueFormatter.format(Number(item.valueUsd))}</strong>
+                    <button type="button" data-performance-delete="${item.date}" aria-label="${item.date} 기록 삭제">삭제</button>
+                </div>
+            `).join('');
+        }
+
+        function renderPerformanceData(data) {
+            performanceState = data;
+            const model = buildPerformanceSeries(data);
+            updatePerformanceSummary(model);
+            renderPerformanceRecords(data.portfolioValues);
+            drawPerformanceChart(model);
+        }
+
+        async function loadPerformanceData() {
+            try {
+                const response = await fetch('/api/performance-data');
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || `성과 데이터 오류: ${response.status}`);
+                setErrorPanel(performanceDataError, '');
+                renderPerformanceData(data);
+            } catch (error) {
+                setErrorPanel(performanceDataError, error.message);
+            }
+        }
+
+        async function savePerformanceValue(event) {
+            event.preventDefault();
+            const date = performanceDateInput.value;
+            const valueUsd = parseUsdInput(performanceValueInput.value);
+            if (!date || !valueUsd) {
+                setErrorPanel(performanceDataError, '날짜와 실제 평가금액을 입력해 주세요.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/performance-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date, valueUsd })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || `성과 저장 오류: ${response.status}`);
+                performanceValueInput.value = '';
+                setErrorPanel(performanceDataError, '');
+                renderPerformanceData(data);
+            } catch (error) {
+                setErrorPanel(performanceDataError, error.message);
+            }
+        }
+
+        async function deletePerformanceValue(date) {
+            try {
+                const response = await fetch(`/api/performance-data?date=${encodeURIComponent(date)}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || `성과 삭제 오류: ${response.status}`);
+                setErrorPanel(performanceDataError, '');
+                renderPerformanceData(data);
+            } catch (error) {
+                setErrorPanel(performanceDataError, error.message);
+            }
+        }
+
         tInputAmount.addEventListener('input', updateAutoCalculations);
         gInputAmount.addEventListener('input', updateAutoCalculations);
 
@@ -856,14 +882,19 @@
         rebalanceTargetGldm.addEventListener('change', saveSettings);
         rebalanceTargetTqqq.addEventListener('click', function() { this.select(); });
         rebalanceTargetGldm.addEventListener('click', function() { this.select(); });
-
-        // 저장 버튼 핸들러
-        async function saveCalcSettings() {
-            await saveSettings();
-            const msg = document.getElementById('calc-save-msg');
-            msg.style.opacity = '1';
-            setTimeout(() => { msg.style.opacity = '0'; }, 2000);
-        }
+        performanceDateInput.value = new Date().toISOString().slice(0, 10);
+        performanceForm.addEventListener('submit', savePerformanceValue);
+        performanceValueInput.addEventListener('input', () => {
+            const value = parseUsdInput(performanceValueInput.value);
+            performanceValueInput.value = value ? value.toLocaleString('en-US', { maximumFractionDigits: 2 }) : '';
+        });
+        performanceRecordList.addEventListener('click', event => {
+            const button = event.target.closest('[data-performance-delete]');
+            if (button) deletePerformanceValue(button.dataset.performanceDelete);
+        });
+        window.addEventListener('resize', () => {
+            if (performanceState) renderPerformanceData(performanceState);
+        });
 
         async function saveAmountSettings() {
             await saveSettings();
@@ -1256,6 +1287,7 @@
         setInterval(fetchMarketData, 30000);
         setInterval(loadServerMonitorStatus, 60000);
         initTabs();
+        loadPerformanceData();
         fetchMarketData();
         loadServerMonitorStatus();
 
@@ -1272,7 +1304,7 @@
     </script>
 
     <footer>
-        <p>&copy; 2026 Market Pulse Dashboard. Real-time data provided by TradingView.</p>
+        <p>&copy; 2026 Market Pulse Dashboard. Price history sourced from Yahoo Finance.</p>
     </footer>
 </body>
 </html>

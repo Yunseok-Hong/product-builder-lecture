@@ -1,7 +1,10 @@
 const SYMBOL = 'TQQQ';
+const PERFORMANCE_SYMBOLS = ['QQQM', 'TQQQ', 'GLDM'];
 const SUBSCRIPTIONS_KEY = 'push_subscriptions';
 const ALERT_STATE_KEY = `server_alert_state_${SYMBOL}`;
 const MONITOR_STATUS_KEY = `server_monitor_status_${SYMBOL}`;
+const CLOSE_HISTORY_KEY = 'close_history_v1';
+const CLOSE_HISTORY_SYNC_KEY = 'close_history_sync_v1';
 const CHECK_INTERVAL_NOTICE = 'Cloudflare Cron should run this worker every 1 minute.';
 const SAME_DIRECTION_SKIP_COUNT = 4;
 const CALENDAR_MAX_YEAR = 2028;
@@ -286,6 +289,69 @@ async function fetchRecentCloses(symbol) {
     };
 }
 
+async function fetchAdjustedCloseRows(symbol, daysBack = 14) {
+    const period2 = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
+    const period1 = period2 - (daysBack * 24 * 60 * 60);
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&period1=${period1}&period2=${period2}`;
+    const response = await fetch(url, {
+        headers: { 'User-Agent': 'Mozilla/5.0 Market Pulse Worker' }
+    });
+    if (!response.ok) throw new Error(`Yahoo Finance ${symbol} responded with ${response.status}`);
+
+    const data = await response.json();
+    const result = data.chart?.result?.[0];
+    const timestamps = result?.timestamp || [];
+    const closes = result?.indicators?.quote?.[0]?.close || [];
+    const adjCloses = result?.indicators?.adjclose?.[0]?.adjclose || [];
+    const rows = {};
+
+    timestamps.forEach((timestamp, index) => {
+        const date = new Date(timestamp * 1000).toISOString().slice(0, 10);
+        const adjustedClose = Number(adjCloses[index] ?? closes[index]);
+        if (Number.isFinite(adjustedClose) && adjustedClose > 0) {
+            rows[date] = {
+                adjustedClose,
+                close: Number(closes[index]) || adjustedClose,
+                source: 'yahoo',
+                savedAt: new Date().toISOString()
+            };
+        }
+    });
+
+    return rows;
+}
+
+async function syncPerformanceCloseHistory(env, nyParts, marketStatus) {
+    const [syncHour] = marketStatus.closeTimeEt.split(':').map(Number);
+    const isAfterClose = nyParts.hour > syncHour + 1 || (nyParts.hour === syncHour + 1 && nyParts.minute >= 30);
+    if (!isAfterClose) return null;
+
+    const syncState = await readJson(env, CLOSE_HISTORY_SYNC_KEY, {});
+    if (syncState.lastSyncDate === nyParts.dateKey) return syncState;
+
+    const rawHistory = await env.KV.get(CLOSE_HISTORY_KEY);
+    const history = rawHistory ? JSON.parse(rawHistory) : {};
+    const fetched = await Promise.all(
+        PERFORMANCE_SYMBOLS.map(async symbol => [symbol, await fetchAdjustedCloseRows(symbol)])
+    );
+
+    fetched.forEach(([symbol, rows]) => {
+        history[symbol] = {
+            ...(history[symbol] || {}),
+            ...rows
+        };
+    });
+
+    const nextState = {
+        lastSyncDate: nyParts.dateKey,
+        lastSyncedAt: new Date().toISOString(),
+        symbols: PERFORMANCE_SYMBOLS
+    };
+    await env.KV.put(CLOSE_HISTORY_KEY, JSON.stringify(history));
+    await env.KV.put(CLOSE_HISTORY_SYNC_KEY, JSON.stringify(nextState));
+    return nextState;
+}
+
 function calculateBPercent(currentPrice, closes) {
     const recentCloses = closes.slice(-20);
     const sma = recentCloses.reduce((sum, value) => sum + value, 0) / recentCloses.length;
@@ -435,6 +501,10 @@ async function runMonitor(env) {
         return status;
     }
 
+    const closeHistorySync = await syncPerformanceCloseHistory(env, nyParts, marketStatus).catch(error => ({
+        error: error.message,
+        failedAt: new Date().toISOString()
+    }));
     const currentPrice = await fetchQuote(SYMBOL, env);
     const history = await fetchRecentCloses(SYMBOL);
     const bPercent = calculateBPercent(currentPrice, history.closes);
@@ -490,6 +560,7 @@ async function runMonitor(env) {
         calculatedAt: new Date().toISOString(),
         bPercent,
         marketStatus,
+        closeHistorySync,
         alertState: state,
         pushed: Boolean(pushResult),
         pushResult
