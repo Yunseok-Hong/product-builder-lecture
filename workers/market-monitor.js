@@ -8,6 +8,7 @@ const CLOSE_HISTORY_SYNC_KEY = 'close_history_sync_v1';
 const USER_SETTINGS_KEY = 'user_settings';
 const CHECK_INTERVAL_NOTICE = 'Cloudflare Cron should run this worker every 1 minute.';
 const REMINDER_INTERVAL_MS = 3 * 60 * 1000;
+const MONITOR_STATUS_WRITE_INTERVAL_MS = 15 * 60 * 1000;
 const CALENDAR_MAX_YEAR = 2028;
 const MARKET_HOLIDAYS = new Set([
     '2026-01-01', '2026-01-19', '2026-02-16', '2026-04-03', '2026-05-25',
@@ -452,6 +453,59 @@ async function writeMonitorStatus(env, status) {
     }));
 }
 
+function normalizeAlertStateForWrite(state = {}) {
+    const {
+        price,
+        bPercent,
+        lastCheckedAt,
+        lastExecutedAt,
+        ...stableState
+    } = state;
+    return stableState;
+}
+
+function shouldWriteAlertState(previousState = {}, nextState = {}) {
+    if (hasSignalTransition(previousState, nextState)) return true;
+    if (previousState.lastPushedAt !== nextState.lastPushedAt) return true;
+    if (previousState.lastPushedAtIso !== nextState.lastPushedAtIso) return true;
+    if (JSON.stringify(previousState.lockedRecommendation || null) !== JSON.stringify(nextState.lockedRecommendation || null)) return true;
+    return JSON.stringify(normalizeAlertStateForWrite(previousState)) !== JSON.stringify(normalizeAlertStateForWrite(nextState));
+}
+
+function hasSignalTransition(previousState = {}, nextState = {}) {
+    return previousState.dateKey !== nextState.dateKey
+        || previousState.signalType !== nextState.signalType
+        || previousState.actionMode !== nextState.actionMode
+        || Boolean(previousState.shouldExecute) !== Boolean(nextState.shouldExecute)
+        || Number(previousState.consecutiveSignalCount || 0) !== Number(nextState.consecutiveSignalCount || 0)
+        || Boolean(previousState.acknowledged) !== Boolean(nextState.acknowledged);
+}
+
+function shouldWriteMonitorStatus(previousStatus = {}, nextStatus = {}, stateChanged) {
+    if (stateChanged || nextStatus.pushed) return true;
+    const nextError = nextStatus.ok === false ? nextStatus.error : nextStatus.closeHistorySync?.error;
+    const previousError = previousStatus.ok === false ? previousStatus.error : previousStatus.closeHistorySync?.error;
+    if (nextError && nextError !== previousError) return true;
+    const lastUpdated = Date.parse(previousStatus.updatedAt || '');
+    return !Number.isFinite(lastUpdated) || Date.now() - lastUpdated >= MONITOR_STATUS_WRITE_INTERVAL_MS;
+}
+
+async function writeFailureStatus(env, error) {
+    const previousStatus = await readJson(env, MONITOR_STATUS_KEY, {});
+    const failureStatus = {
+        ok: false,
+        symbol: SYMBOL,
+        error: error.message,
+        updatedAt: new Date().toISOString()
+    };
+    const lastUpdated = Date.parse(previousStatus.updatedAt || '');
+    const errorChanged = previousStatus.ok !== false || previousStatus.error !== error.message;
+    if (errorChanged || !Number.isFinite(lastUpdated) || Date.now() - lastUpdated >= MONITOR_STATUS_WRITE_INTERVAL_MS) {
+        await env.KV?.put?.(MONITOR_STATUS_KEY, JSON.stringify(failureStatus)).catch(() => null);
+    }
+    return failureStatus;
+}
+
 function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
 }
@@ -620,7 +674,10 @@ function buildPushBody(state) {
 async function runMonitor(env) {
     const nyParts = getNewYorkParts();
     const marketStatus = getMarketCalendarStatus(nyParts);
-    const previousState = await readJson(env, ALERT_STATE_KEY, {});
+    const [previousState, previousStatus] = await Promise.all([
+        readJson(env, ALERT_STATE_KEY, {}),
+        readJson(env, MONITOR_STATUS_KEY, {})
+    ]);
     let state = previousState.dateKey === nyParts.dateKey ? previousState : {
         ...previousState,
         dateKey: nyParts.dateKey,
@@ -641,7 +698,9 @@ async function runMonitor(env) {
             alertState: state,
             pushed: false
         };
-        await writeMonitorStatus(env, status);
+        if (shouldWriteMonitorStatus(previousStatus, status, hasSignalTransition(previousState, state))) {
+            await writeMonitorStatus(env, status);
+        }
         return status;
     }
 
@@ -665,7 +724,6 @@ async function runMonitor(env) {
     const signalType = getSignalType(bPercent);
     if (signalType) {
         state = evaluateSignalState(state, signalType, nyParts.dateKey, currentPrice, bPercent, isInFinalWindow(nyParts, marketStatus) ? 'final-window' : 'regular');
-        await env.KV.put(ALERT_STATE_KEY, JSON.stringify(state));
     } else {
         state = {
             ...state,
@@ -683,7 +741,6 @@ async function runMonitor(env) {
             firstSignalWindow: null,
             lockedRecommendation: null
         };
-        await env.KV.put(ALERT_STATE_KEY, JSON.stringify(state));
     }
 
     const isFirstPushToday = !Number(state.lastPushedAt || 0);
@@ -706,7 +763,6 @@ async function runMonitor(env) {
         });
         state.lastPushedAt = Date.now();
         state.lastPushedAtIso = new Date().toISOString();
-        await env.KV.put(ALERT_STATE_KEY, JSON.stringify(state));
     }
 
     const status = {
@@ -726,7 +782,13 @@ async function runMonitor(env) {
         pushed: Boolean(pushResult),
         pushResult
     };
-    await writeMonitorStatus(env, status);
+    const stateChanged = shouldWriteAlertState(previousState, state);
+    if (stateChanged) {
+        await env.KV.put(ALERT_STATE_KEY, JSON.stringify(state));
+    }
+    if (shouldWriteMonitorStatus(previousStatus, status, hasSignalTransition(previousState, state) || Boolean(pushResult))) {
+        await writeMonitorStatus(env, status);
+    }
 
     return status;
 }
@@ -755,10 +817,7 @@ async function runTestPush(env) {
 
 export default {
     async scheduled(event, env, ctx) {
-        ctx.waitUntil(runMonitor(env).catch(error => writeMonitorStatus(env, {
-            ok: false,
-            error: error.message
-        })));
+        ctx.waitUntil(runMonitor(env).catch(error => writeFailureStatus(env, error)));
     },
 
     async fetch(request, env) {
@@ -771,13 +830,7 @@ export default {
             const result = await runMonitor(env);
             return jsonResponse(result);
         } catch (error) {
-            const failureStatus = {
-                ok: false,
-                symbol: SYMBOL,
-                error: error.message,
-                updatedAt: new Date().toISOString()
-            };
-            await env.KV?.put?.(MONITOR_STATUS_KEY, JSON.stringify(failureStatus)).catch(() => null);
+            const failureStatus = await writeFailureStatus(env, error);
             return jsonResponse(failureStatus, 500);
         }
     }
