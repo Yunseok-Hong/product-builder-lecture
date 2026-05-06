@@ -7,8 +7,6 @@ function jsonResponse(body, status = 200) {
 
 export async function onRequestGet({ env }) {
     try {
-        if (!env.KV) return jsonResponse({ error: 'KV binding is not configured.' }, 500);
-
         const settings = await env.KV.get('user_settings');
         return settings
             ? new Response(settings, { status: 200, headers: { 'Content-Type': 'application/json' } })
@@ -20,12 +18,11 @@ export async function onRequestGet({ env }) {
 
 export async function onRequestPost({ request, env }) {
     try {
-        if (!env.KV) return jsonResponse({ error: 'KV binding is not configured.' }, 500);
+        const settings = await request.json().catch(async () => JSON.parse(await request.text()));
+        const settingsJson = JSON.stringify(settings);
+        await env.KV.put('user_settings', settingsJson);
 
-        const settings = await request.json();
-        await env.KV.put('user_settings', JSON.stringify(settings));
-
-        return jsonResponse({ success: true, settings });
+        return jsonResponse({ success: true, settings, savedAt: new Date().toISOString() });
     } catch (error) {
         return jsonResponse({ error: error.message }, 500);
     }
