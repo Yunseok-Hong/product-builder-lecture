@@ -299,6 +299,8 @@
 <script>
         let currentBPercent = null;
         let serverSignalState = null;
+        const SETTINGS_STORAGE_KEY = 'marketPulseSettings';
+        const RECOMMENDATION_RECORDS_KEY = 'rebalanceRecommendationRecords';
 
         function initTabs() {
             const tabButtons = Array.from(document.querySelectorAll('[data-tab-target]'));
@@ -334,43 +336,88 @@
             });
         }
 
-        // Cloudflare KV에 설정 저장
-        async function saveSettings() {
-            const settings = {
+        function collectSettings() {
+            return {
                 tqqqQuantity: document.getElementById('tqqq-input-amount')?.value || '0',
                 gldmQuantity: document.getElementById('gldm-input-amount')?.value || '0',
                 rebalanceTargetTqqq: document.getElementById('rebalance-target-tqqq')?.value || '70',
                 rebalanceTargetGldm: document.getElementById('rebalance-target-gldm')?.value || '30',
-                rebalanceWeightStep: document.getElementById('rebalance-weight-step')?.value || '4'
+                rebalanceWeightStep: document.getElementById('rebalance-weight-step')?.value || '4',
+                savedAt: new Date().toISOString()
             };
+        }
+
+        function applySettings(settings = {}) {
+            const tqqqAmtEl = document.getElementById('tqqq-input-amount');
+            const gldmAmtEl = document.getElementById('gldm-input-amount');
+            const rebalanceTargetTqqqEl = document.getElementById('rebalance-target-tqqq');
+            const rebalanceTargetGldmEl = document.getElementById('rebalance-target-gldm');
+            const rebalanceWeightStepEl = document.getElementById('rebalance-weight-step');
+
+            if (settings.tqqqQuantity !== undefined && tqqqAmtEl) tqqqAmtEl.value = settings.tqqqQuantity;
+            if (settings.gldmQuantity !== undefined && gldmAmtEl) gldmAmtEl.value = settings.gldmQuantity;
+            if (settings.rebalanceTargetTqqq !== undefined && rebalanceTargetTqqqEl) rebalanceTargetTqqqEl.value = settings.rebalanceTargetTqqq;
+            if (settings.rebalanceTargetGldm !== undefined && rebalanceTargetGldmEl) rebalanceTargetGldmEl.value = settings.rebalanceTargetGldm;
+            if (settings.rebalanceWeightStep !== undefined && rebalanceWeightStepEl) rebalanceWeightStepEl.value = settings.rebalanceWeightStep;
+        }
+
+        function loadLocalSettings() {
             try {
-                await fetch('/api/settings', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(settings)
-                });
+                return JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || '{}');
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function getSavedTime(settings) {
+            const time = Date.parse(settings?.savedAt || '');
+            return Number.isFinite(time) ? time : 0;
+        }
+
+        async function syncSettingsToServer(settings) {
+            const response = await fetch('/api/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(settings)
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(result.error || `설정 저장 실패: ${response.status}`);
+            return result;
+        }
+
+        // Cloudflare KV에 설정 저장
+        async function saveSettings() {
+            const settings = collectSettings();
+            localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+
+            try {
+                await syncSettingsToServer(settings);
+                return { settings, synced: true };
             } catch (error) {
                 console.error("설정 저장 실패:", error);
+                return { settings, synced: false, error };
             }
         }
 
         // Cloudflare KV에서 설정 불러오기
         async function loadSettings() {
+            const localSettings = loadLocalSettings();
+            applySettings(localSettings);
+
             try {
                 const response = await fetch('/api/settings');
+                if (!response.ok) throw new Error(`설정 불러오기 실패: ${response.status}`);
                 const settings = await response.json();
-
-                // 종목별 보유 수량 입력값 복원
-                const tqqqAmtEl = document.getElementById('tqqq-input-amount');
-                const gldmAmtEl = document.getElementById('gldm-input-amount');
-                const rebalanceTargetTqqqEl = document.getElementById('rebalance-target-tqqq');
-                const rebalanceTargetGldmEl = document.getElementById('rebalance-target-gldm');
-                const rebalanceWeightStepEl = document.getElementById('rebalance-weight-step');
-                if (settings.tqqqQuantity && tqqqAmtEl) tqqqAmtEl.value = settings.tqqqQuantity;
-                if (settings.gldmQuantity && gldmAmtEl) gldmAmtEl.value = settings.gldmQuantity;
-                if (settings.rebalanceTargetTqqq !== undefined && rebalanceTargetTqqqEl) rebalanceTargetTqqqEl.value = settings.rebalanceTargetTqqq;
-                if (settings.rebalanceTargetGldm !== undefined && rebalanceTargetGldmEl) rebalanceTargetGldmEl.value = settings.rebalanceTargetGldm;
-                if (settings.rebalanceWeightStep !== undefined && rebalanceWeightStepEl) rebalanceWeightStepEl.value = settings.rebalanceWeightStep;
+                if (Object.keys(settings || {}).length) {
+                    const localTime = getSavedTime(localSettings);
+                    const serverTime = getSavedTime(settings);
+                    if (!localTime || serverTime >= localTime) {
+                        applySettings(settings);
+                        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+                    } else {
+                        syncSettingsToServer(localSettings).catch(error => console.error("로컬 설정 서버 동기화 실패:", error));
+                    }
+                }
             } catch (error) {
                 console.error("설정 불러오기 실패:", error);
             }
@@ -440,7 +487,6 @@
         };
         let usdKrwRate = 0;
         let performanceState = null;
-        const RECOMMENDATION_RECORDS_KEY = 'rebalanceRecommendationRecords';
 
         const usdFormatter = new Intl.NumberFormat('en-US', {
             style: 'currency',
@@ -1084,16 +1130,19 @@
         });
 
         async function saveAmountSettings() {
-            await saveSettings();
+            const result = await saveSettings();
+            updateAutoCalculations();
             const msg = document.getElementById('amount-save-msg');
+            msg.textContent = result.synced ? '✓ 저장됨!' : '✓ 기기에 저장됨';
             msg.style.opacity = '1';
             setTimeout(() => { msg.style.opacity = '0'; }, 2000);
         }
 
         async function saveRebalanceSettings() {
-            await saveSettings();
+            const result = await saveSettings();
             const msg = document.getElementById('rebalance-save-msg');
             if (!msg) return;
+            msg.textContent = result.synced ? '저장됨' : '기기에 저장됨';
             msg.style.opacity = '1';
             setTimeout(() => { msg.style.opacity = '0'; }, 2000);
         }
