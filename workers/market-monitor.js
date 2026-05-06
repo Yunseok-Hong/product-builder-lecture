@@ -409,8 +409,8 @@ function evaluateSignalState(previousState, signalType, dateKey, currentPrice, b
     const hadSignalToday = previousState.dateKey === dateKey && Boolean(previousState.signalType);
     const isSameDirection = signalType === previousState.lastSignalType;
     const previousSignalDate = previousState.lastCountedSignalDate || previousState.dateKey;
-    const isConsecutiveTradingSignal = isSameDirection && previousSignalDate !== dateKey && previousState.previousTradingDayHadSignal !== false;
-    const consecutiveSignalCount = isConsecutiveTradingSignal
+    const isNextSameDirectionSignal = isSameDirection && previousSignalDate !== dateKey;
+    const consecutiveSignalCount = isNextSameDirectionSignal
         ? Number(previousState.consecutiveSignalCount || 0) + 1
         : isSameDirection && previousState.lastCountedSignalDate === dateKey
             ? Number(previousState.consecutiveSignalCount || 0)
@@ -434,7 +434,6 @@ function evaluateSignalState(previousState, signalType, dateKey, currentPrice, b
         consecutiveSignalCount,
         lastCountedSignalDate: dateKey,
         lastSignalType: signalType,
-        previousTradingDayHadSignal: true,
         lastExecutedAt: new Date().toISOString(),
         firstSeenAt,
         firstSignalWindow: hadSignalToday ? previousState.firstSignalWindow : firstSignalWindow
@@ -682,11 +681,7 @@ async function runMonitor(env) {
             lastCheckedAt: new Date().toISOString(),
             firstSeenAt: null,
             firstSignalWindow: null,
-            lockedRecommendation: null,
-            consecutiveSignalCount: 0,
-            lastSignalType: null,
-            previousTradingDayHadSignal: false,
-            lastCountedSignalDate: nyParts.dateKey
+            lockedRecommendation: null
         };
         await env.KV.put(ALERT_STATE_KEY, JSON.stringify(state));
     }
