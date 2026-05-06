@@ -369,11 +369,6 @@
             }
         }
 
-        function getSavedTime(settings) {
-            const time = Date.parse(settings?.savedAt || '');
-            return Number.isFinite(time) ? time : 0;
-        }
-
         async function syncSettingsToServer(settings) {
             const response = await fetch('/api/settings', {
                 method: 'POST',
@@ -401,25 +396,23 @@
 
         // Cloudflare KV에서 설정 불러오기
         async function loadSettings() {
-            const localSettings = loadLocalSettings();
-            applySettings(localSettings);
-
             try {
                 const response = await fetch('/api/settings');
                 if (!response.ok) throw new Error(`설정 불러오기 실패: ${response.status}`);
                 const settings = await response.json();
                 if (Object.keys(settings || {}).length) {
-                    const localTime = getSavedTime(localSettings);
-                    const serverTime = getSavedTime(settings);
-                    if (!localTime || serverTime >= localTime) {
-                        applySettings(settings);
-                        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
-                    } else {
-                        syncSettingsToServer(localSettings).catch(error => console.error("로컬 설정 서버 동기화 실패:", error));
-                    }
+                    applySettings(settings);
+                    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+                    return { settings, source: 'server' };
                 }
+                const localSettings = loadLocalSettings();
+                applySettings(localSettings);
+                return { settings: localSettings, source: 'local-empty-server' };
             } catch (error) {
                 console.error("설정 불러오기 실패:", error);
+                const localSettings = loadLocalSettings();
+                applySettings(localSettings);
+                return { settings: localSettings, source: 'local-fallback', error };
             }
         }
 
@@ -1133,18 +1126,26 @@
             const result = await saveSettings();
             updateAutoCalculations();
             const msg = document.getElementById('amount-save-msg');
-            msg.textContent = result.synced ? '✓ 저장됨!' : '✓ 기기에 저장됨';
+            msg.textContent = result.synced ? '✓ 저장됨!' : '서버 저장 실패';
+            msg.style.color = result.synced ? '#6c5d53' : '#b91c1c';
             msg.style.opacity = '1';
-            setTimeout(() => { msg.style.opacity = '0'; }, 2000);
+            setTimeout(() => {
+                msg.style.opacity = '0';
+                msg.style.color = '#6c5d53';
+            }, result.synced ? 2000 : 3500);
         }
 
         async function saveRebalanceSettings() {
             const result = await saveSettings();
             const msg = document.getElementById('rebalance-save-msg');
             if (!msg) return;
-            msg.textContent = result.synced ? '저장됨' : '기기에 저장됨';
+            msg.textContent = result.synced ? '저장됨' : '서버 저장 실패';
+            msg.style.color = result.synced ? 'var(--muted)' : '#b91c1c';
             msg.style.opacity = '1';
-            setTimeout(() => { msg.style.opacity = '0'; }, 2000);
+            setTimeout(() => {
+                msg.style.opacity = '0';
+                msg.style.color = 'var(--muted)';
+            }, result.synced ? 2000 : 3500);
         }
 
         // --- Finnhub Monitoring Logic ---

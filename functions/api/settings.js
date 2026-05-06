@@ -1,39 +1,32 @@
-export async function onRequestGet(context) {
-    const { env } = context;
+function jsonResponse(body, status = 200) {
+    return new Response(JSON.stringify(body), {
+        status,
+        headers: { 'Content-Type': 'application/json' }
+    });
+}
+
+export async function onRequestGet({ env }) {
     try {
-        // KV에서 설정 값 불러오기 (키: 'user_settings')
+        if (!env.KV) return jsonResponse({ error: 'KV binding is not configured.' }, 500);
+
         const settings = await env.KV.get('user_settings');
-        
-        if (settings) {
-            return new Response(settings, {
-                status: 200,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        } else {
-            return new Response(JSON.stringify({}), {
-                status: 200,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
+        return settings
+            ? new Response(settings, { status: 200, headers: { 'Content-Type': 'application/json' } })
+            : jsonResponse({});
     } catch (error) {
-        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+        return jsonResponse({ error: error.message }, 500);
     }
 }
 
-export async function onRequestPost(context) {
-    const { request, env } = context;
+export async function onRequestPost({ request, env }) {
     try {
-        // 요청 본문에서 새 설정 값 읽기
-        const newSettings = await request.text();
-        
-        // KV에 설정 값 저장 (키: 'user_settings')
-        await env.KV.put('user_settings', newSettings);
-        
-        return new Response(JSON.stringify({ success: true }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
-        });
+        if (!env.KV) return jsonResponse({ error: 'KV binding is not configured.' }, 500);
+
+        const settings = await request.json();
+        await env.KV.put('user_settings', JSON.stringify(settings));
+
+        return jsonResponse({ success: true, settings });
     } catch (error) {
-        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+        return jsonResponse({ error: error.message }, 500);
     }
 }
