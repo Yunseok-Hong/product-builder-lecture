@@ -295,7 +295,7 @@ h1 {
 
 .performance-form {
     display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: end;
     gap: 0.65rem;
 }
@@ -334,8 +334,8 @@ h1 {
 
 .performance-summary-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.45rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
 }
 
 .performance-summary-item {
@@ -421,40 +421,6 @@ h1 {
 
 .performance-empty[hidden] {
     display: none;
-}
-
-.performance-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem 1rem;
-    color: var(--muted);
-    font-size: 0.86rem;
-    font-weight: 800;
-}
-
-.performance-legend span {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.legend-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 999px;
-    background: #2f6f73;
-}
-
-.legend-dot.qqqm {
-    background: #2563eb;
-}
-
-.legend-dot.tqqq {
-    background: #e11d48;
-}
-
-.legend-dot.gldm {
-    background: #b7791f;
 }
 
 .performance-records {
