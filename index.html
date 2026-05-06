@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -6,9 +6,9 @@
     <meta name="theme-color" content="#dfd3c3">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="나스닥+금 포트폴리오 계산기">
+    <meta name="apple-mobile-web-app-title" content="?섏뒪??湲??ы듃?대━??怨꾩궛湲?>
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>나스닥+금 포트폴리오 계산기</title>
+    <title>?섏뒪??湲??ы듃?대━??怨꾩궛湲?/title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -19,7 +19,7 @@
 </head>
 <body>
     <header>
-        <h1>나스닥+금 포트폴리오 계산기</h1>
+        <h1>?섏뒪??湲??ы듃?대━??怨꾩궛湲?/h1>
     </header>
 
     <main class="dashboard app-tabs">
@@ -28,50 +28,50 @@
                     <section class="calculator">
                         <div class="calc-title holdings-title">
                             <div>
-                                <div class="holdings-title-main">종목별 보유 수량 입력</div>
-                                <div class="holdings-title-sub">(현재가 기준 비중 자동 계산)</div>
+                                <div class="holdings-title-main">醫낅ぉ蹂?蹂댁쑀 ?섎웾 ?낅젰</div>
+                                <div class="holdings-title-sub">(?꾩옱媛 湲곗? 鍮꾩쨷 ?먮룞 怨꾩궛)</div>
                             </div>
                         </div>
                         <div class="calc-grid holdings-summary-grid">
                             <div class="holding-asset-card tqqq">
                                 <div class="input-group holdings-row">
-                                    <label>TQQQ 보유 수량</label>
+                                    <label>TQQQ 蹂댁쑀 ?섎웾</label>
                                     <div class="input-wrapper">
                                         <input type="text" id="tqqq-input-amount" value="0" inputmode="decimal">
-                                        <span class="unit">주</span>
+                                        <span class="unit">二?/span>
                                     </div>
                                 </div>
                                 <div class="holding-data-row">
-                                    <span>TQQQ 현재가</span>
+                                    <span>TQQQ ?꾩옱媛</span>
                                     <strong id="tqqq-live-price">--</strong>
                                 </div>
                                 <div class="holding-data-row">
-                                    <span>TQQQ 평가금액</span>
+                                    <span>TQQQ ?됯?湲덉븸</span>
                                     <strong id="tqqq-market-value">$0.00</strong>
                                 </div>
                             </div>
                             <div class="holding-asset-card gldm">
                                 <div class="input-group holdings-row">
-                                    <label>GLDM 보유 수량</label>
+                                    <label>GLDM 蹂댁쑀 ?섎웾</label>
                                     <div class="input-wrapper">
                                         <input type="text" id="gldm-input-amount" value="0" inputmode="decimal">
-                                        <span class="unit">주</span>
+                                        <span class="unit">二?/span>
                                     </div>
                                 </div>
                                 <div class="holding-data-row">
-                                    <span>GLDM 현재가</span>
+                                    <span>GLDM ?꾩옱媛</span>
                                     <strong id="gldm-live-price">--</strong>
                                 </div>
                                 <div class="holding-data-row">
-                                    <span>GLDM 평가금액</span>
+                                    <span>GLDM ?됯?湲덉븸</span>
                                     <strong id="gldm-market-value">$0.00</strong>
                                 </div>
                             </div>
                             <div class="input-group" style="grid-column: 1 / -1;">
                                 <div class="nasdaq-ratio-display" style="padding: 15px; background: rgba(199, 177, 153, 0.26); border: 1px solid rgba(108, 93, 83, 0.18); border-radius: 12px; text-align: center; color: #786854; font-weight: 600;">
-                                    총 평가금액: <span id="total-auto-amount" style="color: #6c5d53; font-weight: 800; font-size: 1.2em; margin-left: 10px;">$0.00</span>
-                                    <span id="total-krw-amount" style="display:block; margin-top: 6px; color: #6c5d53; font-weight: 800; font-size: 1.05em;">₩0</span>
-                                    <span id="quote-updated-at" style="display:block; margin-top: 6px; font-size: 0.82em; color: #786854;">현재가/환율 불러오는 중...</span>
+                                    珥??됯?湲덉븸: <span id="total-auto-amount" style="color: #6c5d53; font-weight: 800; font-size: 1.2em; margin-left: 10px;">$0.00</span>
+                                    <span id="total-krw-amount" style="display:block; margin-top: 6px; color: #6c5d53; font-weight: 800; font-size: 1.05em;">??</span>
+                                    <span id="quote-updated-at" style="display:block; margin-top: 6px; font-size: 0.82em; color: #786854;">?꾩옱媛/?섏쑉 遺덈윭?ㅻ뒗 以?..</span>
                                 </div>
                             </div>
                         </div>
@@ -79,7 +79,7 @@
                         <div class="results holdings-ratio-results">
                             <div class="result-item holdings-ratio-card">
                                 <span class="result-label">TQQQ : GLDM</span>
-                                <div class="ratio-triplet" aria-label="TQQQ GLDM 비중">
+                                <div class="ratio-triplet" aria-label="TQQQ GLDM 鍮꾩쨷">
                                     <strong class="ratio-number tqqq" id="tqqq-auto-ratio">0</strong>
                                     <span class="ratio-separator">:</span>
                                     <strong class="ratio-number gldm" id="gldm-auto-ratio">0</strong>
@@ -88,8 +88,8 @@
                         </div>
             
                         <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 16px;">
-                            <span id="amount-save-msg" style="color: #6c5d53; font-weight: 600; font-size: 0.9em; opacity: 0; transition: opacity 0.3s;">✓ 저장됨!</span>
-                            <button id="amount-save-btn" onclick="saveAmountSettings()" style="padding: 10px 28px; background: linear-gradient(135deg, #9f8473, #6c5d53); color: #fff; border: none; border-radius: 10px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 15px rgba(108,93,83,0.18);">저장</button>
+                            <span id="amount-save-msg" style="color: #6c5d53; font-weight: 600; font-size: 0.9em; opacity: 0; transition: opacity 0.3s;">????λ맖!</span>
+                            <button id="amount-save-btn" onclick="saveAmountSettings()" style="padding: 10px 28px; background: linear-gradient(135deg, #9f8473, #6c5d53); color: #fff; border: none; border-radius: 10px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 15px rgba(108,93,83,0.18);">???/button>
                         </div>
                     </section>
         </section>
@@ -100,28 +100,28 @@
                         <div class="rebalance-panel">
                             <div class="rebalance-header">
                                 <div>
-                                    <span class="result-label">BB %b 리밸런싱 상태</span>
-                                    <div class="rebalance-status wait" id="rebalance-status">대기</div>
+                                    <span class="result-label">BB %b 由щ갭?곗떛 ?곹깭</span>
+                                    <div class="rebalance-status wait" id="rebalance-status">?湲?/div>
                                 </div>
                                 <div class="rebalance-bpercent" id="rebalance-bpercent">BB %b --</div>
                             </div>
                             <div class="rebalance-target-grid">
                                 <div class="input-group">
-                                    <label>TQQQ 목표 비중 (%)</label>
+                                    <label>TQQQ 紐⑺몴 鍮꾩쨷 (%)</label>
                                     <div class="input-wrapper">
                                         <input type="number" id="rebalance-target-tqqq" value="70" min="0" max="100" step="0.1">
                                         <span class="unit">%</span>
                                     </div>
                                 </div>
                                 <div class="input-group">
-                                    <label>GLDM 목표 비중 (%)</label>
+                                    <label>GLDM 紐⑺몴 鍮꾩쨷 (%)</label>
                                     <div class="input-wrapper">
                                         <input type="number" id="rebalance-target-gldm" value="30" min="0" max="100" step="0.1">
                                         <span class="unit">%</span>
                                     </div>
                                 </div>
                                 <div class="input-group rebalance-step-field">
-                                    <label>신호 시 비중 조정폭 (%)</label>
+                                    <label>&#50672;&#49549;&#49888;&#54840; &#49884; &#48708;&#51473; &#51312;&#51221; &#54253; (%)</label>
                                     <div class="input-wrapper">
                                         <input type="number" id="rebalance-weight-step" value="4" min="0" max="100" step="0.1">
                                         <span class="unit">%</span>
@@ -129,63 +129,63 @@
                                 </div>
                             </div>
                             <div class="rebalance-save-row">
-                                <span id="rebalance-save-msg">저장됨</span>
-                                <button class="alert-btn secondary-alert" type="button" onclick="saveRebalanceSettings()">리밸런싱 설정 저장</button>
+                                <span id="rebalance-save-msg">??λ맖</span>
+                                <button class="alert-btn secondary-alert" type="button" onclick="saveRebalanceSettings()">由щ갭?곗떛 ?ㅼ젙 ???/button>
                             </div>
-                            <div class="rebalance-summary" id="rebalance-summary">현재가와 BB %b 데이터를 기다리는 중입니다.</div>
+                            <div class="rebalance-summary" id="rebalance-summary">?꾩옱媛? BB %b ?곗씠?곕? 湲곕떎由щ뒗 以묒엯?덈떎.</div>
                             <div class="order-grid">
                                 <div class="order-card">
                                     <span class="order-label">TQQQ</span>
-                                    <strong id="tqqq-order">대기</strong>
+                                    <strong id="tqqq-order">?湲?/strong>
                                 </div>
                                 <div class="order-card">
                                     <span class="order-label">GLDM</span>
-                                    <strong id="gldm-order">대기</strong>
+                                    <strong id="gldm-order">?湲?/strong>
                                 </div>
                             </div>
-                            <div class="rebalance-projection" id="rebalance-projection">예상 조정 후 비중: --</div>
+                            <div class="rebalance-projection" id="rebalance-projection">?덉긽 議곗젙 ??鍮꾩쨷: --</div>
                         </div>
 
                         <div class="monitor-panel">
                             <div class="monitor-header">
                                 <div>
-                                    <span class="result-label">TQQQ 실시간 감시 시스템</span>
-                                    <div class="monitor-subtitle">실시간 가격, BB %b, 서버 감시 상태</div>
+                                    <span class="result-label">TQQQ ?ㅼ떆媛?媛먯떆 ?쒖뒪??/span>
+                                    <div class="monitor-subtitle">?ㅼ떆媛?媛寃? BB %b, ?쒕쾭 媛먯떆 ?곹깭</div>
                                 </div>
-                                <div id="status-badge" class="status-badge loading">연결 중...</div>
+                                <div id="status-badge" class="status-badge loading">?곌껐 以?..</div>
                             </div>
                             <div class="monitor-compact-grid">
                                 <div class="monitor-item">
-                                    <span class="monitor-label">TQQQ 현재가</span>
+                                    <span class="monitor-label">TQQQ ?꾩옱媛</span>
                                     <span class="monitor-value" id="current-price">--</span>
-                                    <span class="monitor-meta" id="current-price-updated-at">최근 가져온 시간: --</span>
+                                    <span class="monitor-meta" id="current-price-updated-at">理쒓렐 媛?몄삩 ?쒓컙: --</span>
                                 </div>
                                 <div class="monitor-item">
-                                    <span class="monitor-label">현재 BB %b</span>
+                                    <span class="monitor-label">?꾩옱 BB %b</span>
                                     <span class="monitor-value" id="current-b-percent">--</span>
                                 </div>
                                 <div class="monitor-item server-monitor-item">
-                                    <span class="monitor-label">서버 감시 상태</span>
-                                    <span class="server-status-value" id="server-monitor-status">확인 중...</span>
+                                    <span class="monitor-label">?쒕쾭 媛먯떆 ?곹깭</span>
+                                    <span class="server-status-value" id="server-monitor-status">?뺤씤 以?..</span>
                                 </div>
                             </div>
                             <div class="server-status-grid">
-                                <span id="server-last-check">마지막 확인: --</span>
-                                <span id="server-bpercent">서버 BB %b: --</span>
-                                <span id="server-current-price">서버 현재가: --</span>
-                                <span id="server-last-close">마지막 종가: --</span>
-                                <span id="server-market-calendar">시장 캘린더: --</span>
-                                <span id="server-last-push">마지막 알림: --</span>
+                                <span id="server-last-check">留덉?留??뺤씤: --</span>
+                                <span id="server-bpercent">?쒕쾭 BB %b: --</span>
+                                <span id="server-current-price">?쒕쾭 ?꾩옱媛: --</span>
+                                <span id="server-last-close">留덉?留?醫낃?: --</span>
+                                <span id="server-market-calendar">?쒖옣 罹섎┛?? --</span>
+                                <span id="server-last-push">留덉?留??뚮┝: --</span>
                             </div>
                             <div class="monitor-actions">
-                                <button class="alert-btn" onclick="requestNotificationPermission()">알림 권한 허용</button>
-                                <button class="alert-btn secondary-alert" onclick="sendRebalanceTestNotification()">리밸런싱 알림 테스트</button>
+                                <button class="alert-btn" onclick="requestNotificationPermission()">?뚮┝ 沅뚰븳 ?덉슜</button>
+                                <button class="alert-btn secondary-alert" onclick="sendRebalanceTestNotification()">由щ갭?곗떛 ?뚮┝ ?뚯뒪??/button>
                                 <label class="ack-control">
                                     <input type="checkbox" id="alert-ack-checkbox">
-                                    <span>오늘 알림 확인 완료</span>
+                                    <span>?ㅻ뒛 ?뚮┝ ?뺤씤 ?꾨즺</span>
                                 </label>
                             </div>
-                            <div class="notification-state" id="notification-state">알림 상태 확인 중...</div>
+                            <div class="notification-state" id="notification-state">?뚮┝ ?곹깭 ?뺤씤 以?..</div>
                             <div class="server-calendar-warning" id="server-calendar-warning"></div>
                             <div class="data-error-panel" id="client-data-error" hidden></div>
                             <div class="data-error-panel server-error" id="server-data-error" hidden></div>
@@ -193,43 +193,43 @@
                     </section>
         </section>
 
-        <section class="tab-panel charts-panel" id="tab-charts" data-tab-panel="charts" aria-label="성과 비교 차트">
+        <section class="tab-panel charts-panel" id="tab-charts" data-tab-panel="charts" aria-label="?깃낵 鍮꾧탳 李⑦듃">
             <section class="calculator performance-board">
                 <div class="performance-header">
                     <div>
-                        <div class="holdings-title-main">성과 비교 차트</div>
-                        <div class="holdings-title-sub">조정종가 기준, USD 평가금액</div>
+                        <div class="holdings-title-main">?깃낵 鍮꾧탳 李⑦듃</div>
+                        <div class="holdings-title-sub">議곗젙醫낃? 湲곗?, USD ?됯?湲덉븸</div>
                     </div>
-                    <div class="performance-start" id="performance-start">시작일 --</div>
+                    <div class="performance-start" id="performance-start">?쒖옉??--</div>
                 </div>
 
                 <div class="performance-entry-card">
                     <form class="performance-form" id="performance-form">
                         <div class="input-group">
-                            <label for="performance-date">날짜</label>
+                            <label for="performance-date">?좎쭨</label>
                             <div class="input-wrapper">
                                 <input type="date" id="performance-date" required>
                             </div>
                         </div>
                         <div class="input-group">
-                            <label for="performance-value">실제 평가금액</label>
+                            <label for="performance-value">?ㅼ젣 ?됯?湲덉븸</label>
                             <div class="input-wrapper">
                                 <input type="text" id="performance-value" inputmode="decimal" placeholder="10,000">
                                 <span class="unit">USD</span>
                             </div>
                         </div>
-                        <button class="alert-btn performance-save-btn" type="submit">저장</button>
+                        <button class="alert-btn performance-save-btn" type="submit">???/button>
                     </form>
                 </div>
 
                 <div class="performance-chart-shell">
-                    <canvas id="performance-chart" aria-label="포트폴리오 평가금액과 QQQM TQQQ GLDM 100% 투자 성과 비교 차트"></canvas>
-                    <div class="performance-empty" id="performance-empty">첫 평가금액을 저장하면 차트가 표시됩니다.</div>
+                    <canvas id="performance-chart" aria-label="?ы듃?대━???됯?湲덉븸怨?QQQM TQQQ GLDM 100% ?ъ옄 ?깃낵 鍮꾧탳 李⑦듃"></canvas>
+                    <div class="performance-empty" id="performance-empty">泥??됯?湲덉븸????ν븯硫?李⑦듃媛 ?쒖떆?⑸땲??</div>
                 </div>
 
                 <div class="performance-summary-grid" id="performance-summary-grid">
                     <div class="performance-summary-item">
-                        <span>포트폴리오</span>
+                        <span>?ы듃?대━??/span>
                         <strong id="actual-return">--</strong>
                         <small id="actual-value">--</small>
                     </div>
@@ -254,16 +254,25 @@
             </section>
         </section>
 
-        <section class="tab-panel" id="tab-records" data-tab-panel="records" aria-label="저장된 실제 평가금액 기록">
+        <section class="tab-panel" id="tab-records" data-tab-panel="records" aria-label="??λ맂 ?ㅼ젣 ?됯?湲덉븸 湲곕줉">
             <section class="calculator performance-board records-board">
                 <div class="performance-records">
                     <div class="performance-header">
                         <div>
-                            <div class="holdings-title-main">기록</div>
-                            <div class="holdings-title-sub">저장된 실제 평가금액 확인 및 삭제</div>
+                            <div class="holdings-title-main">湲곕줉</div>
+                            <div class="holdings-title-sub">??λ맂 ?ㅼ젣 ?됯?湲덉븸 ?뺤씤 諛???젣</div>
                         </div>
                     </div>
                     <div class="performance-record-list" id="performance-record-list"></div>
+                    <div class="recommendation-records">
+                        <div class="performance-header recommendation-record-header">
+                            <div>
+                                <div class="holdings-title-main">&#47532;&#48184;&#47088;&#49905; &#52628;&#52380; &#44592;&#47197;</div>
+                                <div class="holdings-title-sub">&#52395; &#50508;&#47548; &#49884;&#51216;&#51032; &#47588;&#49688;/&#47588;&#46020;&#47049;&#44284; &#51312;&#51221; &#47785;&#54364;&#48708;&#51473;</div>
+                            </div>
+                        </div>
+                        <div class="recommendation-record-list" id="recommendation-record-list"></div>
+                    </div>
                 </div>
             </section>
         </section>
@@ -284,7 +293,7 @@
         </button>
         <button class="tab-button" type="button" data-tab-target="records" aria-controls="tab-records" aria-selected="false">
             <span class="tab-icon">4</span>
-            <span>기록</span>
+            <span>湲곕줉</span>
         </button>
     </nav>
 <script>
@@ -325,7 +334,7 @@
             });
         }
 
-        // Cloudflare KV에 설정 저장
+        // Cloudflare KV???ㅼ젙 ???        async function saveSettings() {
         async function saveSettings() {
             const settings = {
                 tqqqQuantity: document.getElementById('tqqq-input-amount')?.value || '0',
@@ -341,17 +350,17 @@
                     body: JSON.stringify(settings)
                 });
             } catch (error) {
-                console.error("설정 저장 실패:", error);
+                console.error("?ㅼ젙 ????ㅽ뙣:", error);
             }
         }
 
-        // Cloudflare KV에서 설정 불러오기
+        // Cloudflare KV?먯꽌 ?ㅼ젙 遺덈윭?ㅺ린
         async function loadSettings() {
             try {
                 const response = await fetch('/api/settings');
                 const settings = await response.json();
 
-                // 종목별 보유 수량 입력값 복원
+                // 醫낅ぉ蹂?蹂댁쑀 ?섎웾 ?낅젰媛?蹂듭썝
                 const tqqqAmtEl = document.getElementById('tqqq-input-amount');
                 const gldmAmtEl = document.getElementById('gldm-input-amount');
                 const rebalanceTargetTqqqEl = document.getElementById('rebalance-target-tqqq');
@@ -363,11 +372,11 @@
                 if (settings.rebalanceTargetGldm !== undefined && rebalanceTargetGldmEl) rebalanceTargetGldmEl.value = settings.rebalanceTargetGldm;
                 if (settings.rebalanceWeightStep !== undefined && rebalanceWeightStepEl) rebalanceWeightStepEl.value = settings.rebalanceWeightStep;
             } catch (error) {
-                console.error("설정 불러오기 실패:", error);
+                console.error("?ㅼ젙 遺덈윭?ㅺ린 ?ㅽ뙣:", error);
             }
         }
 
-        // 초기 실행: 불러오기 후 계산 (비동기 처리)
+        // 珥덇린 ?ㅽ뻾: 遺덈윭?ㅺ린 ??怨꾩궛 (鍮꾨룞湲?泥섎━)
         async function init() {
             await loadSettings();
             updateAutoCalculations();
@@ -404,6 +413,7 @@
         const performanceCanvas = document.getElementById('performance-chart');
         const performanceEmpty = document.getElementById('performance-empty');
         const performanceRecordList = document.getElementById('performance-record-list');
+        const recommendationRecordList = document.getElementById('recommendation-record-list');
         const performanceDataError = document.getElementById('performance-data-error');
         const performanceReturnEls = {
             actual: {
@@ -430,6 +440,7 @@
         };
         let usdKrwRate = 0;
         let performanceState = null;
+        const RECOMMENDATION_RECORDS_KEY = 'rebalanceRecommendationRecords';
 
         const usdFormatter = new Intl.NumberFormat('en-US', {
             style: 'currency',
@@ -461,7 +472,7 @@
         }
 
         function updateAutoCalculations() {
-            // 보유 수량은 소수점 입력도 허용한다.
+            // 蹂댁쑀 ?섎웾? ?뚯닔???낅젰???덉슜?쒕떎.
             [tInputAmount, gInputAmount].forEach(input => {
                 formatQuantityInput(input);
             });
@@ -478,7 +489,7 @@
             tMarketValue.textContent = usdFormatter.format(tAmt);
             gMarketValue.textContent = usdFormatter.format(gAmt);
             totalAutoAmount.textContent = usdFormatter.format(totalAmt);
-            totalKrwAmount.textContent = usdKrwRate ? krwFormatter.format(totalAmt * usdKrwRate) : '₩0';
+            totalKrwAmount.textContent = usdKrwRate ? krwFormatter.format(totalAmt * usdKrwRate) : '??';
 
             if (totalAmt > 0) {
                 const tPct = (tAmt / totalAmt) * 100;
@@ -507,16 +518,31 @@
         }
 
         function formatOrder(action, shares) {
-            return shares > 0 ? `${action} ${shares.toLocaleString('ko-KR')}주` : '추천 없음';
+            return shares > 0 ? `${action} ${shares.toLocaleString('ko-KR')}\uc8fc` : '\ucd94\ucc9c \uc5c6\uc74c';
         }
 
         function ratioText(qVal, tVal, gVal) {
             const total = tVal + gVal;
-            if (!total) return '예상 조정 후 비중: --';
+            if (!total) return '\uc608\uc0c1 \uc870\uc815 \ud6c4 \ube44\uc911: --';
 
             const nasdaqPct = (tVal / total) * 100;
             const goldPct = (gVal / total) * 100;
-            return `예상 조정 후 비중: TQQQ ${nasdaqPct.toFixed(1)}% / GLDM ${goldPct.toFixed(1)}%`;
+            return `\uc608\uc0c1 \uc870\uc815 \ud6c4 \ube44\uc911: TQQQ ${nasdaqPct.toFixed(1)}% / GLDM ${goldPct.toFixed(1)}%`;
+        }
+        function getActiveLockedRecommendation() {
+            const locked = serverSignalState?.lockedRecommendation;
+            return locked?.dateKey && locked.dateKey === serverSignalState?.dateKey ? locked : null;
+        }
+
+        function getOrderText(action, quantity) {
+            const qty = Number(quantity || 0);
+            if (!qty || action === 'none') return '\ucd94\ucc9c \uc5c6\uc74c';
+            const actionText = action === 'sell' ? '\ub9e4\ub3c4' : '\ub9e4\uc218';
+            return `${actionText} ${qty.toLocaleString('ko-KR')}\uc8fc`;
+        }
+
+        function getLockedProjectionText(locked) {
+            return `\uc870\uc815 \ubaa9\ud45c \ube44\uc911: TQQQ ${(Number(locked.targetT || 0) * 100).toFixed(1)}% / GLDM ${(Number(locked.targetG || 0) * 100).toFixed(1)}%`;
         }
 
         function getRebalanceTargets() {
@@ -541,7 +567,7 @@
             return { targetT: targetT / 100, targetG: targetG / 100 };
         }
 
-        function getSignalAdjustedTargets(signalType, isRepeatedDirection = false) {
+        function getSignalAdjustedTargets(signalType, consecutiveSignalCount = 0) {
             const baseTargets = getRebalanceTargets();
             let step = parseFloat(rebalanceWeightStep?.value);
             if (!Number.isFinite(step)) step = 0;
@@ -549,10 +575,9 @@
             step = Math.min(100, Math.max(0, step)) / 100;
             if (rebalanceWeightStep) rebalanceWeightStep.value = Number((step * 100).toFixed(1));
 
-            const direction = isRepeatedDirection
-                ? signalType === 'lower' ? 1 : signalType === 'upper' ? -1 : 0
-                : 0;
-            const targetT = Math.min(1, Math.max(0, baseTargets.targetT + (step * direction)));
+            const repeatedSteps = Math.max(0, Number(consecutiveSignalCount || 0));
+            const direction = signalType === 'lower' ? 1 : signalType === 'upper' ? -1 : 0;
+            const targetT = Math.min(1, Math.max(0, baseTargets.targetT + (step * direction * repeatedSteps)));
             const delta = targetT - baseTargets.targetT;
             return {
                 baseTargetT: baseTargets.targetT,
@@ -562,7 +587,8 @@
                 step,
                 direction,
                 delta,
-                isRepeatedDirection
+                consecutiveSignalCount: repeatedSteps,
+                isRepeatedDirection: repeatedSteps > 0
             };
         }
 
@@ -580,13 +606,18 @@
                 && Number(serverSignalState.consecutiveSignalCount || 0) > 0;
         }
 
-        function resetRecommendation(summary) {
-            tqqqOrder.textContent = '대기';
-            gldmOrder.textContent = '대기';
-            rebalanceSummary.textContent = summary;
-            rebalanceProjection.textContent = '예상 조정 후 비중: --';
+        function getServerConsecutiveSignalCount(signalType) {
+            return serverSignalState?.signalType === signalType
+                ? Number(serverSignalState.consecutiveSignalCount || 0)
+                : 0;
         }
 
+        function resetRecommendation(summary) {
+            tqqqOrder.textContent = '\ub300\uae30';
+            gldmOrder.textContent = '\ub300\uae30';
+            rebalanceSummary.textContent = summary;
+            rebalanceProjection.textContent = '\uc608\uc0c1 \uc870\uc815 \ud6c4 \ube44\uc911: --';
+        }
         function scoreTargetPlan(tVal, gVal, leftover, targetT) {
             const invested = tVal + gVal;
             const tPct = invested ? tVal / invested : 0;
@@ -640,22 +671,34 @@
         function updateRebalanceRecommendation() {
             rebalanceBPercent.textContent = currentBPercent === null ? 'BB %b --' : `BB %b ${currentBPercent.toFixed(4)}`;
 
+            const lockedRecommendation = getActiveLockedRecommendation();
+            if (lockedRecommendation && serverSignalState?.signalType) {
+                const mode = serverSignalState.signalType === 'lower' ? 'down' : 'up';
+                setRebalanceMode(mode, '\uace0\uc815');
+                tqqqOrder.textContent = getOrderText(lockedRecommendation.tqqqAction, lockedRecommendation.tqqqQuantity);
+                gldmOrder.textContent = getOrderText(lockedRecommendation.gldmAction, lockedRecommendation.gldmQuantity);
+                rebalanceSummary.textContent = `\uccab \uc54c\ub9bc \uc2dc\uc810\uc758 \ucd94\ucc9c\uc744 \uc7a5 \ub9c8\uac10\uae4c\uc9c0 \uc720\uc9c0\ud569\ub2c8\ub2e4. ${getLockedProjectionText(lockedRecommendation)}`;
+                rebalanceProjection.textContent = getLockedProjectionText(lockedRecommendation);
+                saveRecommendationRecordFromLocked(lockedRecommendation);
+                return;
+            }
+
             if (!livePrices.TQQQ || !livePrices.GLDM) {
-                setRebalanceMode('wait', '대기');
-                resetRecommendation('현재가 데이터를 기다리는 중입니다.');
+                setRebalanceMode('wait', '\ub300\uae30');
+                resetRecommendation('\ud604\uc7ac\uac00 \ub370\uc774\ud130\ub97c \uae30\ub2e4\ub9ac\ub294 \uc911\uc785\ub2c8\ub2e4.');
                 return;
             }
 
             const snapshot = getPortfolioSnapshot();
             if (!snapshot.total) {
-                setRebalanceMode('wait', '대기');
-                resetRecommendation('보유 수량을 입력하면 추천 주문을 계산합니다.');
+                setRebalanceMode('wait', '\ub300\uae30');
+                resetRecommendation('\ubcf4\uc720 \uc218\ub7c9\uc744 \uc785\ub825\ud558\uba74 \ucd94\ucc9c \uc8fc\ubb38\uc744 \uacc4\uc0b0\ud569\ub2c8\ub2e4.');
                 return;
             }
 
             if (currentBPercent === null) {
-                setRebalanceMode('wait', '대기');
-                resetRecommendation('BB %b 데이터를 기다리는 중입니다.');
+                setRebalanceMode('wait', '\ub300\uae30');
+                resetRecommendation('BB %b \ub370\uc774\ud130\ub97c \uae30\ub2e4\ub9ac\ub294 \uc911\uc785\ub2c8\ub2e4.');
                 return;
             }
 
@@ -670,35 +713,33 @@
             if (activeSignalType) {
                 const serverActionMode = getServerActionMode();
                 if (serverActionMode && serverActionMode !== 'execute') {
-                    setRebalanceMode('wait', '대기');
-                    resetRecommendation('서버 실행 판단을 기다리는 중입니다.');
+                    setRebalanceMode('wait', '\ub300\uae30');
+                    resetRecommendation('\uc11c\ubc84 \uc2e4\ud589 \ud310\ub2e8\uc744 \uae30\ub2e4\ub9ac\ub294 \uc911\uc785\ub2c8\ub2e4.');
                     return;
                 }
 
-                const targets = getSignalAdjustedTargets(activeSignalType, isRepeatedServerSignal(activeSignalType));
+                const targets = getSignalAdjustedTargets(activeSignalType, getServerConsecutiveSignalCount(activeSignalType));
                 const plan = findTargetPlan(snapshot, targets);
                 const mode = activeSignalType === 'lower' ? 'down' : 'up';
-                const label = '실행';
-                const signalText = activeSignalType === 'lower' ? '하단 밴드 신호' : '상단 밴드 신호';
+                const signalText = activeSignalType === 'lower' ? '\ud558\ub2e8 \ubc34\ub4dc \uc2e0\ud638' : '\uc0c1\ub2e8 \ubc34\ub4dc \uc2e0\ud638';
                 const adjustmentText = Math.abs(targets.delta) > 0.0001
-                    ? `같은 방향 반복 신호라서 기본 비중 TQQQ ${(targets.baseTargetT * 100).toFixed(1)}%에서 ${Math.abs(targets.delta * 100).toFixed(1)}%p ${targets.delta > 0 ? '상향' : '하향'}`
-                    : '첫 신호 또는 방향 변경 신호라서 기본 비중 유지';
-                const targetText = `조정 목표 비중 TQQQ ${(targets.targetT * 100).toFixed(1)}% / GLDM ${(targets.targetG * 100).toFixed(1)}%`;
+                    ? `\uac19\uc740 \ubc29\ud5a5 \uc5f0\uc18d \uc2e0\ud638\ub77c\uc11c \uae30\ubcf8 \ube44\uc911 TQQQ ${(targets.baseTargetT * 100).toFixed(1)}%\uc5d0\uc11c ${Math.abs(targets.delta * 100).toFixed(1)}%p ${targets.delta > 0 ? '\uc0c1\ud5a5' : '\ud558\ud5a5'}`
+                    : '\uccab \uc2e0\ud638 \ub610\ub294 \ubc29\ud5a5 \ubcc0\uacbd \uc2e0\ud638\ub77c\uc11c \uae30\ubcf8 \ube44\uc911 \uc720\uc9c0';
+                const targetText = `\uc870\uc815 \ubaa9\ud45c \ube44\uc911 TQQQ ${(targets.targetT * 100).toFixed(1)}% / GLDM ${(targets.targetG * 100).toFixed(1)}%`;
 
-                setRebalanceMode(mode, label);
-                tqqqOrder.textContent = plan.sellT > 0 ? formatOrder('매도', plan.sellT) : formatOrder('매수', plan.buyT);
-                gldmOrder.textContent = plan.sellG > 0 ? formatOrder('매도', plan.sellG) : formatOrder('매수', plan.buyG);
+                setRebalanceMode(mode, '\uc2e4\ud589');
+                tqqqOrder.textContent = plan.sellT > 0 ? formatOrder('\ub9e4\ub3c4', plan.sellT) : formatOrder('\ub9e4\uc218', plan.buyT);
+                gldmOrder.textContent = plan.sellG > 0 ? formatOrder('\ub9e4\ub3c4', plan.sellG) : formatOrder('\ub9e4\uc218', plan.buyG);
                 rebalanceSummary.textContent = plan.sellT || plan.buyT || plan.sellG || plan.buyG
-                    ? `TQQQ BB %b ${signalText}가 발생했습니다. ${adjustmentText}, ${targetText}에 가깝게 조정합니다.`
-                    : `TQQQ BB %b ${signalText}가 발생했지만 현재 비중이 ${targetText}에 이미 가깝습니다.`;
-                rebalanceProjection.textContent = `${ratioText(0, plan.tVal, plan.gVal)} / 예상 예수금 ${usdFormatter.format(plan.leftover)}`;
+                    ? `TQQQ BB %b ${signalText}\uac00 \ubc1c\uc0dd\ud588\uc2b5\ub2c8\ub2e4. ${adjustmentText}, ${targetText}\uc5d0 \uac00\uae5d\uac8c \uc870\uc815\ud569\ub2c8\ub2e4.`
+                    : `TQQQ BB %b ${signalText}\uac00 \ubc1c\uc0dd\ud588\uc9c0\ub9cc \ud604\uc7ac \ube44\uc911\uc774 ${targetText}\uc5d0 \uc774\ubbf8 \uac00\uae5d\uc2b5\ub2c8\ub2e4.`;
+                rebalanceProjection.textContent = `${ratioText(0, plan.tVal, plan.gVal)} / \uc608\uc0c1 \uc608\uc218\uae08 ${usdFormatter.format(plan.leftover)}`;
                 return;
             }
 
-            setRebalanceMode('wait', '대기');
-            resetRecommendation('BB %b가 0과 1 사이입니다. 리밸런싱 조건이 아닙니다.');
+            setRebalanceMode('wait', '\ub300\uae30');
+            resetRecommendation('BB %b\uac00 0\uacfc 1 \uc0ac\uc774\uc785\ub2c8\ub2e4. \ub9ac\ubc38\ub7f0\uc2f1 \uc870\uac74\uc774 \uc544\ub2d9\ub2c8\ub2e4.');
         }
-
         function parseUsdInput(value) {
             return parseFloat(String(value).replace(/[^0-9.]/g, '')) || 0;
         }
@@ -765,7 +806,7 @@
         }
 
         function updatePerformanceSummary(model) {
-            performanceStart.textContent = model.startDate ? `시작일 ${model.startDate}` : '시작일 --';
+            performanceStart.textContent = model.startDate ? `?쒖옉??${model.startDate}` : '?쒖옉??--';
             Object.entries(performanceReturnEls).forEach(([key, elements]) => {
                 elements.return.textContent = formatPercent(latestReturn(model.series[key], model.initialValue));
                 const value = latestValue(model.series[key]);
@@ -866,7 +907,7 @@
         function renderPerformanceRecords(values) {
             const rows = [...(values || [])].sort((a, b) => b.date.localeCompare(a.date));
             if (!rows.length) {
-                performanceRecordList.innerHTML = '<div class="performance-record-empty">저장된 기록이 없습니다.</div>';
+                performanceRecordList.innerHTML = '<div class="performance-record-empty">??λ맂 湲곕줉???놁뒿?덈떎.</div>';
                 return;
             }
 
@@ -874,7 +915,64 @@
                 <div class="performance-record-row">
                     <span>${item.date}</span>
                     <strong>${usdValueFormatter.format(Number(item.valueUsd))}</strong>
-                    <button type="button" data-performance-delete="${item.date}" aria-label="${item.date} 기록 삭제">삭제</button>
+                    <button type="button" data-performance-delete="${item.date}" aria-label="${item.date} 湲곕줉 ??젣">??젣</button>
+                </div>
+            `).join('');
+        }
+
+        function loadRecommendationRecords() {
+            try {
+                return JSON.parse(localStorage.getItem(RECOMMENDATION_RECORDS_KEY) || '[]');
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function saveRecommendationRecords(records) {
+            localStorage.setItem(RECOMMENDATION_RECORDS_KEY, JSON.stringify(records));
+        }
+
+        function saveRecommendationRecordFromLocked(locked) {
+            if (!locked?.dateKey) return;
+            const records = loadRecommendationRecords();
+            if (records.some(record => record.dateKey === locked.dateKey)) {
+                renderRecommendationRecords(records);
+                return;
+            }
+
+            const nextRecords = [{
+                dateKey: locked.dateKey,
+                targetT: locked.targetT,
+                targetG: locked.targetG,
+                tqqqAction: locked.tqqqAction,
+                tqqqQuantity: locked.tqqqQuantity,
+                gldmAction: locked.gldmAction,
+                gldmQuantity: locked.gldmQuantity
+            }, ...records];
+            saveRecommendationRecords(nextRecords);
+            renderRecommendationRecords(nextRecords);
+        }
+
+        function deleteRecommendationRecord(dateKey) {
+            const nextRecords = loadRecommendationRecords().filter(record => record.dateKey !== dateKey);
+            saveRecommendationRecords(nextRecords);
+            renderRecommendationRecords(nextRecords);
+        }
+
+        function renderRecommendationRecords(records = loadRecommendationRecords()) {
+            const rows = [...records].sort((a, b) => b.dateKey.localeCompare(a.dateKey));
+            if (!rows.length) {
+                recommendationRecordList.innerHTML = '<div class="performance-record-empty">\uc800\uc7a5\ub41c \ub9ac\ubc38\ub7f0\uc2f1 \ucd94\ucc9c \uae30\ub85d\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.</div>';
+                return;
+            }
+
+            recommendationRecordList.innerHTML = rows.map(item => `
+                <div class="recommendation-record-row">
+                    <span>${item.dateKey}</span>
+                    <strong>TQQQ ${getOrderText(item.tqqqAction, item.tqqqQuantity)}</strong>
+                    <strong>GLDM ${getOrderText(item.gldmAction, item.gldmQuantity)}</strong>
+                    <span>TQQQ ${(Number(item.targetT || 0) * 100).toFixed(1)}% / GLDM ${(Number(item.targetG || 0) * 100).toFixed(1)}%</span>
+                    <button type="button" data-recommendation-delete="${item.dateKey}" aria-label="${item.dateKey} \ucd94\ucc9c \uae30\ub85d \uc0ad\uc81c">\uc0ad\uc81c</button>
                 </div>
             `).join('');
         }
@@ -884,6 +982,7 @@
             const model = buildPerformanceSeries(data);
             updatePerformanceSummary(model);
             renderPerformanceRecords(data.portfolioValues);
+            renderRecommendationRecords();
             drawPerformanceChart(model);
         }
 
@@ -891,7 +990,7 @@
             try {
                 const response = await fetch('/api/performance-data');
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.error || `성과 데이터 오류: ${response.status}`);
+                if (!response.ok) throw new Error(data.error || `?깃낵 ?곗씠???ㅻ쪟: ${response.status}`);
                 setErrorPanel(performanceDataError, '');
                 renderPerformanceData(data);
             } catch (error) {
@@ -904,7 +1003,7 @@
             const date = performanceDateInput.value;
             const valueUsd = parseUsdInput(performanceValueInput.value);
             if (!date || !valueUsd) {
-                setErrorPanel(performanceDataError, '날짜와 실제 평가금액을 입력해 주세요.');
+                setErrorPanel(performanceDataError, '?좎쭨? ?ㅼ젣 ?됯?湲덉븸???낅젰??二쇱꽭??');
                 return;
             }
 
@@ -915,7 +1014,7 @@
                     body: JSON.stringify({ date, valueUsd })
                 });
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.error || `성과 저장 오류: ${response.status}`);
+                if (!response.ok) throw new Error(data.error || `?깃낵 ????ㅻ쪟: ${response.status}`);
                 performanceValueInput.value = '';
                 setErrorPanel(performanceDataError, '');
                 renderPerformanceData(data);
@@ -930,7 +1029,7 @@
                     method: 'DELETE'
                 });
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.error || `성과 삭제 오류: ${response.status}`);
+                if (!response.ok) throw new Error(data.error || `?깃낵 ??젣 ?ㅻ쪟: ${response.status}`);
                 setErrorPanel(performanceDataError, '');
                 renderPerformanceData(data);
             } catch (error) {
@@ -971,6 +1070,10 @@
         performanceRecordList.addEventListener('click', event => {
             const button = event.target.closest('[data-performance-delete]');
             if (button) deletePerformanceValue(button.dataset.performanceDelete);
+        });
+        recommendationRecordList.addEventListener('click', event => {
+            const button = event.target.closest('[data-recommendation-delete]');
+            if (button) deleteRecommendationRecord(button.dataset.recommendationDelete);
         });
         window.addEventListener('resize', () => {
             if (performanceState) renderPerformanceData(performanceState);
@@ -1055,11 +1158,12 @@
 
         function buildRecommendationNotificationText() {
             const signalType = serverSignalState?.signalType || (currentBPercent <= 0 ? 'lower' : currentBPercent >= 1 ? 'upper' : null);
-            const targets = signalType ? getSignalAdjustedTargets(signalType, isRepeatedServerSignal(signalType)) : getRebalanceTargets();
+            const locked = getActiveLockedRecommendation();
+            const targets = locked || (signalType ? getSignalAdjustedTargets(signalType, getServerConsecutiveSignalCount(signalType)) : getRebalanceTargets());
             return [
-                'TQQQ BB %b 리밸런싱 신호가 발생했습니다.',
-                `조정 목표 비중: TQQQ ${(targets.targetT * 100).toFixed(1)}% / GLDM ${(targets.targetG * 100).toFixed(1)}%`,
-                '앱을 열어 추천 매수/매도 수량을 확인해 주세요.'
+                'TQQQ BB %b 由щ갭?곗떛 ?좏샇媛 諛쒖깮?덉뒿?덈떎.',
+                `議곗젙 紐⑺몴 鍮꾩쨷: TQQQ ${(targets.targetT * 100).toFixed(1)}% / GLDM ${(targets.targetG * 100).toFixed(1)}%`,
+                '?깆쓣 ?댁뼱 異붿쿇 留ㅼ닔/留ㅻ룄 ?섎웾???뺤씤??二쇱꽭??'
             ].join('\n');
         }
 
@@ -1171,46 +1275,42 @@
         function describeMarketStatus(marketStatus) {
             if (!marketStatus) return '--';
             if (!marketStatus.isTradingDay) {
-                return marketStatus.isWeekend ? '주말 휴장' : '미국 휴장일';
+                return marketStatus.isWeekend ? '\uc8fc\ub9d0 \ud734\uc7a5' : '\ubbf8\uad6d \ud734\uc7a5\uc77c';
             }
             return marketStatus.isEarlyClose
-                ? `조기 폐장일, 알림 ${marketStatus.alertTimeEt} ET`
-                : `정상 거래일, 알림 ${marketStatus.alertTimeEt} ET`;
+                ? `\uc870\uae30 \ud3d0\uc7a5\uc77c, \uc54c\ub9bc ${marketStatus.alertTimeEt} ET`
+                : `\uc815\uc0c1 \uac70\ub798\uc77c, \uc54c\ub9bc ${marketStatus.alertTimeEt} ET`;
         }
-
         async function loadServerMonitorStatus() {
             try {
                 const response = await fetch('/api/monitor-status');
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.error || `상태 확인 실패: ${response.status}`);
+                if (!response.ok) throw new Error(data.error || `\uc0c1\ud0dc \ud655\uc778 \uc2e4\ud328: ${response.status}`);
 
                 const status = data.monitorStatus || {};
                 const alertState = data.alertState || {};
                 serverSignalState = alertState.signalType ? alertState : status.alertState || null;
                 const serverSymbol = status.symbol || data.monitorSymbol || 'TQQQ';
-                const actionLabel = alertState.actionMode === 'execute'
-                    ? '실행'
-                    : '대기';
+                const actionLabel = alertState.actionMode === 'execute' ? '\uc2e4\ud589' : '\ub300\uae30';
                 serverMonitorStatus.textContent = status.ok
-                    ? status.mode === 'skipped' ? `${serverSymbol} 대기 (${status.reason})` : `${serverSymbol} ${actionLabel}`
-                    : `${serverSymbol} 상태 없음`;
-                serverLastCheck.textContent = `마지막 확인: ${formatDateTime(status.updatedAt)}`;
-                serverBPercent.textContent = `서버 BB %b: ${typeof status.bPercent === 'number' ? status.bPercent.toFixed(4) : '--'}`;
-                serverCurrentPrice.textContent = `서버 현재가: ${typeof status.currentPrice === 'number' ? usdFormatter.format(status.currentPrice) : '--'}`;
-                serverLastClose.textContent = `마지막 종가: ${typeof status.lastClose === 'number' ? `${usdFormatter.format(status.lastClose)} (${formatDateTime(status.lastCloseAt)})` : '--'}`;
-                serverMarketCalendar.textContent = `시장 캘린더: ${describeMarketStatus(status.marketStatus)}`;
-                serverLastPush.textContent = `마지막 알림: ${formatDateTime(alertState.lastPushedAtIso)}`;
+                    ? status.mode === 'skipped' ? `${serverSymbol} \ub300\uae30(${status.reason})` : `${serverSymbol} ${actionLabel}`
+                    : `${serverSymbol} \uc0c1\ud0dc \uc5c6\uc74c`;
+                serverLastCheck.textContent = `\ub9c8\uc9c0\ub9c9 \ud655\uc778: ${formatDateTime(status.updatedAt)}`;
+                serverBPercent.textContent = `\uc11c\ubc84 BB %b: ${typeof status.bPercent === 'number' ? status.bPercent.toFixed(4) : '--'}`;
+                serverCurrentPrice.textContent = `\uc11c\ubc84 \ud604\uc7ac\uac00: ${typeof status.currentPrice === 'number' ? usdFormatter.format(status.currentPrice) : '--'}`;
+                serverLastClose.textContent = `\ub9c8\uc9c0\ub9c9 \uc885\uac00: ${typeof status.lastClose === 'number' ? `${usdFormatter.format(status.lastClose)} (${formatDateTime(status.lastCloseAt)})` : '--'}`;
+                serverMarketCalendar.textContent = `\uc2dc\uc7a5 \uce98\ub9b0\ub354: ${describeMarketStatus(status.marketStatus)}`;
+                serverLastPush.textContent = `\ub9c8\uc9c0\ub9c9 \uc54c\ub9bc: ${formatDateTime(alertState.lastPushedAtIso)}`;
                 serverCalendarWarning.textContent = status.marketStatus?.calendarWarning || '';
-                setErrorPanel(serverDataError, status.ok === false ? `서버 감시 오류: ${status.error || '알 수 없는 오류'}` : '');
+                setErrorPanel(serverDataError, status.ok === false ? `\uc11c\ubc84 \uac10\uc2dc \uc624\ub958: ${status.error || '\uc54c \uc218 \uc5c6\ub294 \uc624\ub958'}` : '');
                 alertAckCheckbox.checked = Boolean(alertState.acknowledged);
                 updateRebalanceRecommendation();
             } catch (error) {
-                serverMonitorStatus.textContent = '상태 확인 실패';
+                serverMonitorStatus.textContent = '\uc0c1\ud0dc \ud655\uc778 \uc2e4\ud328';
                 serverCalendarWarning.textContent = error.message;
-                setErrorPanel(serverDataError, `서버 상태 API 오류: ${error.message}`);
+                setErrorPanel(serverDataError, `\uc11c\ubc84 \uc0c1\ud0dc API \uc624\ub958: ${error.message}`);
             }
         }
-
         async function setTodayAlertAcknowledged(acknowledged) {
             const response = await fetch('/api/ack-alert', {
                 method: 'POST',
@@ -1218,7 +1318,7 @@
                 body: JSON.stringify({ acknowledged })
             });
             const result = await response.json().catch(() => ({}));
-            if (!response.ok) throw new Error(result.error || `확인 상태 저장 실패: ${response.status}`);
+            if (!response.ok) throw new Error(result.error || `?뺤씤 ?곹깭 ????ㅽ뙣: ${response.status}`);
             await loadServerMonitorStatus();
         }
 
@@ -1236,17 +1336,14 @@
 
         async function fetchMarketData() {
             try {
-                // 1. Finnhub으로 현재가 가져오기 (quote는 무료로 가능)
                 const quotes = await fetchLiveQuotes(PORTFOLIO_SYMBOLS);
                 const currentPrice = quotes[SYMBOL];
-
-                // 2. 로컬 프록시를 통해 Yahoo Finance 과거 데이터 가져오기 (CORS 우회)
                 const period2 = Math.floor(Date.now() / 1000);
                 const period1 = period2 - (35 * 24 * 60 * 60);
                 const yahooUrl = `/api/history?symbol=${SYMBOL}&period1=${period1}&period2=${period2}`;
 
                 const yahooRes = await fetch(yahooUrl);
-                if (!yahooRes.ok) throw new Error(`Yahoo 오류: ${yahooRes.status}`);
+                if (!yahooRes.ok) throw new Error(`Yahoo error: ${yahooRes.status}`);
 
                 const yahooData = await yahooRes.json();
                 const closes = yahooData.chart.result[0].indicators.quote[0].close;
@@ -1254,23 +1351,23 @@
                 if (closes && closes.length >= 20) {
                     calculateAndDisplay(currentPrice, closes);
                     document.getElementById('status-badge').className = 'status-badge';
-                    document.getElementById('status-badge').textContent = '정상 작동 중';
+                    document.getElementById('status-badge').textContent = '\uc815\uc0c1 \uc791\ub3d9 \uc911';
                     setErrorPanel(clientDataError, '');
                 } else {
-                    throw new Error("과거 데이터 부족");
+                    throw new Error('\uacfc\uac70 \ub370\uc774\ud130 \ubd80\uc871');
                 }
             } catch (error) {
-                console.error("Monitor Error:", error);
+                console.error('Monitor Error:', error);
                 document.getElementById('status-badge').className = 'status-badge error';
-                document.getElementById('status-badge').textContent = '데이터 오류: ' + error.message;
-                setErrorPanel(clientDataError, `앱 화면 데이터 오류: ${error.message}`);
+                document.getElementById('status-badge').textContent = `\ub370\uc774\ud130 \uc624\ub958: ${error.message}`;
+                setErrorPanel(clientDataError, `\ud654\uba74 \ub370\uc774\ud130 \uc624\ub958: ${error.message}`);
             }
         }
 
         async function fetchLiveQuotes(symbols) {
             const quoteRes = await fetch(`/api/quotes?symbols=${symbols.join(',')}`);
             const quoteData = await quoteRes.json();
-            if (!quoteRes.ok) throw new Error(quoteData.error || `현재가 오류: ${quoteRes.status}`);
+            if (!quoteRes.ok) throw new Error(quoteData.error || `\ud604\uc7ac\uac00 \uc624\ub958: ${quoteRes.status}`);
 
             const quotes = quoteData.quotes || {};
             Object.assign(livePrices, quotes);
@@ -1278,8 +1375,8 @@
             updateAutoCalculations();
             const fxText = usdKrwRate
                 ? ` / USD-KRW ${usdKrwRate.toLocaleString('ko-KR', { maximumFractionDigits: 2 })}`
-                : ' / 환율 대기';
-            quoteUpdatedAt.textContent = `현재가/환율 업데이트: ${new Date().toLocaleTimeString('ko-KR')}${fxText}`;
+                : ' / \ud658\uc728 \ub300\uae30';
+            quoteUpdatedAt.textContent = `\ud604\uc7ac\uac00/\ud658\uc728 \uc5c5\ub370\uc774\ud2b8: ${new Date().toLocaleTimeString('ko-KR')}${fxText}`;
 
             return quotes;
         }
@@ -1298,47 +1395,59 @@
 
             document.getElementById('current-price').textContent = `$${currentPrice.toFixed(2)}`;
             document.getElementById('current-b-percent').textContent = bPercent.toFixed(4);
-            currentPriceUpdatedAt.textContent = `최근 가져온 시간: ${new Date().toLocaleTimeString('ko-KR')}`;
+            currentPriceUpdatedAt.textContent = `\ucd5c\uadfc \uac00\uc838\uc628 \uc2dc\uac04: ${new Date().toLocaleTimeString('ko-KR')}`;
             currentBPercent = bPercent;
             updateRebalanceRecommendation();
-
-            // 실시간 변동에 따라 알림 조건 달성 여부 기록 및 시간 체크
             checkAlertCondition(currentPrice, bPercent);
         }
-
         let dailyAlertFlag = null;
+        let dailyAlertWindow = null;
         let lastCheckedDate = new Date(new Date().toLocaleString("en-US", {timeZone: "America/New_York"})).getDate();
         let alertAcknowledged = false;
         let lastSnoozedTime = 0;
 
         function checkAlertCondition(currentPrice, bPercent) {
-            // 뉴욕 시간 기준 현재 시간
+            // ?댁슃 ?쒓컙 湲곗? ?꾩옱 ?쒓컙
             const nyTime = new Date(new Date().toLocaleString("en-US", {timeZone: "America/New_York"}));
             
-            // 날짜가 바뀌었으면 초기화
             if (nyTime.getDate() !== lastCheckedDate) {
                 dailyAlertFlag = null;
+                dailyAlertWindow = null;
                 alertAcknowledged = false;
                 lastSnoozedTime = 0;
                 lastCheckedDate = nyTime.getDate();
             }
 
-            // 장중에 한 번이라도 조건이 달성되면 덮어쓰기로 기록
+            // ?μ쨷????踰덉씠?쇰룄 議곌굔???ъ꽦?섎㈃ ??뼱?곌린濡?湲곕줉
+            const minutes = (nyTime.getHours() * 60) + nyTime.getMinutes();
+            const closeMinutes = 16 * 60;
+            const finalWindowStartMinutes = closeMinutes - 30;
+            const alertMinutes = closeMinutes - 15;
+            const ackResetMinutes = closeMinutes - 60;
+            const isBeforeClose = minutes < closeMinutes;
+            const isFinalWindow = minutes >= finalWindowStartMinutes && isBeforeClose;
+
+            if (minutes >= ackResetMinutes && alertAcknowledged) {
+                alertAcknowledged = false;
+            }
+
             if (bPercent >= 1 || bPercent <= 0) {
+                if (!dailyAlertFlag) {
+                    dailyAlertWindow = isFinalWindow ? 'final-window' : 'regular';
+                }
                 dailyAlertFlag = {
-                    type: bPercent >= 1 ? "상단 밴드 돌파" : "하단 밴드 터치",
+                    type: bPercent >= 1 ? "?곷떒 諛대뱶 ?뚰뙆" : "?섎떒 諛대뱶 ?곗튂",
                     price: currentPrice,
                     bPercent: bPercent
                 };
             }
 
-            // 미국장 마감 30분 전 (뉴욕 시간 오후 3시 30분) 이후인지 확인
-            const isAfterAlertTime = nyTime.getHours() > 15 || (nyTime.getHours() === 15 && nyTime.getMinutes() >= 30);
+            // 誘멸뎅??留덇컧 30遺???(?댁슃 ?쒓컙 ?ㅽ썑 3??30遺? ?댄썑?몄? ?뺤씤
+            const isAfterAlertTime = dailyAlertWindow === 'final-window' ? isFinalWindow : minutes >= alertMinutes;
             
-            if (isAfterAlertTime && dailyAlertFlag && !alertAcknowledged) {
+            if (isBeforeClose && isAfterAlertTime && dailyAlertFlag && !alertAcknowledged) {
                 const nowMs = Date.now();
-                // 첫 알림이거나, 마지막 알림 발송 후 5분(300,000ms)이 지났다면
-                if (nowMs - lastSnoozedTime >= 300000) {
+                if (nowMs - lastSnoozedTime >= 180000) {
                     triggerFinalAlert();
                     lastSnoozedTime = nowMs;
                 }
@@ -1346,22 +1455,22 @@
         }
 
         function triggerFinalAlert() {
-            const signalStateText = serverSignalState?.actionMode === 'execute' ? '실행' : '확인';
-            const title = `장 마감 전: TQQQ ${signalStateText}! (클릭하여 확인)`;
+            const signalStateText = serverSignalState?.actionMode === 'execute' ? '?ㅽ뻾' : '?뺤씤';
+            const title = `??留덇컧 ?? TQQQ ${signalStateText}! (?대┃?섏뿬 ?뺤씤)`;
             const recommendationText = buildRecommendationNotificationText();
-            const body = `기록된 도달가: $${dailyAlertFlag.price.toFixed(2)} (%b: ${dailyAlertFlag.bPercent.toFixed(2)})\n${recommendationText}\n알림 창을 클릭해야 반복 알림이 종료됩니다.`;
+            const body = `湲곕줉???꾨떖媛: $${dailyAlertFlag.price.toFixed(2)} (%b: ${dailyAlertFlag.bPercent.toFixed(2)})\n${recommendationText}\n?뚮┝ 李쎌쓣 ?대┃?댁빞 諛섎났 ?뚮┝??醫낅즺?⑸땲??`;
             
             if (Notification.permission === "granted") {
                 const noti = new Notification(title, { body, requireInteraction: true });
                 noti.onclick = function() {
                     alertAcknowledged = true;
-                    window.focus(); // 브라우저 창으로 화면 전환
+                    window.focus(); // 釉뚮씪?곗? 李쎌쑝濡??붾㈃ ?꾪솚
                     this.close();
-                    alert("알림을 확인하셨습니다. 내일 장이 열리기 전까지 더 이상 반복 알림이 울리지 않습니다.");
+                    alert("?뚮┝???뺤씤?섏뀲?듬땲?? ?댁씪 ?μ씠 ?대━湲??꾧퉴吏 ???댁긽 諛섎났 ?뚮┝???몃━吏 ?딆뒿?덈떎.");
                 };
             } else {
                 console.log(`[ALERT] ${title} : ${body}`);
-                // 권한이 없어 화면에 알림이 뜨지 않는 경우 무한 반복 방지
+                // 沅뚰븳???놁뼱 ?붾㈃???뚮┝???⑥? ?딅뒗 寃쎌슦 臾댄븳 諛섎났 諛⑹?
                 alertAcknowledged = true;
             }
         }

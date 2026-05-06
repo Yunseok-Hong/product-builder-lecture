@@ -165,7 +165,8 @@ h1 {
         gap: 1rem;
     }
 
-    .performance-record-row {
+    .performance-record-row,
+    .recommendation-record-row {
         grid-template-columns: 1fr;
     }
 
@@ -440,7 +441,21 @@ h1 {
     gap: 0.55rem;
 }
 
+.recommendation-records {
+    margin-top: 1.25rem;
+}
+
+.recommendation-record-header {
+    margin-bottom: 0.75rem;
+}
+
+.recommendation-record-list {
+    display: grid;
+    gap: 0.55rem;
+}
+
 .performance-record-row,
+.recommendation-record-row,
 .performance-record-empty {
     display: grid;
     grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr) auto;
@@ -452,17 +467,24 @@ h1 {
     border-radius: 10px;
 }
 
-.performance-record-row span {
+.recommendation-record-row {
+    grid-template-columns: minmax(92px, 0.7fr) repeat(3, minmax(120px, 1fr)) auto;
+}
+
+.performance-record-row span,
+.recommendation-record-row span {
     color: var(--muted);
     font-weight: 800;
 }
 
-.performance-record-row strong {
+.performance-record-row strong,
+.recommendation-record-row strong {
     color: var(--text);
     font-weight: 800;
 }
 
-.performance-record-row button {
+.performance-record-row button,
+.recommendation-record-row button {
     border: 1px solid rgba(108, 93, 83, 0.22);
     border-radius: 9px;
     background: rgba(159, 132, 115, 0.16);

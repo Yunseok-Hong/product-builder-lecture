@@ -5,7 +5,9 @@ const ALERT_STATE_KEY = `server_alert_state_${SYMBOL}`;
 const MONITOR_STATUS_KEY = `server_monitor_status_${SYMBOL}`;
 const CLOSE_HISTORY_KEY = 'close_history_v1';
 const CLOSE_HISTORY_SYNC_KEY = 'close_history_sync_v1';
+const USER_SETTINGS_KEY = 'user_settings';
 const CHECK_INTERVAL_NOTICE = 'Cloudflare Cron should run this worker every 1 minute.';
+const REMINDER_INTERVAL_MS = 3 * 60 * 1000;
 const CALENDAR_MAX_YEAR = 2028;
 const MARKET_HOLIDAYS = new Set([
     '2026-01-01', '2026-01-19', '2026-02-16', '2026-04-03', '2026-05-25',
@@ -219,8 +221,10 @@ function getMarketCalendarStatus(parts) {
     const isHoliday = MARKET_HOLIDAYS.has(parts.dateKey);
     const isEarlyClose = EARLY_CLOSE_DATES.has(parts.dateKey);
     const closeHour = isEarlyClose ? 13 : 16;
-    const alertHour = isEarlyClose ? 12 : 15;
-    const alertMinute = 30;
+    const closeMinute = 0;
+    const finalWindowStart = minutesToTime(closeHour * 60 + closeMinute - 30);
+    const alertTime = minutesToTime(closeHour * 60 + closeMinute - 15);
+    const ackResetTime = minutesToTime(closeHour * 60 + closeMinute - 60);
     const shouldReviewCalendar = parts.month >= 11;
     const calendarWarning = parts.year >= CALENDAR_MAX_YEAR
         ? `Hardcoded NYSE market calendar ends in ${CALENDAR_MAX_YEAR}. Update next year's holidays and early closes.`
@@ -234,15 +238,39 @@ function getMarketCalendarStatus(parts) {
         isHoliday,
         isEarlyClose,
         closeTimeEt: `${String(closeHour).padStart(2, '0')}:00`,
-        alertTimeEt: `${String(alertHour).padStart(2, '0')}:${String(alertMinute).padStart(2, '0')}`,
+        alertTimeEt: alertTime,
+        finalWindowStartEt: finalWindowStart,
+        ackResetTimeEt: ackResetTime,
         calendarMaxYear: CALENDAR_MAX_YEAR,
         calendarWarning
     };
 }
 
-function isAfterAlertTime(parts, marketStatus) {
-    const [alertHour, alertMinute] = marketStatus.alertTimeEt.split(':').map(Number);
-    return parts.hour > alertHour || (parts.hour === alertHour && parts.minute >= alertMinute);
+function minutesToTime(totalMinutes) {
+    const hour = Math.floor(totalMinutes / 60);
+    const minute = totalMinutes % 60;
+    return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+}
+
+function getPartMinutes(parts) {
+    return parts.hour * 60 + parts.minute;
+}
+
+function getStatusMinutes(marketStatus, key) {
+    const [hour, minute] = marketStatus[key].split(':').map(Number);
+    return hour * 60 + minute;
+}
+
+function isAtOrAfter(parts, marketStatus, key) {
+    return getPartMinutes(parts) >= getStatusMinutes(marketStatus, key);
+}
+
+function isBeforeMarketClose(parts, marketStatus) {
+    return getPartMinutes(parts) < getStatusMinutes(marketStatus, 'closeTimeEt');
+}
+
+function isInFinalWindow(parts, marketStatus) {
+    return isAtOrAfter(parts, marketStatus, 'finalWindowStartEt') && isBeforeMarketClose(parts, marketStatus);
 }
 
 async function fetchQuote(symbol, env) {
@@ -259,6 +287,11 @@ async function fetchQuote(symbol, env) {
     if (!price) throw new Error(`${symbol} current price is missing.`);
 
     return price;
+}
+
+async function fetchPortfolioQuotes(env) {
+    const entries = await Promise.all(['TQQQ', 'GLDM'].map(async symbol => [symbol, await fetchQuote(symbol, env)]));
+    return Object.fromEntries(entries);
 }
 
 async function fetchRecentCloses(symbol) {
@@ -372,13 +405,19 @@ function getSignalLabel(signalType) {
     return signalType === 'upper' ? 'upper band breakout' : 'lower band touch';
 }
 
-function evaluateSignalState(previousState, signalType, dateKey, currentPrice, bPercent) {
+function evaluateSignalState(previousState, signalType, dateKey, currentPrice, bPercent, firstSignalWindow) {
+    const hadSignalToday = previousState.dateKey === dateKey && Boolean(previousState.signalType);
     const isSameDirection = signalType === previousState.lastSignalType;
-    const consecutiveSignalCount = isSameDirection && previousState.lastCountedSignalDate !== dateKey
+    const previousSignalDate = previousState.lastCountedSignalDate || previousState.dateKey;
+    const isConsecutiveTradingSignal = isSameDirection && previousSignalDate !== dateKey && previousState.previousTradingDayHadSignal !== false;
+    const consecutiveSignalCount = isConsecutiveTradingSignal
         ? Number(previousState.consecutiveSignalCount || 0) + 1
-        : isSameDirection
+        : isSameDirection && previousState.lastCountedSignalDate === dateKey
             ? Number(previousState.consecutiveSignalCount || 0)
             : 0;
+    const firstSeenAt = hadSignalToday
+        ? previousState.firstSeenAt
+        : new Date().toISOString();
 
     return {
         ...previousState,
@@ -395,10 +434,10 @@ function evaluateSignalState(previousState, signalType, dateKey, currentPrice, b
         consecutiveSignalCount,
         lastCountedSignalDate: dateKey,
         lastSignalType: signalType,
+        previousTradingDayHadSignal: true,
         lastExecutedAt: new Date().toISOString(),
-        firstSeenAt: !previousState.firstSeenAt || !isSameDirection
-            ? new Date().toISOString()
-            : previousState.firstSeenAt
+        firstSeenAt,
+        firstSignalWindow: hadSignalToday ? previousState.firstSignalWindow : firstSignalWindow
     };
 }
 
@@ -412,6 +451,139 @@ async function writeMonitorStatus(env, status) {
         ...status,
         updatedAt: new Date().toISOString()
     }));
+}
+
+function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+}
+
+function parseNumber(value, fallback = 0) {
+    const number = parseFloat(String(value ?? '').replace(/,/g, ''));
+    return Number.isFinite(number) ? number : fallback;
+}
+
+async function readUserSettings(env) {
+    const raw = await env.KV.get(USER_SETTINGS_KEY);
+    return raw ? JSON.parse(raw) : {};
+}
+
+function getAdjustedTargetsFromSettings(settings, signalType, consecutiveSignalCount) {
+    let baseTargetT = parseNumber(settings.rebalanceTargetTqqq, 70);
+    let baseTargetG = parseNumber(settings.rebalanceTargetGldm, 100 - baseTargetT);
+    const sum = baseTargetT + baseTargetG;
+
+    if (!sum) {
+        baseTargetT = 70;
+        baseTargetG = 30;
+    } else if (Math.abs(sum - 100) > 0.05) {
+        baseTargetG = 100 - baseTargetT;
+    }
+
+    const step = clamp(Math.abs(parseNumber(settings.rebalanceWeightStep, 4)), 0, 100) / 100;
+    const repeatedSteps = Math.max(0, Number(consecutiveSignalCount || 0));
+    const direction = signalType === 'lower' ? 1 : signalType === 'upper' ? -1 : 0;
+    const targetT = clamp((baseTargetT / 100) + (step * direction * repeatedSteps), 0, 1);
+
+    return {
+        baseTargetT: baseTargetT / 100,
+        baseTargetG: baseTargetG / 100,
+        targetT,
+        targetG: 1 - targetT,
+        step,
+        repeatedSteps
+    };
+}
+
+function scoreTargetPlan(tVal, gVal, leftover, targetT) {
+    const invested = tVal + gVal;
+    const tPct = invested ? tVal / invested : 0;
+    return Math.abs(tPct - targetT) + (leftover / Math.max(invested + leftover, 1) * 0.001);
+}
+
+function findTargetPlan(snapshot, prices, targets) {
+    const targetT = targets.targetT;
+    let best = {
+        sellT: 0,
+        buyT: 0,
+        sellG: 0,
+        buyG: 0,
+        tVal: snapshot.tVal,
+        gVal: snapshot.gVal,
+        leftover: 0,
+        score: scoreTargetPlan(snapshot.tVal, snapshot.gVal, 0, targetT)
+    };
+
+    for (let sellG = 0; sellG <= Math.floor(snapshot.gQty); sellG += 1) {
+        const proceeds = sellG * prices.GLDM;
+        const buyT = Math.floor(proceeds / prices.TQQQ);
+        if (sellG > 0 && buyT === 0) continue;
+        const leftover = proceeds - (buyT * prices.TQQQ);
+        const tVal = snapshot.tVal + (buyT * prices.TQQQ);
+        const gVal = snapshot.gVal - proceeds;
+        const score = scoreTargetPlan(tVal, gVal, leftover, targetT);
+
+        if (score < best.score) {
+            best = { sellT: 0, buyT, sellG, buyG: 0, tVal, gVal, leftover, score };
+        }
+    }
+
+    for (let sellT = 0; sellT <= Math.floor(snapshot.tQty); sellT += 1) {
+        const proceeds = sellT * prices.TQQQ;
+        const buyG = Math.floor(proceeds / prices.GLDM);
+        if (sellT > 0 && buyG === 0) continue;
+        const leftover = proceeds - (buyG * prices.GLDM);
+        const tVal = snapshot.tVal - proceeds;
+        const gVal = snapshot.gVal + (buyG * prices.GLDM);
+        const score = scoreTargetPlan(tVal, gVal, leftover, targetT);
+
+        if (score < best.score) {
+            best = { sellT, buyT: 0, sellG: 0, buyG, tVal, gVal, leftover, score };
+        }
+    }
+
+    return best;
+}
+
+async function buildLockedRecommendation(env, state, portfolioPrices) {
+    const settings = await readUserSettings(env);
+    const tQty = parseNumber(settings.tqqqQuantity, 0);
+    const gQty = parseNumber(settings.gldmQuantity, 0);
+    const prices = portfolioPrices || await fetchPortfolioQuotes(env);
+    const snapshot = {
+        tQty,
+        gQty,
+        tVal: tQty * prices.TQQQ,
+        gVal: gQty * prices.GLDM
+    };
+    const targets = getAdjustedTargetsFromSettings(settings, state.signalType, state.consecutiveSignalCount);
+    const plan = findTargetPlan(snapshot, prices, targets);
+
+    return {
+        dateKey: state.dateKey,
+        signalType: state.signalType,
+        consecutiveSignalCount: Number(state.consecutiveSignalCount || 0),
+        targetT: targets.targetT,
+        targetG: targets.targetG,
+        baseTargetT: targets.baseTargetT,
+        baseTargetG: targets.baseTargetG,
+        tqqqAction: plan.sellT > 0 ? 'sell' : plan.buyT > 0 ? 'buy' : 'none',
+        tqqqQuantity: plan.sellT || plan.buyT || 0,
+        gldmAction: plan.sellG > 0 ? 'sell' : plan.buyG > 0 ? 'buy' : 'none',
+        gldmQuantity: plan.sellG || plan.buyG || 0,
+        projectedT: plan.tVal,
+        projectedG: plan.gVal,
+        leftover: plan.leftover,
+        prices,
+        createdAt: new Date().toISOString()
+    };
+}
+
+async function ensureLockedRecommendation(env, state, portfolioPrices) {
+    if (state.lockedRecommendation?.dateKey === state.dateKey) return state;
+    return {
+        ...state,
+        lockedRecommendation: await buildLockedRecommendation(env, state, portfolioPrices)
+    };
 }
 
 async function notifySubscriptions(env, payload) {
@@ -431,15 +603,19 @@ function buildPushBody(state) {
     const direction = state.bPercent >= 1
         ? 'Action: open Market Pulse and rebalance toward the TQQQ/GLDM target weights.'
         : 'Action: open Market Pulse and rebalance toward the TQQQ/GLDM target weights.';
+    const recommendation = state.lockedRecommendation
+        ? `Target: TQQQ ${(state.lockedRecommendation.targetT * 100).toFixed(1)}% / GLDM ${(state.lockedRecommendation.targetG * 100).toFixed(1)}%`
+        : null;
 
     return [
         `${SYMBOL} ${state.type}`,
         'Status: execute rebalance check.',
         `Price: $${state.price.toFixed(2)}`,
         `BB %b: ${state.bPercent.toFixed(4)}`,
+        recommendation,
         direction,
         'Open Market Pulse to review rebalance orders.'
-    ].join('\n');
+    ].filter(Boolean).join('\n');
 }
 
 async function runMonitor(env) {
@@ -450,7 +626,10 @@ async function runMonitor(env) {
         ...previousState,
         dateKey: nyParts.dateKey,
         acknowledged: false,
-        lastPushedAt: 0
+        lastPushedAt: 0,
+        firstSeenAt: null,
+        firstSignalWindow: null,
+        lockedRecommendation: null
     };
 
     if (!marketStatus.isTradingDay) {
@@ -475,9 +654,18 @@ async function runMonitor(env) {
     const history = await fetchRecentCloses(SYMBOL);
     const bPercent = calculateBPercent(currentPrice, history.closes);
 
+    if (state.acknowledged && isAtOrAfter(nyParts, marketStatus, 'ackResetTimeEt') && state.ackResetDateKey !== nyParts.dateKey) {
+        state = {
+            ...state,
+            acknowledged: false,
+            ackResetDateKey: nyParts.dateKey,
+            acknowledgedAt: null
+        };
+    }
+
     const signalType = getSignalType(bPercent);
     if (signalType) {
-        state = evaluateSignalState(state, signalType, nyParts.dateKey, currentPrice, bPercent);
+        state = evaluateSignalState(state, signalType, nyParts.dateKey, currentPrice, bPercent, isInFinalWindow(nyParts, marketStatus) ? 'final-window' : 'regular');
         await env.KV.put(ALERT_STATE_KEY, JSON.stringify(state));
     } else {
         state = {
@@ -491,18 +679,30 @@ async function runMonitor(env) {
             bPercent,
             acknowledged: false,
             lastPushedAt: 0,
-            lastCheckedAt: new Date().toISOString()
+            lastCheckedAt: new Date().toISOString(),
+            firstSeenAt: null,
+            firstSignalWindow: null,
+            lockedRecommendation: null,
+            consecutiveSignalCount: 0,
+            lastSignalType: null,
+            previousTradingDayHadSignal: false,
+            lastCountedSignalDate: nyParts.dateKey
         };
         await env.KV.put(ALERT_STATE_KEY, JSON.stringify(state));
     }
 
+    const isFirstPushToday = !Number(state.lastPushedAt || 0);
+    const isRegularSignalReady = state.firstSignalWindow !== 'final-window' && isAtOrAfter(nyParts, marketStatus, 'alertTimeEt');
+    const isFinalWindowSignalReady = state.firstSignalWindow === 'final-window' && isInFinalWindow(nyParts, marketStatus);
+    const isReminderReady = !isFirstPushToday && Date.now() - Number(state.lastPushedAt || 0) >= REMINDER_INTERVAL_MS;
     const shouldPush = signalType
-        && isAfterAlertTime(nyParts, marketStatus)
+        && isBeforeMarketClose(nyParts, marketStatus)
         && !state.acknowledged
-        && Date.now() - Number(state.lastPushedAt || 0) >= 5 * 60 * 1000;
+        && (isFirstPushToday ? (isRegularSignalReady || isFinalWindowSignalReady) : isReminderReady);
 
     let pushResult = null;
     if (shouldPush) {
+        state = await ensureLockedRecommendation(env, state);
         pushResult = await notifySubscriptions(env, {
             title: `Market Pulse: ${SYMBOL} 실행`,
             body: buildPushBody(state),
