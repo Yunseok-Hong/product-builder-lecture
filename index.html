@@ -120,6 +120,17 @@
                                         <span class="unit">%</span>
                                     </div>
                                 </div>
+                                <div class="input-group rebalance-step-field">
+                                    <label>신호 시 비중 조정폭 (%)</label>
+                                    <div class="input-wrapper">
+                                        <input type="number" id="rebalance-weight-step" value="4" min="0" max="100" step="0.1">
+                                        <span class="unit">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="rebalance-save-row">
+                                <span id="rebalance-save-msg">저장됨</span>
+                                <button class="alert-btn secondary-alert" type="button" onclick="saveRebalanceSettings()">리밸런싱 설정 저장</button>
                             </div>
                             <div class="rebalance-summary" id="rebalance-summary">현재가와 BB %b 데이터를 기다리는 중입니다.</div>
                             <div class="order-grid">
@@ -320,7 +331,8 @@
                 tqqqQuantity: document.getElementById('tqqq-input-amount')?.value || '0',
                 gldmQuantity: document.getElementById('gldm-input-amount')?.value || '0',
                 rebalanceTargetTqqq: document.getElementById('rebalance-target-tqqq')?.value || '70',
-                rebalanceTargetGldm: document.getElementById('rebalance-target-gldm')?.value || '30'
+                rebalanceTargetGldm: document.getElementById('rebalance-target-gldm')?.value || '30',
+                rebalanceWeightStep: document.getElementById('rebalance-weight-step')?.value || '4'
             };
             try {
                 await fetch('/api/settings', {
@@ -344,10 +356,12 @@
                 const gldmAmtEl = document.getElementById('gldm-input-amount');
                 const rebalanceTargetTqqqEl = document.getElementById('rebalance-target-tqqq');
                 const rebalanceTargetGldmEl = document.getElementById('rebalance-target-gldm');
+                const rebalanceWeightStepEl = document.getElementById('rebalance-weight-step');
                 if (settings.tqqqQuantity && tqqqAmtEl) tqqqAmtEl.value = settings.tqqqQuantity;
                 if (settings.gldmQuantity && gldmAmtEl) gldmAmtEl.value = settings.gldmQuantity;
                 if (settings.rebalanceTargetTqqq !== undefined && rebalanceTargetTqqqEl) rebalanceTargetTqqqEl.value = settings.rebalanceTargetTqqq;
                 if (settings.rebalanceTargetGldm !== undefined && rebalanceTargetGldmEl) rebalanceTargetGldmEl.value = settings.rebalanceTargetGldm;
+                if (settings.rebalanceWeightStep !== undefined && rebalanceWeightStepEl) rebalanceWeightStepEl.value = settings.rebalanceWeightStep;
             } catch (error) {
                 console.error("설정 불러오기 실패:", error);
             }
@@ -382,6 +396,7 @@
         const gldmOrder = document.getElementById('gldm-order');
         const rebalanceTargetTqqq = document.getElementById('rebalance-target-tqqq');
         const rebalanceTargetGldm = document.getElementById('rebalance-target-gldm');
+        const rebalanceWeightStep = document.getElementById('rebalance-weight-step');
         const performanceForm = document.getElementById('performance-form');
         const performanceDateInput = document.getElementById('performance-date');
         const performanceValueInput = document.getElementById('performance-value');
@@ -526,6 +541,31 @@
             return { targetT: targetT / 100, targetG: targetG / 100 };
         }
 
+        function getSignalAdjustedTargets(signalType, isRepeatedDirection = false) {
+            const baseTargets = getRebalanceTargets();
+            let step = parseFloat(rebalanceWeightStep?.value);
+            if (!Number.isFinite(step)) step = 0;
+            step = Math.abs(step);
+            step = Math.min(100, Math.max(0, step)) / 100;
+            if (rebalanceWeightStep) rebalanceWeightStep.value = Number((step * 100).toFixed(1));
+
+            const direction = isRepeatedDirection
+                ? signalType === 'lower' ? 1 : signalType === 'upper' ? -1 : 0
+                : 0;
+            const targetT = Math.min(1, Math.max(0, baseTargets.targetT + (step * direction)));
+            const delta = targetT - baseTargets.targetT;
+            return {
+                baseTargetT: baseTargets.targetT,
+                baseTargetG: baseTargets.targetG,
+                targetT,
+                targetG: 1 - targetT,
+                step,
+                direction,
+                delta,
+                isRepeatedDirection
+            };
+        }
+
         function setRebalanceMode(mode, label) {
             rebalanceStatus.className = `rebalance-status ${mode}`;
             rebalanceStatus.textContent = label;
@@ -533,6 +573,11 @@
 
         function getServerActionMode() {
             return serverSignalState?.signalType ? serverSignalState.actionMode : null;
+        }
+
+        function isRepeatedServerSignal(signalType) {
+            return serverSignalState?.signalType === signalType
+                && Number(serverSignalState.consecutiveSignalCount || 0) > 0;
         }
 
         function resetRecommendation(summary) {
@@ -614,34 +659,38 @@
                 return;
             }
 
-            if (currentBPercent <= 0 || currentBPercent >= 1) {
-                const serverActionMode = getServerActionMode();
-                if (serverActionMode === 'consecutive') {
-                    const skipped = Number(serverSignalState.consecutiveSignalCount || 0);
-                    const skipCount = Number(serverSignalState.skipCount || 4);
-                    setRebalanceMode('consecutive', '대기(연속)');
-                    resetRecommendation(`TQQQ BB %b 신호가 이어지고 있습니다. 동일 방향 연속 신호 ${skipped}/${skipCount}회 건너뛰는 중입니다.`);
-                    return;
-                }
+            const activeSignalType = serverSignalState?.actionMode === 'execute' && serverSignalState?.signalType
+                ? serverSignalState.signalType
+                : currentBPercent <= 0
+                    ? 'lower'
+                    : currentBPercent >= 1
+                        ? 'upper'
+                        : null;
 
+            if (activeSignalType) {
+                const serverActionMode = getServerActionMode();
                 if (serverActionMode && serverActionMode !== 'execute') {
                     setRebalanceMode('wait', '대기');
                     resetRecommendation('서버 실행 판단을 기다리는 중입니다.');
                     return;
                 }
 
-                const targets = getRebalanceTargets();
+                const targets = getSignalAdjustedTargets(activeSignalType, isRepeatedServerSignal(activeSignalType));
                 const plan = findTargetPlan(snapshot, targets);
-                const mode = currentBPercent <= 0 ? 'down' : 'up';
+                const mode = activeSignalType === 'lower' ? 'down' : 'up';
                 const label = '실행';
-                const targetText = `목표 비중 TQQQ ${(targets.targetT * 100).toFixed(1)}% / GLDM ${(targets.targetG * 100).toFixed(1)}%`;
+                const signalText = activeSignalType === 'lower' ? '하단 밴드 신호' : '상단 밴드 신호';
+                const adjustmentText = Math.abs(targets.delta) > 0.0001
+                    ? `같은 방향 반복 신호라서 기본 비중 TQQQ ${(targets.baseTargetT * 100).toFixed(1)}%에서 ${Math.abs(targets.delta * 100).toFixed(1)}%p ${targets.delta > 0 ? '상향' : '하향'}`
+                    : '첫 신호 또는 방향 변경 신호라서 기본 비중 유지';
+                const targetText = `조정 목표 비중 TQQQ ${(targets.targetT * 100).toFixed(1)}% / GLDM ${(targets.targetG * 100).toFixed(1)}%`;
 
                 setRebalanceMode(mode, label);
                 tqqqOrder.textContent = plan.sellT > 0 ? formatOrder('매도', plan.sellT) : formatOrder('매수', plan.buyT);
                 gldmOrder.textContent = plan.sellG > 0 ? formatOrder('매도', plan.sellG) : formatOrder('매수', plan.buyG);
                 rebalanceSummary.textContent = plan.sellT || plan.buyT || plan.sellG || plan.buyG
-                    ? `TQQQ BB %b 신호가 발생했습니다. ${targetText}에 가깝게 조정합니다.`
-                    : `TQQQ BB %b 신호가 발생했지만 현재 비중이 ${targetText}에 이미 가깝습니다.`;
+                    ? `TQQQ BB %b ${signalText}가 발생했습니다. ${adjustmentText}, ${targetText}에 가깝게 조정합니다.`
+                    : `TQQQ BB %b ${signalText}가 발생했지만 현재 비중이 ${targetText}에 이미 가깝습니다.`;
                 rebalanceProjection.textContent = `${ratioText(0, plan.tVal, plan.gVal)} / 예상 예수금 ${usdFormatter.format(plan.leftover)}`;
                 return;
             }
@@ -909,10 +958,10 @@
             rebalanceTargetTqqq.value = Number((100 - target).toFixed(1));
             updateRebalanceRecommendation();
         });
-        rebalanceTargetTqqq.addEventListener('change', saveSettings);
-        rebalanceTargetGldm.addEventListener('change', saveSettings);
         rebalanceTargetTqqq.addEventListener('click', function() { this.select(); });
         rebalanceTargetGldm.addEventListener('click', function() { this.select(); });
+        rebalanceWeightStep.addEventListener('input', updateRebalanceRecommendation);
+        rebalanceWeightStep.addEventListener('click', function() { this.select(); });
         performanceDateInput.value = new Date().toISOString().slice(0, 10);
         performanceForm.addEventListener('submit', savePerformanceValue);
         performanceValueInput.addEventListener('input', () => {
@@ -930,6 +979,14 @@
         async function saveAmountSettings() {
             await saveSettings();
             const msg = document.getElementById('amount-save-msg');
+            msg.style.opacity = '1';
+            setTimeout(() => { msg.style.opacity = '0'; }, 2000);
+        }
+
+        async function saveRebalanceSettings() {
+            await saveSettings();
+            const msg = document.getElementById('rebalance-save-msg');
+            if (!msg) return;
             msg.style.opacity = '1';
             setTimeout(() => { msg.style.opacity = '0'; }, 2000);
         }
@@ -997,16 +1054,12 @@
         }
 
         function buildRecommendationNotificationText() {
-            if (serverSignalState?.actionMode === 'consecutive') {
-                return [
-                    'TQQQ BB %b 연속 신호가 발생했습니다.',
-                    `동일 방향 신호 ${serverSignalState.consecutiveSignalCount || 0}/${serverSignalState.skipCount || 4}회 건너뛰는 중입니다.`
-                ].join('\n');
-            }
-
+            const signalType = serverSignalState?.signalType || (currentBPercent <= 0 ? 'lower' : currentBPercent >= 1 ? 'upper' : null);
+            const targets = signalType ? getSignalAdjustedTargets(signalType, isRepeatedServerSignal(signalType)) : getRebalanceTargets();
             return [
                 'TQQQ BB %b 리밸런싱 신호가 발생했습니다.',
-                '앱을 열어 목표 비중 기준 추천 수량을 확인해 주세요.'
+                `조정 목표 비중: TQQQ ${(targets.targetT * 100).toFixed(1)}% / GLDM ${(targets.targetG * 100).toFixed(1)}%`,
+                '앱을 열어 추천 매수/매도 수량을 확인해 주세요.'
             ].join('\n');
         }
 
@@ -1135,11 +1188,9 @@
                 const alertState = data.alertState || {};
                 serverSignalState = alertState.signalType ? alertState : status.alertState || null;
                 const serverSymbol = status.symbol || data.monitorSymbol || 'TQQQ';
-                const actionLabel = alertState.actionMode === 'consecutive'
-                    ? '대기(연속)'
-                    : alertState.actionMode === 'execute'
-                        ? '실행'
-                        : '대기';
+                const actionLabel = alertState.actionMode === 'execute'
+                    ? '실행'
+                    : '대기';
                 serverMonitorStatus.textContent = status.ok
                     ? status.mode === 'skipped' ? `${serverSymbol} 대기 (${status.reason})` : `${serverSymbol} ${actionLabel}`
                     : `${serverSymbol} 상태 없음`;
@@ -1295,7 +1346,7 @@
         }
 
         function triggerFinalAlert() {
-            const signalStateText = serverSignalState?.actionMode === 'consecutive' ? '대기(연속)' : '실행';
+            const signalStateText = serverSignalState?.actionMode === 'execute' ? '실행' : '확인';
             const title = `장 마감 전: TQQQ ${signalStateText}! (클릭하여 확인)`;
             const recommendationText = buildRecommendationNotificationText();
             const body = `기록된 도달가: $${dailyAlertFlag.price.toFixed(2)} (%b: ${dailyAlertFlag.bPercent.toFixed(2)})\n${recommendationText}\n알림 창을 클릭해야 반복 알림이 종료됩니다.`;

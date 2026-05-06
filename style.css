@@ -781,6 +781,26 @@ h1 {
     margin-bottom: 0.75rem;
 }
 
+.rebalance-step-field {
+    grid-column: 1 / -1;
+}
+
+.rebalance-save-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+    margin: -0.1rem 0 0.75rem;
+}
+
+.rebalance-save-row span {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 800;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
 .rebalance-summary,
 .rebalance-projection {
     color: var(--muted);
