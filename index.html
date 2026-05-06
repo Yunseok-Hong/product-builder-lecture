@@ -192,58 +192,73 @@
                     <div class="performance-start" id="performance-start">시작일 --</div>
                 </div>
 
-                <form class="performance-form" id="performance-form">
-                    <div class="input-group">
-                        <label for="performance-date">날짜</label>
-                        <div class="input-wrapper">
-                            <input type="date" id="performance-date" required>
+                <div class="performance-entry-card">
+                    <form class="performance-form" id="performance-form">
+                        <div class="input-group">
+                            <label for="performance-date">날짜</label>
+                            <div class="input-wrapper">
+                                <input type="date" id="performance-date" required>
+                            </div>
                         </div>
-                    </div>
-                    <div class="input-group">
-                        <label for="performance-value">실제 평가금액</label>
-                        <div class="input-wrapper">
-                            <input type="text" id="performance-value" inputmode="decimal" placeholder="10,000">
-                            <span class="unit">USD</span>
+                        <div class="input-group">
+                            <label for="performance-value">실제 평가금액</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="performance-value" inputmode="decimal" placeholder="10,000">
+                                <span class="unit">USD</span>
+                            </div>
                         </div>
-                    </div>
-                    <button class="alert-btn performance-save-btn" type="submit">저장</button>
-                </form>
+                        <button class="alert-btn performance-save-btn" type="submit">저장</button>
+                    </form>
+                </div>
+
+                <div class="performance-chart-shell">
+                    <canvas id="performance-chart" aria-label="포트폴리오 평가금액과 QQQM TQQQ GLDM 100% 투자 성과 비교 차트"></canvas>
+                    <div class="performance-empty" id="performance-empty">첫 평가금액을 저장하면 차트가 표시됩니다.</div>
+                </div>
 
                 <div class="performance-summary-grid" id="performance-summary-grid">
                     <div class="performance-summary-item">
-                        <span>실제</span>
+                        <span>포트폴리오</span>
                         <strong id="actual-return">--</strong>
+                        <small id="actual-value">--</small>
                     </div>
                     <div class="performance-summary-item qqqm">
                         <span>QQQM 100%</span>
                         <strong id="qqqm-return">--</strong>
+                        <small id="qqqm-value">--</small>
                     </div>
                     <div class="performance-summary-item tqqq">
                         <span>TQQQ 100%</span>
                         <strong id="tqqq-return">--</strong>
+                        <small id="tqqq-value">--</small>
                     </div>
                     <div class="performance-summary-item gldm">
                         <span>GLDM 100%</span>
                         <strong id="gldm-return">--</strong>
+                        <small id="gldm-value">--</small>
                     </div>
                 </div>
 
-                <div class="performance-chart-shell">
-                    <canvas id="performance-chart" aria-label="실제 평가금액과 QQQM TQQQ GLDM 100% 투자 성과 비교 차트"></canvas>
-                    <div class="performance-empty" id="performance-empty">첫 평가금액을 저장하면 차트가 표시됩니다.</div>
-                </div>
-
                 <div class="performance-legend" aria-label="차트 범례">
-                    <span><i class="legend-dot actual"></i>실제</span>
+                    <span><i class="legend-dot actual"></i>포트폴리오</span>
                     <span><i class="legend-dot qqqm"></i>QQQM 100%</span>
                     <span><i class="legend-dot tqqq"></i>TQQQ 100%</span>
                     <span><i class="legend-dot gldm"></i>GLDM 100%</span>
                 </div>
 
                 <div class="data-error-panel" id="performance-data-error" hidden></div>
+            </section>
+        </section>
 
+        <section class="tab-panel" id="tab-records" data-tab-panel="records" aria-label="저장된 실제 평가금액 기록">
+            <section class="calculator performance-board records-board">
                 <div class="performance-records">
-                    <div class="performance-records-title">저장된 실제 평가금액</div>
+                    <div class="performance-header">
+                        <div>
+                            <div class="holdings-title-main">기록</div>
+                            <div class="holdings-title-sub">저장된 실제 평가금액 확인 및 삭제</div>
+                        </div>
+                    </div>
                     <div class="performance-record-list" id="performance-record-list"></div>
                 </div>
             </section>
@@ -262,6 +277,10 @@
         <button class="tab-button" type="button" data-tab-target="charts" aria-controls="tab-charts" aria-selected="false">
             <span class="tab-icon">3</span>
             <span>&#52264;&#53944;</span>
+        </button>
+        <button class="tab-button" type="button" data-tab-target="records" aria-controls="tab-records" aria-selected="false">
+            <span class="tab-icon">4</span>
+            <span>기록</span>
         </button>
     </nav>
 <script>
@@ -292,7 +311,7 @@
                         panel.hidden = !isActive;
                     });
 
-                    if (target === 'charts') {
+                    if (target === 'charts' || target === 'records') {
                         setTimeout(() => window.dispatchEvent(new Event('resize')), 120);
                         loadPerformanceData();
                     }
@@ -379,10 +398,22 @@
         const performanceRecordList = document.getElementById('performance-record-list');
         const performanceDataError = document.getElementById('performance-data-error');
         const performanceReturnEls = {
-            actual: document.getElementById('actual-return'),
-            QQQM: document.getElementById('qqqm-return'),
-            TQQQ: document.getElementById('tqqq-return'),
-            GLDM: document.getElementById('gldm-return')
+            actual: {
+                return: document.getElementById('actual-return'),
+                value: document.getElementById('actual-value')
+            },
+            QQQM: {
+                return: document.getElementById('qqqm-return'),
+                value: document.getElementById('qqqm-value')
+            },
+            TQQQ: {
+                return: document.getElementById('tqqq-return'),
+                value: document.getElementById('tqqq-value')
+            },
+            GLDM: {
+                return: document.getElementById('gldm-return'),
+                value: document.getElementById('gldm-value')
+            }
         };
 
         const livePrices = {
@@ -686,10 +717,17 @@
             return ((series[series.length - 1].value / initialValue) - 1) * 100;
         }
 
+        function latestValue(series) {
+            if (!series?.length) return NaN;
+            return series[series.length - 1].value;
+        }
+
         function updatePerformanceSummary(model) {
             performanceStart.textContent = model.startDate ? `시작일 ${model.startDate}` : '시작일 --';
-            Object.entries(performanceReturnEls).forEach(([key, element]) => {
-                element.textContent = formatPercent(latestReturn(model.series[key], model.initialValue));
+            Object.entries(performanceReturnEls).forEach(([key, elements]) => {
+                elements.return.textContent = formatPercent(latestReturn(model.series[key], model.initialValue));
+                const value = latestValue(model.series[key]);
+                elements.value.textContent = Number.isFinite(value) ? usdValueFormatter.format(value) : '--';
             });
         }
 
