@@ -473,8 +473,8 @@ function shouldWriteAlertState(previousState = {}, nextState = {}) {
 }
 
 function hasSignalTransition(previousState = {}, nextState = {}) {
-    return previousState.dateKey !== nextState.dateKey
-        || previousState.signalType !== nextState.signalType
+    // 신호 종류가 바뀌거나, 실행 모드가 바뀌는 등 '중요한' 변화가 있을 때만 true 반환
+    return previousState.signalType !== nextState.signalType
         || previousState.actionMode !== nextState.actionMode
         || Boolean(previousState.shouldExecute) !== Boolean(nextState.shouldExecute)
         || Number(previousState.consecutiveSignalCount || 0) !== Number(nextState.consecutiveSignalCount || 0)
@@ -482,10 +482,7 @@ function hasSignalTransition(previousState = {}, nextState = {}) {
 }
 
 function shouldWriteMonitorStatus(previousStatus = {}, nextStatus = {}, stateChanged) {
-    if (stateChanged || nextStatus.pushed) return true;
-    const nextError = nextStatus.ok === false ? nextStatus.error : nextStatus.closeHistorySync?.error;
-    const previousError = previousStatus.ok === false ? previousStatus.error : previousStatus.closeHistorySync?.error;
-    if (nextError && nextError !== previousError) return true;
+    // 15분 간격 저장을 최대한 준수하여 KV 쓰기 횟수 절약 (상태 변화가 있어도 15분 대기)
     const lastUpdated = Date.parse(previousStatus.updatedAt || '');
     return !Number.isFinite(lastUpdated) || Date.now() - lastUpdated >= MONITOR_STATUS_WRITE_INTERVAL_MS;
 }
@@ -744,13 +741,14 @@ async function runMonitor(env) {
     }
 
     const isFirstPushToday = !Number(state.lastPushedAt || 0);
-    const isRegularSignalReady = state.firstSignalWindow !== 'final-window' && isAtOrAfter(nyParts, marketStatus, 'alertTimeEt');
-    const isFinalWindowSignalReady = state.firstSignalWindow === 'final-window' && isInFinalWindow(nyParts, marketStatus);
+    const isMarketClosingSoon = isAtOrAfter(nyParts, marketStatus, 'alertTimeEt');
     const isReminderReady = !isFirstPushToday && Date.now() - Number(state.lastPushedAt || 0) >= REMINDER_INTERVAL_MS;
+    
+    // 장 마감 15분 전(alertTimeEt)부터 마감 전까지 신호가 있으면 3분 간격으로 알림
     const shouldPush = signalType
         && isBeforeMarketClose(nyParts, marketStatus)
         && !state.acknowledged
-        && (isFirstPushToday ? (isRegularSignalReady || isFinalWindowSignalReady) : isReminderReady);
+        && (isFirstPushToday ? isMarketClosingSoon : isReminderReady);
 
     let pushResult = null;
     if (shouldPush) {

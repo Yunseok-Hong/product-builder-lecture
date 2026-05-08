@@ -78,11 +78,9 @@ async function ensureCloseHistory(env, closeHistory, portfolioValues) {
     const endDate = new Date().toISOString().slice(0, 10);
     const nextHistory = closeHistory && typeof closeHistory === 'object' ? { ...closeHistory } : {};
     const syncState = await readJson(env, CLOSE_HISTORY_API_SYNC_KEY, {});
-    const hasStartRows = SYMBOLS.every(symbol => {
-        const rows = nextHistory[symbol] || {};
-        return Object.keys(rows).some(date => date >= startDate);
-    });
-    if (hasStartRows && syncState.lastAttemptDate === endDate && syncState.startDate <= startDate) {
+
+    // 오늘 이미 시도했거나 성공했다면 더 이상 KV에 쓰지 않고 종료
+    if (syncState.lastAttemptDate === endDate && syncState.startDate <= startDate) {
         return nextHistory;
     }
 
@@ -100,14 +98,20 @@ async function ensureCloseHistory(env, closeHistory, portfolioValues) {
             return;
         }
 
-        const fetchedRows = await fetchAdjustedCloses(symbol, startDate, endDate);
-        nextHistory[symbol] = { ...existingRows, ...fetchedRows };
-        changed = changed || Object.keys(fetchedRows).length > 0;
+        try {
+            const fetchedRows = await fetchAdjustedCloses(symbol, startDate, endDate);
+            nextHistory[symbol] = { ...existingRows, ...fetchedRows };
+            changed = changed || Object.keys(fetchedRows).length > 0;
+        } catch (error) {
+            console.error(`Sync failed for ${symbol}:`, error);
+        }
     }));
 
     if (changed) {
         await env.KV.put(CLOSE_HISTORY_KEY, JSON.stringify(nextHistory));
     }
+
+    // 성공 여부와 상관없이 "오늘 시도함"을 기록하여 반복적인 put() 발생 방지
     await env.KV.put(CLOSE_HISTORY_API_SYNC_KEY, JSON.stringify({
         lastAttemptDate: endDate,
         startDate,
