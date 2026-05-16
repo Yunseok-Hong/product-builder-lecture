@@ -5,10 +5,12 @@ const ALERT_STATE_KEY = `server_alert_state_${SYMBOL}`;
 const MONITOR_STATUS_KEY = `server_monitor_status_${SYMBOL}`;
 const CLOSE_HISTORY_KEY = 'close_history_v1';
 const CLOSE_HISTORY_SYNC_KEY = 'close_history_sync_v1';
+const CLOSE_HISTORY_SYNC_ATTEMPT_KEY = 'close_history_sync_attempt_v1';
 const USER_SETTINGS_KEY = 'user_settings';
 const CHECK_INTERVAL_NOTICE = 'Cloudflare Cron should run this worker every 1 minute.';
 const REMINDER_INTERVAL_MS = 3 * 60 * 1000;
 const MONITOR_STATUS_WRITE_INTERVAL_MS = 15 * 60 * 1000;
+const CLOSE_HISTORY_SYNC_WINDOW_MINUTES = 15;
 const CALENDAR_MAX_YEAR = 2028;
 const MARKET_HOLIDAYS = new Set([
     '2026-01-01', '2026-01-19', '2026-02-16', '2026-04-03', '2026-05-25',
@@ -355,12 +357,31 @@ async function fetchAdjustedCloseRows(symbol, daysBack = 14) {
 }
 
 async function syncPerformanceCloseHistory(env, nyParts, marketStatus) {
-    const [syncHour] = marketStatus.closeTimeEt.split(':').map(Number);
-    const isAfterClose = nyParts.hour > syncHour + 1 || (nyParts.hour === syncHour + 1 && nyParts.minute >= 30);
-    if (!isAfterClose) return null;
+    const syncStartMinutes = getStatusMinutes(marketStatus, 'closeTimeEt') + 90;
+    const currentMinutes = getPartMinutes(nyParts);
+    const isInSyncWindow = currentMinutes >= syncStartMinutes
+        && currentMinutes < syncStartMinutes + CLOSE_HISTORY_SYNC_WINDOW_MINUTES;
 
-    const syncState = await readJson(env, CLOSE_HISTORY_SYNC_KEY, {});
+    const [syncState, attemptState] = await Promise.all([
+        readJson(env, CLOSE_HISTORY_SYNC_KEY, {}),
+        readJson(env, CLOSE_HISTORY_SYNC_ATTEMPT_KEY, {})
+    ]);
     if (syncState.lastSyncDate === nyParts.dateKey) return syncState;
+    if (attemptState.lastAttemptDate === nyParts.dateKey) {
+        return {
+            ...syncState,
+            ...attemptState,
+            skipped: 'already-attempted'
+        };
+    }
+    if (!isInSyncWindow) return null;
+
+    const attemptMarker = {
+        lastAttemptDate: nyParts.dateKey,
+        attemptedAt: new Date().toISOString(),
+        symbols: PERFORMANCE_SYMBOLS
+    };
+    await env.KV.put(CLOSE_HISTORY_SYNC_ATTEMPT_KEY, JSON.stringify(attemptMarker));
 
     const rawHistory = await env.KV.get(CLOSE_HISTORY_KEY);
     const history = rawHistory ? JSON.parse(rawHistory) : {};
@@ -376,9 +397,10 @@ async function syncPerformanceCloseHistory(env, nyParts, marketStatus) {
     });
 
     const nextState = {
+        ...attemptMarker,
         lastSyncDate: nyParts.dateKey,
         lastSyncedAt: new Date().toISOString(),
-        symbols: PERFORMANCE_SYMBOLS
+        historySaved: true
     };
     await env.KV.put(CLOSE_HISTORY_KEY, JSON.stringify(history));
     await env.KV.put(CLOSE_HISTORY_SYNC_KEY, JSON.stringify(nextState));
@@ -472,9 +494,32 @@ function shouldWriteAlertState(previousState = {}, nextState = {}) {
     return JSON.stringify(normalizeAlertStateForWrite(previousState)) !== JSON.stringify(normalizeAlertStateForWrite(nextState));
 }
 
+function shouldAttemptAlertStateWrite(previousStatus = {}, force = false) {
+    if (force) return true;
+    const lastFailedAt = Date.parse(previousStatus.alertStateWriteError?.failedAt || '');
+    return !Number.isFinite(lastFailedAt) || Date.now() - lastFailedAt >= MONITOR_STATUS_WRITE_INTERVAL_MS;
+}
+
+async function writeAlertStateIfDue(env, previousStatus, state, force = false) {
+    if (!shouldAttemptAlertStateWrite(previousStatus, force)) {
+        return { ok: false, skipped: true, reason: 'recent-alert-state-write-failure' };
+    }
+
+    try {
+        await env.KV.put(ALERT_STATE_KEY, JSON.stringify(state));
+        return { ok: true };
+    } catch (error) {
+        return {
+            ok: false,
+            error: error.message,
+            failedAt: new Date().toISOString()
+        };
+    }
+}
+
 function hasSignalTransition(previousState = {}, nextState = {}) {
-    // 신호 종류가 바뀌거나, 실행 모드가 바뀌는 등 '중요한' 변화가 있을 때만 true 반환
-    return previousState.signalType !== nextState.signalType
+    return previousState.dateKey !== nextState.dateKey
+        || previousState.signalType !== nextState.signalType
         || previousState.actionMode !== nextState.actionMode
         || Boolean(previousState.shouldExecute) !== Boolean(nextState.shouldExecute)
         || Number(previousState.consecutiveSignalCount || 0) !== Number(nextState.consecutiveSignalCount || 0)
@@ -482,7 +527,14 @@ function hasSignalTransition(previousState = {}, nextState = {}) {
 }
 
 function shouldWriteMonitorStatus(previousStatus = {}, nextStatus = {}, stateChanged) {
-    // 15분 간격 저장을 최대한 준수하여 KV 쓰기 횟수 절약 (상태 변화가 있어도 15분 대기)
+    if (stateChanged || nextStatus.pushed) return true;
+    const nextError = nextStatus.ok === false
+        ? nextStatus.error
+        : nextStatus.alertStateWriteError?.error || nextStatus.closeHistorySync?.error;
+    const previousError = previousStatus.ok === false
+        ? previousStatus.error
+        : previousStatus.alertStateWriteError?.error || previousStatus.closeHistorySync?.error;
+    if (nextError && nextError !== previousError) return true;
     const lastUpdated = Date.parse(previousStatus.updatedAt || '');
     return !Number.isFinite(lastUpdated) || Date.now() - lastUpdated >= MONITOR_STATUS_WRITE_INTERVAL_MS;
 }
@@ -668,6 +720,34 @@ function buildPushBody(state) {
     ].filter(Boolean).join('\n');
 }
 
+function getAlertStateTimestamp(state = {}) {
+    const numericLastPush = Number(state.lastPushedAt || 0);
+    const parsedTimes = [
+        state.lastPushedAtIso,
+        state.lastCheckedAt,
+        state.lastExecutedAt,
+        state.acknowledgedAt,
+        state.firstSeenAt,
+        state.lockedRecommendation?.createdAt
+    ].map(value => Date.parse(value || '')).filter(Number.isFinite);
+
+    return Math.max(0, numericLastPush, ...parsedTimes);
+}
+
+function chooseCurrentAlertState(kvState = {}, statusState = {}, dateKey) {
+    const kvIsToday = kvState.dateKey === dateKey;
+    const statusIsToday = statusState.dateKey === dateKey;
+    if (!kvIsToday && !statusIsToday) return kvState;
+    if (!kvIsToday) return statusState;
+    if (!statusIsToday) return kvState;
+
+    const kvTime = getAlertStateTimestamp(kvState);
+    const statusTime = getAlertStateTimestamp(statusState);
+    if (statusTime > kvTime) return statusState;
+    if (statusTime === kvTime && statusState.signalType && !kvState.signalType) return statusState;
+    return kvState;
+}
+
 async function runMonitor(env) {
     const nyParts = getNewYorkParts();
     const marketStatus = getMarketCalendarStatus(nyParts);
@@ -675,11 +755,21 @@ async function runMonitor(env) {
         readJson(env, ALERT_STATE_KEY, {}),
         readJson(env, MONITOR_STATUS_KEY, {})
     ]);
-    let state = previousState.dateKey === nyParts.dateKey ? previousState : {
-        ...previousState,
+    const statusAlertState = previousStatus.alertState || {};
+    const savedState = chooseCurrentAlertState(previousState, statusAlertState, nyParts.dateKey);
+    let state = savedState.dateKey === nyParts.dateKey ? savedState : {
+        ...savedState,
         dateKey: nyParts.dateKey,
+        actionMode: 'wait',
+        shouldExecute: false,
+        signalType: null,
+        type: null,
+        price: null,
+        bPercent: null,
         acknowledged: false,
+        acknowledgedAt: null,
         lastPushedAt: 0,
+        lastPushedAtIso: null,
         firstSeenAt: null,
         firstSignalWindow: null,
         lockedRecommendation: null
@@ -695,7 +785,17 @@ async function runMonitor(env) {
             alertState: state,
             pushed: false
         };
-        if (shouldWriteMonitorStatus(previousStatus, status, hasSignalTransition(previousState, state))) {
+        const stateChanged = shouldWriteAlertState(previousState, state);
+        let alertStateWrite = { ok: true, skipped: !stateChanged };
+        if (stateChanged) {
+            alertStateWrite = await writeAlertStateIfDue(env, previousStatus, state);
+            if (alertStateWrite.error) {
+                status.alertStateWriteError = alertStateWrite;
+            } else if (alertStateWrite.skipped) {
+                status.alertStateWriteSkipped = alertStateWrite.reason;
+            }
+        }
+        if (shouldWriteMonitorStatus(previousStatus, status, stateChanged && alertStateWrite.ok)) {
             await writeMonitorStatus(env, status);
         }
         return status;
@@ -721,6 +821,11 @@ async function runMonitor(env) {
     const signalType = getSignalType(bPercent);
     if (signalType) {
         state = evaluateSignalState(state, signalType, nyParts.dateKey, currentPrice, bPercent, isInFinalWindow(nyParts, marketStatus) ? 'final-window' : 'regular');
+    } else if (state.signalType) {
+        state = {
+            ...state,
+            lastCheckedAt: new Date().toISOString()
+        };
     } else {
         state = {
             ...state,
@@ -741,14 +846,14 @@ async function runMonitor(env) {
     }
 
     const isFirstPushToday = !Number(state.lastPushedAt || 0);
-    const isMarketClosingSoon = isAtOrAfter(nyParts, marketStatus, 'alertTimeEt');
+    const isRegularSignalReady = state.firstSignalWindow !== 'final-window' && isAtOrAfter(nyParts, marketStatus, 'alertTimeEt');
+    const isFinalWindowSignalReady = state.firstSignalWindow === 'final-window' && isInFinalWindow(nyParts, marketStatus);
     const isReminderReady = !isFirstPushToday && Date.now() - Number(state.lastPushedAt || 0) >= REMINDER_INTERVAL_MS;
-    
-    // 장 마감 15분 전(alertTimeEt)부터 마감 전까지 신호가 있으면 3분 간격으로 알림
-    const shouldPush = signalType
+
+    const shouldPush = state.signalType
         && isBeforeMarketClose(nyParts, marketStatus)
         && !state.acknowledged
-        && (isFirstPushToday ? isMarketClosingSoon : isReminderReady);
+        && (isFirstPushToday ? (isRegularSignalReady || isFinalWindowSignalReady) : isReminderReady);
 
     let pushResult = null;
     if (shouldPush) {
@@ -781,10 +886,16 @@ async function runMonitor(env) {
         pushResult
     };
     const stateChanged = shouldWriteAlertState(previousState, state);
+    let alertStateWrite = { ok: true, skipped: !stateChanged };
     if (stateChanged) {
-        await env.KV.put(ALERT_STATE_KEY, JSON.stringify(state));
+        alertStateWrite = await writeAlertStateIfDue(env, previousStatus, state, Boolean(pushResult));
+        if (alertStateWrite.error) {
+            status.alertStateWriteError = alertStateWrite;
+        } else if (alertStateWrite.skipped) {
+            status.alertStateWriteSkipped = alertStateWrite.reason;
+        }
     }
-    if (shouldWriteMonitorStatus(previousStatus, status, hasSignalTransition(previousState, state) || Boolean(pushResult))) {
+    if (shouldWriteMonitorStatus(previousStatus, status, (stateChanged && alertStateWrite.ok) || Boolean(pushResult))) {
         await writeMonitorStatus(env, status);
     }
 

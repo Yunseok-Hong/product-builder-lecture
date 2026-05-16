@@ -1344,9 +1344,11 @@
 
                 const status = data.monitorStatus || {};
                 const alertState = data.alertState || {};
-                serverSignalState = alertState.signalType ? alertState : status.alertState || null;
+                const statusAlertState = status.alertState || {};
+                const activeAlertState = alertState.signalType ? alertState : statusAlertState;
+                serverSignalState = activeAlertState.signalType ? activeAlertState : null;
                 const serverSymbol = status.symbol || data.monitorSymbol || 'TQQQ';
-                const actionLabel = alertState.actionMode === 'execute'
+                const actionLabel = activeAlertState.actionMode === 'execute'
                     ? '실행'
                     : '대기';
                 serverMonitorStatus.textContent = status.ok
@@ -1357,10 +1359,10 @@
                 serverCurrentPrice.textContent = `서버 현재가: ${typeof status.currentPrice === 'number' ? usdFormatter.format(status.currentPrice) : '--'}`;
                 serverLastClose.textContent = `마지막 종가: ${typeof status.lastClose === 'number' ? `${usdFormatter.format(status.lastClose)} (${formatDateTime(status.lastCloseAt)})` : '--'}`;
                 serverMarketCalendar.textContent = `시장 캘린더: ${describeMarketStatus(status.marketStatus)}`;
-                serverLastPush.textContent = `마지막 알림: ${formatDateTime(alertState.lastPushedAtIso)}`;
+                serverLastPush.textContent = `마지막 알림: ${formatDateTime(activeAlertState.lastPushedAtIso)}`;
                 serverCalendarWarning.textContent = status.marketStatus?.calendarWarning || '';
                 setErrorPanel(serverDataError, status.ok === false ? `서버 감시 오류: ${status.error || '알 수 없는 오류'}` : '');
-                alertAckCheckbox.checked = Boolean(alertState.acknowledged);
+                alertAckCheckbox.checked = Boolean(activeAlertState.acknowledged);
                 updateRebalanceRecommendation();
             } catch (error) {
                 serverMonitorStatus.textContent = '상태 확인 실패';
